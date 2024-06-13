@@ -3,9 +3,12 @@ include HISTORY.rst
 include LICENSE
 include README.rst
 include codecheck/default_cfg.yaml
+include SW_Content_Register_codecheck.txt
+include requirements*
 
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
+recursive-exclude .github *
 
 recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
