@@ -1,0 +1,10 @@
+NXP Software Content Register
+
+Package:                   spsdk-jlink
+Version:                   0.1.0
+Outgoing License:          BSD-3-Clause
+License Files:             LICENSE
+Type of content:           Source code
+Description and comments:  NXP Secure Provisioning SDK Team - Debug Probe plugin for Segger Jlink probes
+Origin:                    NXP (BSD-3-Clause)
+URL:                       https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/jlink

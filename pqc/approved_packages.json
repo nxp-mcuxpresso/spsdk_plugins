@@ -1,0 +1,534 @@
+{
+  "packages": [
+    {
+      "home_page": "http://github.com/ActiveState/appdirs",
+      "name": "appdirs",
+      "package": {
+        "name": "appdirs",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/eerimoq/argparse_addons",
+      "name": "argparse-addons",
+      "package": {
+        "name": "argparse-addons",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/wbond/asn1crypto",
+      "name": "asn1crypto",
+      "package": {
+        "name": "asn1crypto",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/eerimoq/bincopy",
+      "name": "bincopy",
+      "package": {
+        "name": "bincopy",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/ilanschnell/bitarray",
+      "name": "bitarray",
+      "package": {
+        "name": "bitarray",
+        "license": "PSF"
+      }
+    },
+    {
+      "home_page": "https://github.com/scott-griffiths/bitstring",
+      "name": "bitstring",
+      "package": {
+        "name": "bitstring",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "http://www.capstone-engine.org",
+      "name": "capstone",
+      "package": {
+        "name": "capstone",
+        "license": "UNKNOWN"
+      },
+      "github": {
+        "project_name": "capstone-engine/capstone",
+        "license": ""
+      },
+      "manual": {
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/certifi/python-certifi",
+      "name": "certifi",
+      "package": {
+        "name": "certifi",
+        "license": "MPL-2.0"
+      }
+    },
+    {
+      "home_page": "http://cffi.readthedocs.org",
+      "name": "cffi",
+      "package": {
+        "name": "cffi",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/Ousret/charset_normalizer",
+      "name": "charset-normalizer",
+      "package": {
+        "name": "charset-normalizer",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://palletsprojects.com/p/click/",
+      "name": "click",
+      "package": {
+        "name": "click",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/whwright/click-command-tree",
+      "name": "click-command-tree",
+      "package": {
+        "name": "click-command-tree",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/click-contrib/click-option-group",
+      "name": "click-option-group",
+      "package": {
+        "name": "click-option-group",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyocd/cmsis-pack-manager/",
+      "name": "cmsis-pack-manager",
+      "package": {
+        "name": "cmsis-pack-manager",
+        "license": "Apache-2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/tartley/colorama",
+      "name": "colorama",
+      "package": {
+        "name": "colorama",
+        "license": "BSD License"
+      }
+    },
+    {
+      "home_page": "http://crcmod.sourceforge.net/",
+      "name": "crcmod",
+      "package": {
+        "name": "crcmod",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyca/cryptography",
+      "name": "cryptography",
+      "package": {
+        "name": "cryptography",
+        "license": "Apache-2.0 OR BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "pyca/cryptography",
+        "license": ""
+      },
+      "manual": {
+        "license": "Apache 2.0"
+      }
+    },
+    {
+      "home_page": "http://deepmerge.readthedocs.io/en/latest/",
+      "name": "deepmerge",
+      "package": {
+        "name": "deepmerge",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/horejsek/python-fastjsonschema",
+      "name": "fastjsonschema",
+      "package": {
+        "name": "fastjsonschema",
+        "license": "BSD"
+      }
+    },
+    {
+      "home_page": "https://bitbucket.org/techtonik/hexdump/",
+      "name": "hexdump",
+      "package": {
+        "name": "hexdump",
+        "license": "Public Domain"
+      }
+    },
+    {
+      "home_page": "https://github.com/trezor/cython-hidapi",
+      "name": "hidapi",
+      "package": {
+        "name": "hidapi",
+        "license": "BSD License"
+      }
+    },
+    {
+      "home_page": "https://humanfriendly.readthedocs.io",
+      "name": "humanfriendly",
+      "package": {
+        "name": "humanfriendly",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/kjd/idna",
+      "name": "idna",
+      "package": {
+        "name": "idna",
+        "license": "BSD License"
+      }
+    },
+    {
+      "home_page": "https://github.com/python/importlib_metadata",
+      "name": "importlib-metadata",
+      "package": {
+        "name": "importlib-metadata",
+        "license": ""
+      },
+      "github": {
+        "project_name": "python/importlib_metadata",
+        "license": "Apache-2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/python/importlib_metadata",
+      "name": "importlib_metadata",
+      "package": {
+        "name": "importlib_metadata",
+        "license": "Apache Software License"
+      },
+      "github": {
+        "project_name": "python/importlib_metadata",
+        "license": "Apache-2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/python/importlib_resources",
+      "name": "importlib_resources",
+      "package": {
+        "name": "importlib_resources",
+        "license": "Apache Software License"
+      }
+    },
+    {
+      "home_page": "https://github.com/python-intelhex/intelhex",
+      "name": "intelhex",
+      "package": {
+        "name": "intelhex",
+        "license": "BSD"
+      }
+    },
+    {
+      "home_page": "https://github.com/chaimleib/intervaltree",
+      "name": "intervaltree",
+      "package": {
+        "name": "intervaltree",
+        "license": "Apache License, Version 2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/lark-parser/lark",
+      "name": "lark",
+      "package": {
+        "name": "lark",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyocd/libusb-package",
+      "name": "libusb-package",
+      "package": {
+        "name": "libusb-package",
+        "license": "Apache 2.0"
+      }
+    },
+    {
+      "home_page": "UNKNOWN",
+      "name": "libusbsio",
+      "package": {
+        "name": "libusbsio",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/SethMMorton/natsort",
+      "name": "natsort",
+      "package": {
+        "name": "natsort",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/wbond/oscrypto",
+      "name": "oscrypto",
+      "package": {
+        "name": "oscrypto",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pypa/packaging",
+      "name": "packaging",
+      "package": {
+        "name": "packaging",
+        "license": "Apache Software License"
+      }
+    },
+    {
+      "home_page": "https://github.com/platformdirs/platformdirs",
+      "name": "platformdirs",
+      "package": {
+        "name": "platformdirs",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/jazzband/prettytable",
+      "name": "prettytable",
+      "package": {
+        "name": "prettytable",
+        "license": "BSD (3 clause)"
+      }
+    },
+    {
+      "home_page": "https://github.com/giampaolo/psutil",
+      "name": "psutil",
+      "package": {
+        "name": "psutil",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/eliben/pycparser",
+      "name": "pycparser",
+      "package": {
+        "name": "pycparser",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/eliben/pyelftools",
+      "name": "pyelftools",
+      "package": {
+        "name": "pyelftools",
+        "license": "Public domain"
+      }
+    },
+    {
+      "home_page": "http://www.github.com/Square/pylink",
+      "name": "pylink-square",
+      "package": {
+        "name": "pylink-square",
+        "license": "Apache 2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyocd/pyOCD",
+      "name": "pyocd",
+      "package": {
+        "name": "pyocd",
+        "license": "Apache 2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyocd/pyocd-pemicro",
+      "name": "pyocd-pemicro",
+      "package": {
+        "name": "pyocd-pemicro",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/nxpmicro/pypemicro",
+      "name": "pypemicro",
+      "package": {
+        "name": "pypemicro",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://pypi.python.org/pypi/pyreadline3/",
+      "name": "pyreadline3",
+      "package": {
+        "name": "pyreadline3",
+        "license": "BSD"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyserial/pyserial",
+      "name": "pyserial",
+      "package": {
+        "name": "pyserial",
+        "license": "BSD"
+      }
+    },
+    {
+      "home_page": "https://pyusb.github.io/pyusb",
+      "name": "pyusb",
+      "package": {
+        "name": "pyusb",
+        "license": "UNKNOWN"
+      },
+      "github": {
+        "project_name": "pyusb/pyusb",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://pyyaml.org/",
+      "name": "PyYAML",
+      "package": {
+        "name": "PyYAML",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://requests.readthedocs.io",
+      "name": "requests",
+      "package": {
+        "name": "requests",
+        "license": "Apache 2.0"
+      }
+    },
+    {
+      "home_page": "https://sourceforge.net/p/ruamel-yaml/",
+      "name": "ruamel.yaml",
+      "package": {
+        "name": "ruamel.yaml",
+        "license": "MIT license"
+      }
+    },
+    {
+      "home_page": "https://sourceforge.net/p/ruamel-yaml-clib/code/ci/default/tree",
+      "name": "ruamel.yaml.clib",
+      "package": {
+        "name": "ruamel.yaml.clib",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pypa/setuptools",
+      "name": "setuptools",
+      "package": {
+        "name": "setuptools",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/pypa/setuptools_scm/",
+      "name": "setuptools-scm",
+      "package": {
+        "name": "setuptools-scm",
+        "license": "Permission is hereby granted, free of charge, to any person obtaining a copy"
+      },
+      "github": {
+        "project_name": "pypa/setuptools_scm",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/benjaminp/six",
+      "name": "six",
+      "package": {
+        "name": "six",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/dabeaz/sly",
+      "name": "sly",
+      "package": {
+        "name": "sly",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "http://www.grantjenks.com/docs/sortedcontainers/",
+      "name": "sortedcontainers",
+      "package": {
+        "name": "sortedcontainers",
+        "license": "Apache 2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/NXPmicro/spsdk",
+      "name": "spsdk",
+      "package": {
+        "name": "spsdk",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/pqc",
+      "name": "spsdk-pqc",
+      "package": {
+        "name": "spsdk-pqc",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "nxp-mcuxpresso/spsdk_plugins/tree/master/pqc",
+        "license": ""
+      }
+    },
+    {
+      "home_page": "https://github.com/hukkin/tomli",
+      "name": "tomli",
+      "package": {
+        "name": "tomli",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/python/typing_extensions",
+      "name": "typing_extensions",
+      "package": {
+        "name": "typing_extensions",
+        "license": "Python Software Foundation License"
+      }
+    },
+    {
+      "home_page": "https://urllib3.readthedocs.io",
+      "name": "urllib3",
+      "package": {
+        "name": "urllib3",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/jquast/wcwidth",
+      "name": "wcwidth",
+      "package": {
+        "name": "wcwidth",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/jaraco/zipp",
+      "name": "zipp",
+      "package": {
+        "name": "zipp",
+        "license": "MIT License"
+      }
+    }
+  ]
+}

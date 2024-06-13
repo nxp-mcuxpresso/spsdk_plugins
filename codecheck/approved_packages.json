@@ -1,0 +1,744 @@
+{
+  "packages": [
+    {
+      "home_page": "http://github.com/minrk/appnope",
+      "name": "appnope",
+      "package": {
+        "name": "appnope",
+        "license": "BSD"
+      }
+    },
+    {
+      "home_page": "https://github.com/pylint-dev/astroid",
+      "name": "astroid",
+      "package": {
+        "name": "astroid",
+        "license": "LGPL-2.1-or-later"
+      }
+    },
+    {
+      "home_page": "https://github.com/gristlabs/asttokens",
+      "name": "asttokens",
+      "package": {
+        "name": "asttokens",
+        "license": "Apache 2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/hhatto/autopep8",
+      "name": "autopep8",
+      "package": {
+        "name": "autopep8",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/gristlabs/asttokens",
+      "name": "asttokens",
+      "package": {
+        "name": "asttokens",
+        "license": "Apache 2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/hhatto/autopep8",
+      "name": "autopep8",
+      "package": {
+        "name": "autopep8",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/takluyver/backcall",
+      "name": "backcall",
+      "package": {
+        "name": "backcall",
+        "license": "UNKNOWN"
+      },
+      "github": {
+        "project_name": "takluyver/backcall",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/psf/black",
+      "name": "black",
+      "package": {
+        "name": "black",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/certifi/python-certifi",
+      "name": "certifi",
+      "package": {
+        "name": "certifi",
+        "license": "MPL-2.0"
+      }
+    },
+    {
+      "home_page": "http://cffi.readthedocs.org",
+      "name": "cffi",
+      "package": {
+        "name": "cffi",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/Ousret/charset_normalizer",
+      "name": "charset-normalizer",
+      "package": {
+        "name": "charset-normalizer",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://palletsprojects.com/p/click/",
+      "name": "click",
+      "package": {
+        "name": "click",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/tartley/colorama",
+      "name": "colorama",
+      "package": {
+        "name": "colorama",
+        "license": "BSD License"
+      }
+    },
+    {
+      "home_page": "https://github.com/nedbat/coveragepy",
+      "name": "coverage",
+      "package": {
+        "name": "coverage",
+        "license": "Apache-2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyca/cryptography",
+      "name": "cryptography",
+      "package": {
+        "name": "cryptography",
+        "license": "Apache-2.0 OR BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "pyca/cryptography",
+        "license": ""
+      },
+      "manual": {
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/micheles/decorator",
+      "name": "decorator",
+      "package": {
+        "name": "decorator",
+        "license": "new BSD License"
+      },
+      "github": {
+        "project_name": "micheles/decorator",
+        "license": "BSD-2-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/micheles/decorator",
+      "name": "decorator",
+      "package": {
+        "name": "decorator",
+        "license": "new BSD License"
+      },
+      "github": {
+        "project_name": "micheles/decorator",
+        "license": "BSD-2-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/tantale/deprecated",
+      "name": "Deprecated",
+      "package": {
+        "name": "Deprecated",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/uqfoundation/dill",
+      "name": "dill",
+      "package": {
+        "name": "dill",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/agronholm/exceptiongroup",
+      "name": "exceptiongroup",
+      "package": {
+        "name": "exceptiongroup",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/agronholm/exceptiongroup",
+      "name": "exceptiongroup",
+      "package": {
+        "name": "exceptiongroup",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://execnet.readthedocs.io/en/latest/",
+      "name": "execnet",
+      "package": {
+        "name": "execnet",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/alexmojaki/executing",
+      "name": "executing",
+      "package": {
+        "name": "executing",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/alexmojaki/executing",
+      "name": "executing",
+      "package": {
+        "name": "executing",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/kjd/idna",
+      "name": "idna",
+      "package": {
+        "name": "idna",
+        "license": "BSD License"
+      }
+    },
+    {
+      "home_page": "https://github.com/pytest-dev/iniconfig",
+      "name": "iniconfig",
+      "package": {
+        "name": "iniconfig",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://ipython.org",
+      "name": "ipython",
+      "package": {
+        "name": "ipython",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://ipython.org",
+      "name": "ipython",
+      "package": {
+        "name": "ipython",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://pycqa.github.io/isort/",
+      "name": "isort",
+      "package": {
+        "name": "isort",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/davidhalter/jedi",
+      "name": "jedi",
+      "package": {
+        "name": "jedi",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/davidhalter/jedi",
+      "name": "jedi",
+      "package": {
+        "name": "jedi",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://mando.readthedocs.org/",
+      "name": "mando",
+      "package": {
+        "name": "mando",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/ipython/matplotlib-inline",
+      "name": "matplotlib-inline",
+      "package": {
+        "name": "matplotlib-inline",
+        "license": "BSD 3-Clause License"
+      }
+    },
+    {
+      "home_page": "https://github.com/ipython/matplotlib-inline",
+      "name": "matplotlib-inline",
+      "package": {
+        "name": "matplotlib-inline",
+        "license": "BSD 3-Clause License"
+      }
+    },
+    {
+      "home_page": "https://github.com/pycqa/mccabe",
+      "name": "mccabe",
+      "package": {
+        "name": "mccabe",
+        "license": "Expat license"
+      },
+      "github": {
+        "project_name": "pycqa/mccabe",
+        "license": ""
+      },
+      "github": {
+        "project_name": "pycqa/mccabe",
+        "license": ""
+      },
+      "manual": {
+        "license": "MIT license"
+      }
+    },
+    {
+      "home_page": "https://www.mypy-lang.org/",
+      "name": "mypy",
+      "package": {
+        "name": "mypy",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/python/mypy_extensions",
+      "name": "mypy-extensions",
+      "package": {
+        "name": "mypy-extensions",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/nbQA-dev/nbQA",
+      "name": "nbqa",
+      "package": {
+        "name": "nbqa",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/nbQA-dev/nbQA",
+      "name": "nbqa",
+      "package": {
+        "name": "nbqa",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://numpy.org",
+      "name": "numpy",
+      "package": {
+        "name": "numpy",
+        "license": "LGPL-2.1-or-later"
+      }
+    },
+    {
+      "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins/codecheck",
+      "name": "nxp_codecheck",
+      "package": {
+        "name": "nxp_codecheck",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/pypa/packaging",
+      "name": "packaging",
+      "package": {
+        "name": "packaging",
+        "license": "Apache Software License"
+      }
+    },
+    {
+      "home_page": "https://github.com/davidhalter/parso",
+      "name": "parso",
+      "package": {
+        "name": "parso",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/davidhalter/parso",
+      "name": "parso",
+      "package": {
+        "name": "parso",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://python-path-specification.readthedocs.io/en/latest/index.html",
+      "name": "pathspec",
+      "package": {
+        "name": "pathspec",
+        "license": "Mozilla Public License 2.0 (MPL 2.0)"
+      }
+    },
+    {
+      "home_page": "https://pexpect.readthedocs.io/",
+      "name": "pexpect",
+      "package": {
+        "name": "pexpect",
+        "license": "ISC license"
+      }
+    },
+    {
+      "home_page": "https://github.com/pickleshare/pickleshare",
+      "name": "pickleshare",
+      "package": {
+        "name": "pickleshare",
+        "license": "MIT"
+      },
+      "github": {
+        "project_name": "pickleshare/pickleshare",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/platformdirs/platformdirs",
+      "name": "platformdirs",
+      "package": {
+        "name": "platformdirs",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/pytest-dev/pluggy",
+      "name": "pluggy",
+      "package": {
+        "name": "pluggy",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/jazzband/prettytable",
+      "name": "prettytable",
+      "package": {
+        "name": "prettytable",
+        "license": "BSD (3 clause)"
+      }
+    },
+    {
+      "home_page": "https://github.com/prompt-toolkit/python-prompt-toolkit",
+      "name": "prompt_toolkit",
+      "package": {
+        "name": "prompt_toolkit",
+        "license": "BSD License"
+      }
+    },
+    {
+      "home_page": "https://github.com/pexpect/ptyprocess",
+      "name": "ptyprocess",
+      "package": {
+        "name": "ptyprocess",
+        "license": "UNKNOWN"
+      },
+      "manual": {
+        "license": "BSD-2-Clause"
+      }
+    },
+    {
+      "home_page": "http://github.com/alexmojaki/pure_eval",
+      "name": "pure-eval",
+      "package": {
+        "name": "pure-eval",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://pycodestyle.pycqa.org/",
+      "name": "pycodestyle",
+      "package": {
+        "name": "pycodestyle",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/eliben/pycparser",
+      "name": "pycparser",
+      "package": {
+        "name": "pycparser",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://www.pydocstyle.org/en/stable/",
+      "name": "pydocstyle",
+      "package": {
+        "name": "pydocstyle",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pygithub/pygithub",
+      "name": "PyGithub",
+      "package": {
+        "name": "PyGithub",
+        "license": "GNU Library or Lesser General Public License (LGPL)"
+      },
+      "github": {
+        "project_name": "pygithub/pygithub",
+        "license": "LGPL-3.0"
+      }
+    },
+    {
+      "home_page": "https://pygments.org",
+      "name": "Pygments",
+      "package": {
+        "name": "Pygments",
+        "license": "BSD-2-Clause"
+      }
+    },
+    {
+      "home_page": "https://pygments.org",
+      "name": "Pygments",
+      "package": {
+        "name": "Pygments",
+        "license": "BSD-2-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/jpadilla/pyjwt",
+      "name": "PyJWT",
+      "package": {
+        "name": "PyJWT",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pylint-dev/pylint",
+      "name": "pylint",
+      "package": {
+        "name": "pylint",
+        "license": "GPL-2.0-or-later"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyca/pynacl/",
+      "name": "PyNaCl",
+      "package": {
+        "name": "PyNaCl",
+        "license": "Apache License 2.0"
+      }
+    },
+    {
+      "home_page": "https://docs.pytest.org/en/latest/",
+      "name": "pytest",
+      "package": {
+        "name": "pytest",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pytest-dev/pytest-cov",
+      "name": "pytest-cov",
+      "package": {
+        "name": "pytest-cov",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pytest-dev/pytest-xdist",
+      "name": "pytest-xdist",
+      "package": {
+        "name": "pytest-xdist",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://pyyaml.org/",
+      "name": "PyYAML",
+      "package": {
+        "name": "PyYAML",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://radon.readthedocs.org/",
+      "name": "radon",
+      "package": {
+        "name": "radon",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://requests.readthedocs.io",
+      "name": "requests",
+      "package": {
+        "name": "requests",
+        "license": "Apache 2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/pypa/setuptools",
+      "name": "setuptools",
+      "package": {
+        "name": "setuptools",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/pypa/setuptools_scm/",
+      "name": "setuptools-scm",
+      "package": {
+        "name": "setuptools-scm",
+        "license": "Permission is hereby granted, free of charge, to any person obtaining a copy"
+      },
+      "github": {
+        "project_name": "pypa/setuptools_scm",
+        "license": "MIT"
+      },
+      "github": {
+        "project_name": "pypa/setuptools_scm",
+        "license": "MIT"
+      },
+      "manual": {
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/benjaminp/six",
+      "name": "six",
+      "package": {
+        "name": "six",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/snowballstem/snowball",
+      "name": "snowballstemmer",
+      "package": {
+        "name": "snowballstemmer",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/pylint_plugins",
+      "name": "spsdk-pylint-plugins",
+      "package": {
+        "name": "spsdk-pylint-plugins",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "http://github.com/alexmojaki/stack_data",
+      "name": "stack-data",
+      "package": {
+        "name": "stack-data",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/asottile/tokenize-rt",
+      "name": "tokenize-rt",
+      "package": {
+        "name": "tokenize-rt",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/pylint_plugins",
+      "name": "spsdk-pylint-plugins",
+      "package": {
+        "name": "spsdk-pylint-plugins",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "http://github.com/alexmojaki/stack_data",
+      "name": "stack-data",
+      "package": {
+        "name": "stack-data",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/asottile/tokenize-rt",
+      "name": "tokenize-rt",
+      "package": {
+        "name": "tokenize-rt",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/hukkin/tomli",
+      "name": "tomli",
+      "package": {
+        "name": "tomli",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/sdispater/tomlkit",
+      "name": "tomlkit",
+      "package": {
+        "name": "tomlkit",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/ipython/traitlets",
+      "name": "traitlets",
+      "package": {
+        "name": "traitlets",
+        "license": "BSD 3-Clause License"
+      }
+    },
+    {
+      "home_page": "https://github.com/ipython/traitlets",
+      "name": "traitlets",
+      "package": {
+        "name": "traitlets",
+        "license": "BSD 3-Clause License"
+      }
+    },
+    {
+      "home_page": "https://github.com/python/typing_extensions",
+      "name": "typing_extensions",
+      "package": {
+        "name": "typing_extensions",
+        "license": "Python Software Foundation License"
+      }
+    },
+    {
+      "home_page": "https://urllib3.readthedocs.io",
+      "name": "urllib3",
+      "package": {
+        "name": "urllib3",
+        "license": "MIT License"
+      }
+    },
+    {
+      "home_page": "https://github.com/jquast/wcwidth",
+      "name": "wcwidth",
+      "package": {
+        "name": "wcwidth",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/GrahamDumpleton/wrapt",
+      "name": "wrapt",
+      "package": {
+        "name": "wrapt",
+        "license": "BSD"
+      }
+    }
+  ]
+}

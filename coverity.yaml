@@ -1,0 +1,25 @@
+capture:
+  languages:
+    include: [python]
+  files:
+    exclude-regex: "venv"
+
+analyze:
+  aggressiveness-level: high
+  cov-analyze-args: [--enable-audit-mode]
+
+commit:
+  connect:
+    url: https://coverity2.nxp.com:8443
+    stream: spsdk_plugins_base
+    on-new-cert: distrust
+
+
+##############################################################
+# This section is not a part of regular Coverity configuration
+# Because of that Coverity will show some warnings
+reports:
+  project-name: "SPSDK Plugins"
+  coverity-name: "SPSDK Plugins"
+  types: [syn-integrity, cov-integrity, cov-security]
+  

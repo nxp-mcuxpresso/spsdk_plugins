@@ -1,0 +1,209 @@
+[project]
+name = "spsdk-pemicro"
+description = "P&E Micro debugger probe plugin. A debugger probe plugin for SPSDK."
+dynamic = ["version"]
+
+entry-points = { "spsdk.debug_probe" = { pemicro = "spsdk_pemicro.probe" } }
+
+requires-python = ">= 3.9"
+dependencies = ["spsdk>=2.2.0", "pypemicro>=0.1.11"]
+
+authors = [{ name = "NXP" }]
+maintainers = [{ name = "NXP", email = "michal.starecek@nxp.com" }]
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { text = "BSD-3-Clause" }
+
+keywords = ["NXP", "SPSDK", "pemicro"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/pemicro"
+Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
+
+
+[build-system]
+requires = ["setuptools >= 61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["spsdk_pemicro"]
+
+[tool.setuptools.dynamic]
+version = { attr = "spsdk_pemicro.__version__" }
+
+[tool.bumpversion]
+current_version = "0.1.0"
+
+[[tool.bumpversion.files]]
+filename = "spsdk_pemicro/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "SW_Content_Register_spsdk_peicro.txt"
+search = "{current_version}"
+replace = "{new_version}"
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+junit_family = "xunit1"
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "safe_main()", "sys.exit(main())"]
+
+[tool.coverage.run]
+relative_files = true
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 100
+
+[tool.mypy]
+disallow_untyped_defs = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+[tool.pydocstyle]
+convention = "google"
+add_ignore = "D105,D301"
+match = '(?!test_|__version__).*\.py'
+
+[tool.pylint]
+format = { max-line-length = 120 }
+"messages control" = { disable = ["logging-fstring-interpolation"] }
+
+
+[tool.checker_depencecies.spdx]
+"Apache-2.0" = [
+    "Apache 2.0",
+    "Apache-2.0 License",
+    "Apache Software License 2.0",
+    "Apache License, Version 2.0",
+    "Apache License 2.0",
+    "Apache Software License",
+]
+"BSD-2-Clause" = ["BSD", "BSD 2-Clause License"]
+"BSD-3-Clause" = [
+    "BSD",
+    "BSD License",
+    "BSD 3-Clause",
+    "BSD (3 clause)",
+    "BSD 3-Clause License",
+    "Modified BSD License",
+]
+"MIT" = ["MIT License", "MIT license"]
+"MPL-2.0" = ["MPL 2.0", "Mozilla Public License 2.0 (MPL 2.0)"]
+"NLPL" = ["Public domain", "Public Domain"]
+"PSF-2.0" = ["PSF", "PSFL", "Python Software Foundation License"]
+"GPL-2.0-or-later" = []
+"LGPL-2.0-only" = ["LGPL-2.0"]
+"LGPL-2.1-or-later" = []
+"LGPL-3.0-only" = ["LGPL-3.0"]
+"ISC" = ["ISC license"]
+
+[tool.nxp_codecheck]
+git_parent_branch = "origin/master"
+output_directory = "reports"
+default_check_paths = ["spsdk_pemicro"]
+
+# *********************************** Checker list ***********************************
+[[tool.nxp_codecheck.checkers]]
+name = "PYTEST"
+method = "check_pytest"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+kwargs = { disable_xdist = false }
+
+# [[tool.nxp_codecheck.checkers]]
+#     name = "GITCOV"
+#     method = "check_gitcov"
+#     # check_paths = [] # The default check paths could be overrides by local settings
+#     info_only = true
+#     dependencies = ["PYTEST"]
+[[tool.nxp_codecheck.checkers]]
+name = "PYLINT"
+method = "check_pylint"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+[[tool.nxp_codecheck.checkers]]
+name = "MYPY"
+method = "check_mypy"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+[[tool.nxp_codecheck.checkers]]
+name = "DEPENDENCIES"
+method = "check_dependencies"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+fixer = "fix_dependencies"
+[[tool.nxp_codecheck.checkers]]
+name = "PYDOCSTYLE"
+method = "check_pydocstyle"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+[[tool.nxp_codecheck.checkers]]
+name = "RADON_C"
+method = "check_radon"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = true
+kwargs = { min_rank = "C" }
+[[tool.nxp_codecheck.checkers]]
+name = "RADON_D"
+method = "check_radon"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+kwargs = { min_rank = "D" }
+[[tool.nxp_codecheck.checkers]]
+name = "BLACK"
+method = "check_black"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+dependencies = []
+fixer = "fix_black"
+[[tool.nxp_codecheck.checkers]]
+name = "ISORT"
+method = "check_isort"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+dependencies = []
+fixer = "fix_isort"
+[[tool.nxp_codecheck.checkers]]
+name = "COPYRIGHT"
+method = "check_copyright_year"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+dependencies = []
+fixer = "fix_copyright_year"
+[[tool.nxp_codecheck.checkers]]
+name = "PY_HEADERS"
+method = "check_py_file_headers"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+dependencies = []
+fixer = "fix_py_file_headers"
+[[tool.nxp_codecheck.checkers]]
+name = "CYCLIC"
+method = "check_cyclic_imports"
+# check_paths = [] # The default check paths could be overrides by local settings
+info_only = false
+dependencies = []
