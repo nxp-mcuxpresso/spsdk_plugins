@@ -1,0 +1,47 @@
+[project]
+version = "0.2.0"
+name = "spsdk_plugins"
+
+[tool.release-tools]
+disabled = ['docs']
+
+[tool.release-tools.clr]
+install_hook = ['uv pip install nox tomli', "nox --session venv --no-venv"]
+package_directories = [
+    "codecheck",
+    "jlink",
+    "lauterbach",
+    "pemicro",
+    "pkcs11",
+    "pqc",
+    "pylint_plugins",
+    "pyocd",
+]
+
+[tool.release-tools.blackduck.env]
+PROTEX_PROJECT_ID = "c_spsdk_plugins_automation_22659"
+PROTEX_TEMPLATE = "t_reportwithobligations_7215"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_SPSDK_plugins.txt"
+
+[tool.release-tools.scr.sub_projects]
+codecheck = { scr_file = "SW_Content_Register_codecheck.txt" }
+jlink = { scr_file = "SW_Content_Register_spsdk_jlink.txt" }
+lauterbach = { scr_file = "SW_Content_Register_spsdk_lauterbach.txt" }
+pemicro = { scr_file = "SW_Content_Register_spsdk_pemicro.txt" }
+pkcs11 = { scr_file = "SW_Content_Register_spsdk_pkcs11.txt" }
+pqc = { scr_file = "SW_Content_Register_spsdk_pqc.txt" }
+pylint_plugins = { scr_file = "SW_Content_Register_spsdk_pylint_plugins.txt" }
+pyocd = { scr_file = "SW_Content_Register_spsdk_PyOCD.txt" }
+
+[tool.release-tools.testpypi.sub_projects]
+"codecheck" = {test_cmd = "codecheck --help"}
+"jlink" = {}
+"lauterbach" = {}
+"pemicro" = {}
+"pkcs11" = {}
+"pqc" = {}
+"pylint_plugins" = {}
+"pyocd" = {}
+

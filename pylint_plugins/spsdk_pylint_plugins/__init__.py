@@ -9,16 +9,21 @@
 
 __author__ = """NXP"""
 __email__ = "michal.starecek@gmail.com"
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 from pylint.lint import PyLinter
 
+from .assert_isinstance_checker import AssertIsinstanceChecker
 from .click_choice_check import ClickChoiceChecker
+from .typing_checker import TypingChecker
 
 
 def register(linter: PyLinter) -> None:
     """Register all SPSDK plugins."""
-    # Sometimes PyLint calls register method twice
-    # pylint: disable=protected-access
-    if ClickChoiceChecker.name not in linter._checkers:
+    checkers = linter.get_checker_names()
+    if ClickChoiceChecker.name not in checkers:
         linter.register_checker(ClickChoiceChecker(linter))
+    if AssertIsinstanceChecker.name not in checkers:
+        linter.register_checker(AssertIsinstanceChecker(linter))
+    if TypingChecker.name not in checkers:
+        linter.register_checker(TypingChecker(linter))

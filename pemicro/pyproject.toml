@@ -6,7 +6,7 @@ dynamic = ["version"]
 entry-points = { "spsdk.debug_probe" = { pemicro = "spsdk_pemicro.probe" } }
 
 requires-python = ">= 3.9"
-dependencies = ["spsdk>=2.2.0", "pypemicro>=0.1.11"]
+dependencies = ["spsdk>=2.3.0.dev82", "pypemicro>=0.1.11"]
 
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "michal.starecek@nxp.com" }]
@@ -42,7 +42,7 @@ packages = ["spsdk_pemicro"]
 version = { attr = "spsdk_pemicro.__version__" }
 
 [tool.bumpversion]
-current_version = "0.1.0"
+current_version = "0.1.1"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pemicro/__init__.py"
@@ -50,7 +50,7 @@ search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
 
 [[tool.bumpversion.files]]
-filename = "SW_Content_Register_spsdk_peicro.txt"
+filename = "SW_Content_Register_spsdk_pemicro.txt"
 search = "{current_version}"
 replace = "{new_version}"
 
@@ -93,7 +93,7 @@ format = { max-line-length = 120 }
 "messages control" = { disable = ["logging-fstring-interpolation"] }
 
 
-[tool.checker_depencecies.spdx]
+[tool.checker_dependencies.spdx]
 "Apache-2.0" = [
     "Apache 2.0",
     "Apache-2.0 License",

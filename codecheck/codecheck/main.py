@@ -14,7 +14,7 @@ import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, cast
+from typing import Any, Dict, List, Optional, Sequence, Union, cast
 
 import click
 import colorama
@@ -38,6 +38,31 @@ CPU_CNT = os.cpu_count() or 1
 CODECHECK_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 
+def load_defaults() -> Dict[str, Dict]:
+    """Load codecheck configuration.
+
+    The configuration should be store in project TOML file, or is loaded defaults.
+
+    :return: Codecheck configuration.
+    """
+    default_config_path = os.path.join(os.path.dirname(__file__), "default_cfg.yaml")
+    with open(default_config_path, "r", encoding="utf-8") as f:
+        cfg_content = f.read()
+    return cast(Dict[str, Dict], safe_load(cfg_content))
+
+
+def check_list() -> List[str]:
+    """Get current configured checks.
+
+    :return: List of checker names
+    """
+    cfg = load_defaults()
+    return list(cfg["checkers"].keys())
+
+
+CHECK_LIST = check_list()
+
+
 @dataclass
 class CodeCheckConfig:
     """CodeCheck configuration class."""
@@ -48,6 +73,24 @@ class CodeCheckConfig:
     jupyter_check_paths: List[str] = field(default_factory=list)
     checkers: TaskList = field(default_factory=TaskList)
 
+    @classmethod
+    def _get_checker_name(cls, checker: Union[str, dict]) -> str:
+        if isinstance(checker, str):
+            name = checker.upper()
+        if isinstance(checker, dict):
+            name = checker.get("name")  # type: ignore[assignment]
+            if name is None:
+                # new format
+                if len(checker.keys()) != 1:
+                    raise ValueError(
+                        "When checker is configured via a dictionary, checker's name must be the single key"
+                    )
+                name = (list(checker.keys())[0]).upper()
+        if name not in CHECK_LIST:
+            raise ValueError(f"Invalid checker name: '{name}'")
+        return name
+
+    # pylint: disable=too-many-locals
     @classmethod
     def load_from_config(cls, cfg: Dict[str, Any]) -> Self:
         """Load the CodeCheck Configuration from stored dictionary.
@@ -60,30 +103,42 @@ class CodeCheckConfig:
         default_check_paths = cfg.get("default_check_paths", ["."])
         jupyter_check_paths = cfg.get("jupyter_check_paths", [])
         checkers = TaskList()
+        defaults = load_defaults()["checkers"]
 
         # Load checkers as a TaskInfo List
-        for checker in cast(List[Dict[str, Any]], cfg.get("checkers", [])):
+        for checker in cast(List[Union[str, Dict[str, Any]]], cfg.get("checkers", [])):
 
-            method = globals()[checker["method"]]
-            fixer_name = checker.get("fixer")
+            checker_name = cls._get_checker_name(checker=checker)
+            checker_defaults: dict = defaults[checker_name]
+
+            method = globals()[checker_defaults["method"]]
+            fixer_name = checker_defaults.get("fixer")
             fixer = globals()[fixer_name] if fixer_name else None
-            kwargs = {"output": output_directory}
-            jyputer_notebook_checker = checker.get("jyputer_notebook_checker", False)
-            check_paths = checker.get(
-                "check_paths",
-                jupyter_check_paths if jyputer_notebook_checker else default_check_paths,
-            )
+            jupyter_notebook_checker = checker_defaults.get("jupyter_notebook_checker", False)
+
+            check_paths = jupyter_check_paths if jupyter_notebook_checker else default_check_paths
+            if isinstance(checker, dict):
+                check_paths = checker.get("check_paths", check_paths)
             if not check_paths:
                 continue
-            kwargs["check_paths"] = check_paths
-            kwargs.update(checker.get("kwargs", {}))
+
+            kwargs = {"output": output_directory, "check_paths": check_paths}
+            kwargs.update(checker_defaults.get("kwargs", {}))
+            if isinstance(checker, dict):
+                kwargs.update(checker.get("kwargs", {}))
+
+            info_only = checker_defaults.get("info_only", False)
+            if isinstance(checker, dict):
+                info_only = checker.get("info_only", info_only)
+
             checkers.append(
                 TaskInfo(
-                    name=checker["name"],
+                    name=checker_name,
                     method=method,
-                    dependencies=checker.get("dependencies", []),
-                    inherit_failure=checker.get("inherit_failure", True),
-                    info_only=checker.get("info_only", False),
+                    dependencies=checker_defaults.get("dependencies", []),
+                    conficts=checker_defaults.get("conflicts", []),
+                    inherit_failure=checker_defaults.get("inherit_failure", True),
+                    info_only=info_only,
                     fixer=fixer,
                     **kwargs,
                 )
@@ -109,32 +164,6 @@ class CodeCheckConfig:
                 if toml.get("tool") and toml["tool"].get("nxp_codecheck"):
                     return cls.load_from_config(toml["tool"]["nxp_codecheck"])
         return cls()
-
-
-def load_configuration() -> Dict[str, Any]:
-    """Load codecheck configuration.
-
-    The configuration should be store in project TOML file, or is loaded defaults.
-
-    :return: Codecheck configuration.
-    """
-    default_config_path = os.path.join(os.path.dirname(__file__), "default_cfg.yaml")
-    with open(default_config_path, "r", encoding="utf-8") as f:
-        cfg_content = f.read()
-    return cast(Dict[str, Any], safe_load(cfg_content))
-
-
-def check_list() -> List[str]:
-    """Get current configured checks.
-
-    :return: List of checker names
-    """
-    cfg = load_configuration()
-    checkers = cfg.get("checkers", [])
-    return [x["name"].upper() for x in checkers]
-
-
-CHECK_LIST = check_list()
 
 
 def print_results(tasks: List[TaskInfo]) -> None:
@@ -205,13 +234,14 @@ def check_pytest(
 
     parallel = "" if disable_xdist else f"-n {CPU_CNT//2 or 1}"
     cov_path = check_paths[0]
-    if len(check_paths) > 1:
-        log.warning(f"Only first path ({cov_path}) has been used to code coverage")
     args = (
         f"pytest {parallel} tests --cov {cov_path} --cov-branch --junit-xml {junit_report}"
         f" --cov-report term --cov-report html:{output_folder} --cov-report xml:{output_xml}"
     )
     with open(output_log, "w", encoding="utf-8") as f:
+        if len(check_paths) > 1:
+            f.write(f"Only first path ({cov_path}) has been used to code coverage")
+            f.flush()
         res = subprocess.call(
             args.split(),
             stdout=f,
@@ -320,22 +350,25 @@ def check_pylint(
 def check_radon(
     output: str,
     check_paths: List[str],
-    min_rank: Optional[str] = None,
-    max_rank: Optional[str] = None,
+    changed_files: Sequence[str],
     **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check the project against radon rules."""
-    cmd = "radon cc --show-complexity"
+    extra_params = []
+    if kwargs:
+        # remove legacy kwargs
+        kwargs.pop("min_rank", None)
+        kwargs.pop("max_rank", None)
+        extra_params = [f"--{key} {value}" for key, value in kwargs.items()]
+    extra_cmd = " ".join(extra_params)
 
-    rank = ""
-    if min_rank:
-        cmd += f" --min {min_rank}"
-        rank = f"_{min_rank}"
-    if max_rank:
-        cmd += f" --max {max_rank}"
-        rank = f"_{max_rank}"
-    output_log = os.path.join(output, f"radon{rank}.txt")
+    cmd = "radon cc --show-complexity"
+    cmd += " " + extra_cmd
     cmd += f" {' '.join(check_paths)}"
+
+    file_suffix = extra_cmd.replace(" ", "-")
+
+    output_log = os.path.join(output, f"radon{file_suffix}.txt")
     with open(output_log, "w", encoding="utf-8") as f:
         subprocess.call(cmd.split(), stdout=f, stderr=f)
 
@@ -520,6 +553,109 @@ def check_cyclic_imports(
     return TaskResult(error_count=res, output_log=output_log)
 
 
+def check_cspell(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+    """Check the project spelling with cspell."""
+    output_log = os.path.join(output, "cspell.txt")
+    with open(output_log, "w", encoding="utf-8") as f:
+        try:
+            res = subprocess.run(
+                "cspell --help",
+                shell=True,
+                check=False,
+                capture_output=True,
+                timeout=5,
+            )
+        except subprocess.TimeoutExpired:
+            return TaskResult(error_count=1, output_log="TIMED OUT", not_run=True)
+        if res.returncode != 0:
+            f.write(res.stderr.decode("utf-8"))
+            return TaskResult(error_count=res.returncode, output_log=output_log, not_run=True)
+
+        res = subprocess.run(
+            f"cspell lint \"{' '.join(check_paths)}\" --no-cache --no-progress --no-color",
+            shell=True,
+            check=False,
+            capture_output=True,
+            timeout=100,
+        )
+
+        f.write(res.stdout.decode("utf-8"))
+
+        match = 0
+        matched = None
+
+        if res.stderr:
+            stderr = res.stderr.decode("utf-8")
+            matched = re.search(r"Issues found: (\d+)", stderr)
+
+        if matched:
+            match = int(matched.group(1))
+
+    return TaskResult(error_count=match or res.returncode, output_log=output_log)
+
+
+def check_lychee(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+    """Check the project links with lychee."""
+    output_log = os.path.join(output, "lychee.txt")
+    with open(output_log, "w", encoding="utf-8") as f:
+        res = subprocess.run(
+            "lychee --help",
+            shell=True,
+            check=False,
+            capture_output=True,
+            timeout=5,
+        )
+        if res.returncode != 0:
+            f.write(res.stderr.decode("utf-8"))
+            return TaskResult(error_count=res.returncode, output_log=output_log, not_run=True)
+
+        res = subprocess.run(
+            f"lychee --no-progress \"{' '.join(check_paths)}\"",
+            shell=True,
+            check=False,
+            capture_output=True,
+            timeout=100,
+        )
+
+        f.write(res.stdout.decode("utf-8"))
+
+        match = 0
+        matched = None
+
+        if res.stdout:
+            stderr = res.stdout.decode("utf-8")
+            matched = re.search(r"(\d+)\sErrors", stderr)
+
+        if matched:
+            match = int(matched.group(1))
+
+    return TaskResult(error_count=match or res.returncode, output_log=output_log)
+
+
+def check_bandit(
+    output: str, check_paths: List[str], changed_files: Sequence[str], **kwargs: str
+) -> TaskResult:
+    """Check for project's security vulnerabilities using Bandit."""
+    output_log = os.path.join(output, "bandit.txt")
+    extra_params = []
+    if kwargs:
+        extra_params = [f"--{key} {value}" for key, value in kwargs.items()]
+
+    with open(output_log, "w", encoding="utf-8") as f:
+        res = subprocess.call(
+            f"bandit -c pyproject.toml -r {' '.join(check_paths)} {' '.join(extra_params)}".strip().split(),
+            stderr=f,
+            stdout=f,
+        )
+    # bandit return's 1 if there are any errors, we get the exact amount from the log file
+    if res > 0:
+        with open(output_log, encoding="utf-8") as f:
+            log_data = f.read()
+        res = len(re.findall(">> Issue:", log_data))
+
+    return TaskResult(error_count=res, output_log=output_log)
+
+
 def fix_found_problems(
     checks: TaskList,
     all_checks: TaskList,
@@ -665,7 +801,14 @@ def splice_changed_files(changed_files: Sequence[str], max_size: int = 2000) -> 
     default="origin/master",
     help="Name of the upstream branch for PR integration/merge.",
 )
-def main(  # pylint:disable=too-many-arguments,too-many-locals
+@click.option(
+    "-q",
+    "--quick",
+    is_flag=True,
+    default=False,
+    help="Quick test mode, do not run INFO_ONLY checks.",
+)
+def main(  # pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
     check: List[str],
     info_check: List[str],
     disable_check: List[str],
@@ -676,44 +819,12 @@ def main(  # pylint:disable=too-many-arguments,too-many-locals
     disable_xdist: bool,
     disable_merges: bool,
     parent_branch: str,
+    quick: bool,
 ) -> None:
     """Simple tool to check the Python generic development rules.
 
     Overall result is passed to OS.
     """
-
-    def get_configured_task_list(
-        available_tasks: TaskList,
-        enabled_checks: Optional[List[str]] = None,
-        disabled_checks: Optional[List[str]] = None,
-    ) -> TaskList:
-        checks = TaskList()
-        # pylint: disable=not-an-iterable,unsupported-membership-test   # TaskList is a list
-        for task in available_tasks:
-            if disabled_checks and task.name in disabled_checks:
-                continue
-            if (
-                disabled_checks
-                and task.dependencies
-                and any(dependency in disabled_checks for dependency in task.dependencies)
-            ):
-                continue
-
-            if enabled_checks and task.name not in enabled_checks:
-                continue
-            if (
-                enabled_checks
-                and task.dependencies
-                and len(set(task.dependencies) - set(enabled_checks)) != 0
-            ):
-                # insert missing dependencies
-                for dependency_name in task.dependencies:
-                    extra_task = available_tasks.get_task_by_name(dependency_name)
-                    if extra_task not in checks:
-                        checks.append(extra_task)
-            checks.append(task)
-        return checks
-
     # logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
     logging.basicConfig(level=logging.INFO)
     config = CodeCheckConfig.load_from_toml()
@@ -737,6 +848,10 @@ def main(  # pylint:disable=too-many-arguments,too-many-locals
 
     output_dir = str(output) if output else config.output_directory
     disable_check = [x.upper() for x in list(disable_check)]
+
+    if quick:
+        # Disable info checks
+        disable_check += [x.name for x in config.checkers if x.info_only]
 
     ret = 1
     try:
@@ -770,6 +885,40 @@ def main(  # pylint:disable=too-many-arguments,too-many-locals
         ret = 1
 
     sys.exit(ret)
+
+
+def get_configured_task_list(
+    available_tasks: TaskList,
+    enabled_checks: Optional[List[str]] = None,
+    disabled_checks: Optional[List[str]] = None,
+) -> TaskList:
+    """Create final list of tasks that shall be executed."""
+    checks = TaskList()
+    # pylint: disable=not-an-iterable,unsupported-membership-test   # TaskList is a list
+    for task in available_tasks:
+        if disabled_checks and task.name in disabled_checks:
+            continue
+        if (
+            disabled_checks
+            and task.dependencies
+            and any(dependency in disabled_checks for dependency in task.dependencies)
+        ):
+            continue
+
+        if enabled_checks and task.name not in enabled_checks:
+            continue
+        if (
+            enabled_checks
+            and task.dependencies
+            and len(set(task.dependencies) - set(enabled_checks)) != 0
+        ):
+            # insert missing dependencies
+            for dependency_name in task.dependencies:
+                extra_task = available_tasks.get_task_by_name(dependency_name)
+                if extra_task not in checks:
+                    checks.append(extra_task)
+        checks.append(task)
+    return checks
 
 
 if __name__ == "__main__":

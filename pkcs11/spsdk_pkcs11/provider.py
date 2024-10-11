@@ -19,7 +19,7 @@ from spsdk.utils.misc import load_secret
 import pkcs11
 
 
-# pylint: disable=too-many-arguments,too-many-instance-attributes
+# pylint: disable=too-many-arguments,too-many-instance-attributes,too-many-positional-arguments
 class PKCS11SP(SignatureProvider):
     """Signature Provider using a PKCS#11 interface."""
 

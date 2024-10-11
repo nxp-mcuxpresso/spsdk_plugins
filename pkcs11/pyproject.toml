@@ -16,8 +16,13 @@ description = "Signature Provider plugin for SPSDK using PKCS#11 interface"
 
 entry-points = { "spsdk.sp" = { pkcs11 = "spsdk_pkcs11.provider" } }
 
-requires-python = ">= 3.9,<3.12"
-dependencies = ["spsdk>=2.2.0", "python-pkcs11<=0.7"]
+requires-python = ">= 3.9"
+dependencies = [
+    "spsdk>=2.2.0",
+    # use fork until this is resolved https://github.com/pyauth/python-pkcs11/issues/165
+    "python-pkcs11 @ git+https://github.com/joseavegaa/python-pkcs11",
+    "cached-property",
+]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "Michal Starecek", email = "michal.starecek@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -92,7 +97,7 @@ format = { max-line-length = 120 }
 "messages control" = { disable = ["logging-fstring-interpolation"] }
 
 
-[tool.checker_depencecies.spdx]
+[tool.checker_dependencies.spdx]
 "Apache-2.0" = [
     "Apache 2.0",
     "Apache-2.0 License",

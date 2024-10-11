@@ -2,6 +2,7 @@ include CONTRIBUTING.rst
 include HISTORY.rst
 include LICENSE
 include README.rst
+include SW_Content_Register_spsdk_pylint_plugins.txt
 
 recursive-include tests *
 recursive-exclude * __pycache__

@@ -1,0 +1,124 @@
+pipeline {
+    agent { label 'mac' }
+    // agent any
+    options {
+        timeout(time: 1, unit: 'HOURS', activity: true)   // timeout on whole pipeline job
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                // checkout SPSDK repository
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: 'master']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [
+                        [$class: 'RelativeTargetDirectory', relativeTargetDir: 'spsdk_repo'],
+                        [$class: 'CloneOption', noTags: false, reference: '', shallow: false]
+                    ],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[credentialsId: 'git_credentials', url: 'ssh://git@bitbucket.sw.nxp.com/spsdk/spsdk.git']]
+                ])
+                // checkout plugins repository
+                checkout([
+                        $class: 'GitSCM',
+                        branches: scm.branches,
+                        doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
+                        extensions: scm.extensions + [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]],
+                        submoduleCfg: [],
+                        userRemoteConfigs: scm.userRemoteConfigs
+                    ])
+            }
+        }
+        stage('Setup 3.9') {
+            steps {
+                    withPythonEnv('/opt/homebrew/bin/python3.9') {
+                        sh 'python --version'
+                        sh 'python -m pip install --upgrade pip'
+                        sh 'cd spsdk_repo && pip install --upgrade ".[all]"'
+                        sh 'cd spsdk_repo && pip install --upgrade -r requirements-develop.txt'
+                    }
+            }
+        }
+        stage('Codecheck 3.9') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    withPythonEnv('/opt/homebrew/bin/python3.9') {
+                        sh '''
+                set +e
+                exit_code=0
+                packages="codecheck jlink lauterbach pemicro pqc pkcs11 pyocd pylint_plugins"
+                for package in $packages;
+                do
+                    [ ! -d $package ] && continue
+                    echo "****************************************"
+                    echo "Codecheck $package"
+                    echo "****************************************"
+                    cd $package
+                    pip install --upgrade .
+                    codecheck -s -o reports39
+                    codecheck_exit_code=$?
+                    cd ..
+                    if [ $codecheck_exit_code -ne 0 ]; then
+                        echo "Codecheck failed for $package"
+                        exit_code=$codecheck_exit_code
+                    fi
+                done
+                exit $exit_code
+                '''
+                    }
+                }
+            }
+        }
+        stage('Setup 3.12') {
+            steps {
+                    withPythonEnv('/opt/homebrew/bin/python3.12') {
+                        sh 'python --version'
+                        sh 'python -m pip install --upgrade pip'
+                        sh 'cd spsdk_repo && pip install --upgrade ".[all]"'
+                        sh 'cd spsdk_repo && pip install --upgrade -r requirements-develop.txt'
+                    }
+            }
+        }
+        stage('Codecheck 3.12') {
+            steps {
+                withPythonEnv('/opt/homebrew/bin/python3.12') {
+                    sh '''
+                set +e
+                exit_code=0
+                # pkcs11 does not support Python3.12
+                packages="codecheck jlink lauterbach pemicro pqc pyocd pylint_plugins"
+                for package in $packages;
+                do
+                    [ ! -d $package ] && continue
+                    echo "****************************************"
+                    echo "Codecheck $package"
+                    echo "****************************************"
+                    cd $package
+                    pip install --upgrade .
+                    codecheck -s -o reports312
+                    codecheck_exit_code=$?
+                    cd ..
+                    if [ $codecheck_exit_code -ne 0 ]; then
+                        echo "Codecheck failed for $package"
+                        exit_code=$codecheck_exit_code
+                    fi
+                done
+                exit $exit_code
+                '''
+                }
+            }
+        }
+    }
+        post {
+            always {
+                    archiveArtifacts artifacts: 'codecheck/reports39/**, jlink/reports39/**, lauterbach/reports39/**, pemicro/reports39/**, pqc/reports39/**, pyocd/reports39/**, pkcs11/reports39/**, pylint_plugins/reports39/**', fingerprint: true
+                    archiveArtifacts artifacts: 'codecheck/reports312/**, jlink/reports312/**, lauterbach/reports312/**, pemicro/reports312/**, pqc/reports312/**, pyocd/reports312/**, pkcs11/reports312/**, pylint_plugins/reports312/**', fingerprint: true
+
+            // emailext(body: '${DEFAULT_CONTENT}', mimeType: 'text/html',
+            //  replyTo: '$DEFAULT_REPLYTO', subject: '${DEFAULT_SUBJECT}',
+            //  to: emailextrecipients([[$class: 'CulpritsRecipientProvider'],
+            //                          [$class: 'RequesterRecipientProvider']]))
+            }
+        }
+}

@@ -30,20 +30,14 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
     NAME = "jlink"
 
-    @staticmethod
-    def get_options_help() -> Dict[str, str]:
+    @classmethod
+    def get_options_help(cls) -> Dict[str, str]:
         """Get full list of options of debug probe.
 
         :return: Dictionary with individual options. Key is parameter name and value the help text.
         """
-        options_help = {}
-        options_help.update(
-            {
-                "frequency": "Set the communication frequency in KHz, default is 100KHz",
-            }
-        )
-        options_help.update(DebugProbeCoreSightOnly.get_options_help())
-
+        options_help = super().get_options_help()
+        options_help["frequency"] = "Set the communication frequency in KHz, default is 100KHz"
         return options_help
 
     @classmethod

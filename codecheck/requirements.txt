@@ -6,7 +6,7 @@ black[jupyter]
 pytest
 pytest-cov
 pytest-xdist
-pylint
+pylint>=3.3.0
 spsdk-pylint-plugins
 PyGithub
 pyyaml
@@ -16,3 +16,5 @@ radon
 pydocstyle[toml]
 tomli
 nbqa
+types-pyyaml
+bandit[toml]

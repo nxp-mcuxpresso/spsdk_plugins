@@ -7,8 +7,6 @@
 
 """When using click.Choice option, check if case_sensitive is set to True."""
 
-from typing import Any
-
 import astroid
 from pylint.checkers import BaseChecker
 
@@ -25,7 +23,7 @@ class ClickChoiceChecker(BaseChecker):
         )
     }
 
-    def visit_keyword(self, node: astroid.Keyword) -> Any:
+    def visit_keyword(self, node: astroid.Keyword) -> None:
         """Checked keyword statement: type=[click.]Choice([...], case_sensitive=...)."""
         if node.arg == "type" and isinstance(node.value, astroid.Call):
             f = node.value.func

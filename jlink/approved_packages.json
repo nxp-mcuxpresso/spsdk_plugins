@@ -271,6 +271,18 @@
       }
     },
     {
+      "home_page": "https://github.com/nxp-imx/mfgtools/wrapper",
+      "name": "libuuu",
+      "package": {
+        "name": "libuuu",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "nxp-imx/mfgtools/wrapper",
+        "license": ""
+      }
+    },
+    {
       "home_page": "https://github.com/SethMMorton/natsort",
       "name": "natsort",
       "package": {
@@ -407,7 +419,7 @@
       "name": "requests",
       "package": {
         "name": "requests",
-        "license": "Apache 2.0"
+        "license": "Apache-2.0"
       }
     },
     {

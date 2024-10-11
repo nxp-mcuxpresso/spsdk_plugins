@@ -7,34 +7,54 @@
 """Script to list all Python package dependencies and their dependencies."""
 
 import argparse
+import csv
 import json
 import logging
 import os
 import sys
 from abc import abstractmethod
 from collections.abc import Iterable
+from contextlib import redirect_stdout
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, TextIO, Type
+from typing import Any, Dict, List, Optional, Set, Type
 from urllib.parse import urlparse
 
 import packaging
 import prettytable
 import tomli
-from mypy_extensions import KwArg
 from packaging.metadata import Metadata
 from packaging.requirements import Requirement
 from packaging.version import Version
-from pip import __version__ as pip_version
 from typing_extensions import Self, TypeGuard
+from yaml import safe_load
 
 THIS_DIR = Path(__file__).parent.resolve()
 ROOT_DIR = THIS_DIR.parent
-APPROVED_PACKAGES_FILE = Path(os.getcwd(), "approved_packages.json")
-
 LIBRARY_PATH = Path(packaging.__path__[0]).parent
-MIN_PIP_VERSION = "21.2.0"
 
 logger = logging.getLogger(__name__)
+
+
+def load_pyproject_toml() -> Dict:
+    """Load pyproject toml configuration."""
+    pyproject_path = Path(os.getcwd(), "pyproject.toml")
+    if os.path.exists(pyproject_path):
+        with open(pyproject_path, "rb") as f:
+            config = tomli.load(f)
+            return config
+    return {}
+
+
+def load_spdx_config() -> Dict:
+    """Load spdx configuration."""
+    spdx = {}
+    pyproject_config = load_pyproject_toml()
+    spdx = pyproject_config.get("tool", {}).get("checker_dependencies", {}).get("spdx")
+    if not spdx:
+        default_data = THIS_DIR.joinpath("default_cfg.yaml").read_text(encoding="utf-8")
+        spdx = safe_load(default_data)["spdx"]
+    return spdx
 
 
 class LicenseBase:
@@ -42,22 +62,22 @@ class LicenseBase:
 
     SOURCE = "unknown"
 
-    def __init__(self, spdx_licensies: Dict[str, Any], license_str: Optional[str] = None) -> None:
+    def __init__(self, license_str: Optional[str] = None) -> None:
         """License base initialization."""
         self.license = license_str
-        self.spdx_licensies = spdx_licensies
+        self.spdx_config = load_spdx_config()
 
     def is_spdx(self) -> bool:
         """Is license SPDX license."""
         return self.get_spdx() is not None
 
     def get_spdx(self) -> Optional[str]:
-        """Get SPDX version of the diven license."""
+        """Get SPDX version of the given license."""
         if not self.license:
             return None
-        if self.license in self.spdx_licensies:
+        if self.license in self.spdx_config:
             return self.license
-        for spdx, alternatives in self.spdx_licensies.items():
+        for spdx, alternatives in self.spdx_config.items():
             if self.license in alternatives:
                 return spdx
         return None
@@ -72,8 +92,11 @@ class LicenseBase:
 
     @classmethod
     @abstractmethod
-    def load(cls, data: Dict, spdx_licensies: Dict[str, Any], **kwargs: Any) -> Optional[Self]:
+    def load(cls, data: Dict, **kwargs: Any) -> Optional[Self]:
         """Load license from configuration."""
+
+    def __repr__(self) -> str:
+        return f"<License source={self.SOURCE},spdx={self.get_spdx() or 'No'}>"
 
 
 class ManualLicense(LicenseBase):
@@ -83,14 +106,15 @@ class ManualLicense(LicenseBase):
 
     def refresh(self) -> None:
         """Fetch the license from the source."""
+        # Nothing to do here, license must be updated manually
 
     @classmethod
-    def load(cls, data: Dict, spdx_licensies: Dict[str, Any], **kwargs: Any) -> Optional[Self]:
+    def load(cls, data: Dict, **kwargs: Any) -> Optional[Self]:
         """Load license from configuration."""
         license_str = data.get(cls.SOURCE, {}).get("license")
         if not license_str:
             return None
-        return cls(spdx_licensies, license_str)
+        return cls(license_str)
 
     def to_dict(self) -> Dict:
         """Export license to configuration."""
@@ -104,12 +128,10 @@ class LocalPackageLicense(LicenseBase):
 
     SOURCE = "package"
 
-    def __init__(
-        self, spdx_licensies: Dict[str, Any], package_name: str, license_str: Optional[str] = None
-    ) -> None:
+    def __init__(self, package_name: str, license_str: Optional[str] = None) -> None:
         """Local package license initialization."""
         self.package_name = package_name
-        super().__init__(spdx_licensies, license_str)
+        super().__init__(license_str)
 
     def refresh(self) -> None:
         """Fetch the license from the source."""
@@ -119,9 +141,9 @@ class LocalPackageLicense(LicenseBase):
             if meta.license:
                 return meta.license
             if meta.classifiers:
-                for clasifier in meta.classifiers:
-                    if "License :: OSI Approved :: " in clasifier:
-                        return clasifier.removeprefix("License :: OSI Approved :: ")
+                for classifier in meta.classifiers:
+                    if "License :: OSI Approved :: " in classifier:
+                        return classifier.removeprefix("License :: OSI Approved :: ")
             return None
 
         meta = get_package_metadata(name=self.package_name)
@@ -133,7 +155,7 @@ class LocalPackageLicense(LicenseBase):
         self.license = lic.split("\n")[0]
 
     @classmethod
-    def load(cls, data: Dict, spdx_licensies: Dict[str, Any], **kwargs: Any) -> Optional[Self]:
+    def load(cls, data: Dict, **kwargs: Any) -> Optional[Self]:
         """Load license from configuration."""
         try:
             name = data[cls.SOURCE]["name"]
@@ -141,7 +163,7 @@ class LocalPackageLicense(LicenseBase):
         except KeyError:
             logger.info("Package name must be specified")
             return None
-        return cls(spdx_licensies, name, license_str)
+        return cls(name, license_str)
 
     def to_dict(self) -> Dict:
         """Export license to configuration."""
@@ -155,7 +177,6 @@ class GithubLicense(LicenseBase):
 
     def __init__(
         self,
-        spdx_licensies: Dict[str, Any],
         project_name: str,
         github_token: Optional[str] = None,
         license_str: Optional[str] = None,
@@ -163,7 +184,7 @@ class GithubLicense(LicenseBase):
         """Github license initialization."""
         self.project_name = project_name
         self.github_token = github_token
-        super().__init__(spdx_licensies, license_str)
+        super().__init__(license_str)
 
     def refresh(self) -> None:
         """Fetch the license from the source."""
@@ -179,32 +200,31 @@ class GithubLicense(LicenseBase):
         self.license = spdx_id if spdx_id != "NOASSERTION" else None
 
     @classmethod
-    def load(cls, data: Dict, spdx_licensies: Dict[str, Any], **kwargs: Any) -> Optional[Self]:
+    def load(cls, data: Dict, **kwargs: Any) -> Optional[Self]:
         """Load license from configuration."""
         github_data: Optional[Dict] = data.get(cls.SOURCE)
         if not github_data:
             return None
         return cls(
-            spdx_licensies,
             github_data["project_name"],
             github_token=kwargs.get("github_token"),
             license_str=github_data.get("license"),
         )
 
     @classmethod
-    def load_from_url(cls, url: str, spdx_licensies: Dict[str, Any]) -> Optional[Self]:
+    def load_from_url(cls, url: str) -> Optional[Self]:
         """Load from project url."""
         parsed_url = urlparse(url)
         if parsed_url.hostname != "github.com":
             return None
-        return cls(spdx_licensies=spdx_licensies, project_name=parsed_url.path.strip("/"))
+        return cls(project_name=parsed_url.path.strip("/"))
 
     def to_dict(self) -> Dict:
         """Export license to configuration."""
         return {"project_name": self.project_name, "license": self.license or ""}
 
 
-# dicitonary of license type priorities
+# dictionary of license type priorities
 LICENSE_TYPES: Dict[int, Type[LicenseBase]] = {
     1: LocalPackageLicense,
     2: GithubLicense,
@@ -227,12 +247,14 @@ class DependencyInfo:
         self.licenses = licenses or []
 
     def __str__(self) -> str:
-        license_str = self.get_spdx_license()
+        lic = self.get_spdx_license()
+        version = self.get_version()
         dep_info = f"Name: {self.name}\n"
         dep_info += f"Home page: {self.home_page}\n"
-        if license_str:
-            dep_info += f"Source: {license_str.SOURCE}"
-            dep_info += f"Spdx: {license_str.license}"
+        dep_info += f"Version: {version}\n" if version else "Unknown version"
+        if lic:
+            dep_info += f"Source: {lic.SOURCE}"
+            dep_info += f"Spdx: {lic.license}"
         return dep_info
 
     def __eq__(self, __value: object) -> bool:
@@ -246,14 +268,12 @@ class DependencyInfo:
         return self.name.lower() < other.name.lower()
 
     def __repr__(self) -> str:
-        return f"<DepInfo name={self.name}>"
+        version = self.get_version()
+        return f"<DepInfo name={self.name},version={version if version else 'Unknown version'}>"
 
     def to_dict(self) -> Dict:
         """Export package to configuration."""
-        config: Dict = {
-            "home_page": self.home_page,
-            "name": self.name,
-        }
+        config: Dict = {"home_page": self.home_page, "name": self.name}
         for license_obj in self.licenses:
             config[license_obj.SOURCE] = license_obj.to_dict()
         return config
@@ -271,6 +291,13 @@ class DependencyInfo:
         """Refresh licenses."""
         for license_obj in self.licenses:
             license_obj.refresh()
+
+    def get_version(self) -> Optional[Version]:
+        """Get package version."""
+        meta = get_package_metadata(name=self.name)
+        if meta is None:
+            return None
+        return meta.version
 
 
 # pylint: disable=not-an-iterable, no-member
@@ -313,9 +340,7 @@ class DependenciesList(List[DependencyInfo]):
             super().append(__object)
 
     @classmethod
-    def from_approved_packages(
-        cls, file_path: Path = APPROVED_PACKAGES_FILE, **kwargs: Any
-    ) -> Self:
+    def from_approved_packages(cls, file_path: Path, **kwargs: Any) -> Self:
         """Load dependency info from approved packages."""
         if not os.path.exists(file_path):
             return cls()
@@ -323,12 +348,11 @@ class DependenciesList(List[DependencyInfo]):
         with open(file_path, encoding="utf-8") as f:
             data = json.load(f)
         packages = cls()
-        spdx_licensies = kwargs["spdx"]
         for package_data in data["packages"]:
             licenses = []
 
             for license_type in dict(sorted(LICENSE_TYPES.items())).values():
-                license_obj = license_type.load(package_data, spdx_licensies, **kwargs)
+                license_obj = license_type.load(package_data, **kwargs)
                 if license_obj:
                     licenses.append(license_obj)
             packages.append(
@@ -342,7 +366,9 @@ class DependenciesList(List[DependencyInfo]):
 
     def get_table_string(self) -> str:
         """Get the table of packages."""
-        table = prettytable.PrettyTable(["Name", "Home Page", "Spdx", "Source", "Need Check"])
+        table = prettytable.PrettyTable(
+            ["Name", "Version", "Home Page", "Spdx", "Source", "Need Check"]
+        )
         table.align = "l"
         table.header = True
         table.border = True
@@ -361,6 +387,7 @@ class DependenciesList(List[DependencyInfo]):
             table.add_row(
                 [
                     dep.name,
+                    dep.get_version() if dep.get_version() else "Unknown version",
                     dep.home_page,
                     spdx.get_spdx() if spdx else "",
                     spdx.SOURCE if spdx else "",
@@ -374,7 +401,7 @@ def get_package_metadata(name: str) -> Optional[Metadata]:
     """Get Python package metadata.
 
     :param name: Name of package
-    :return: PAckage metadata
+    :return: Package metadata
     """
     new_name = name.replace("-", "_")
     gen = Path(LIBRARY_PATH).glob(f"{new_name}-*dist-info/METADATA")
@@ -423,200 +450,282 @@ def get_homepage(meta: Metadata) -> Optional[str]:
         for home_key in possible_homepage_keys:
             if home_key in meta.project_urls:
                 return meta.project_urls[home_key]
-
+    logger.warning(f"Package {meta.name} doesn't have homepage in Metadata")
     return None
 
 
-def get_dependencies(root_package: str) -> List[str]:
-    """Get list of dependencies."""
-    dependencies = []
+@dataclass
+class CheckerResult:
+    """Dependencies checker result."""
 
-    def import_requirement(requirement: Requirement) -> None:
-        meta = get_package_metadata(name=requirement.name)
-        if meta is None:
-            print(f"Package {requirement.name} is not installed")
-            return
-        if meta.name in dependencies:
-            return
-        dependencies.append(meta.name)
-        requirements = get_requirements(meta=meta, extras=requirement.extras)
-        for dep in requirements:
-            if dep.name not in dependencies:
-                import_requirement(dep)
-
-    import_requirement(Requirement(root_package))
-    return dependencies
+    errors: int = 0
+    messages: List[str] = field(default_factory=list)
 
 
-def get_requirements(meta: Metadata, extras: Optional[Set[str]] = None) -> List[Requirement]:
-    """Get list of requirements from metadata."""
+class DependenciesChecker:
+    """Dependencies checker."""
 
-    def is_included(req: Requirement) -> TypeGuard[bool]:
-        if not req.marker:
-            return True
-        if not extras:
-            return req.marker.evaluate()
-        return any(req.marker.evaluate({"extra": e}) for e in extras)
+    def __init__(self, root_package: Optional[str] = None) -> None:
+        """Dependencies checker initialization."""
+        self.root_package = self._load_root_pkg_name(root_package)
+        self.approved_packages_file = Path(os.getcwd(), "approved_packages.json")
 
-    if not meta.requires_dist:
-        return []
-    reqs = list(filter(is_included, meta.requires_dist))
-    # returning list-filter directly would solve the problem, but this is better for debugging
-    return reqs  # type:ignore[return-value]
-
-
-def print_dependencies(**kwargs: Any) -> int:
-    """Print dependencies and their licenses."""
-    approved_list = DependenciesList.from_approved_packages(**kwargs)
-    print(approved_list.get_table_string())
-    return 0
-
-
-def print_licenses(**kwargs: Any) -> int:
-    """Print licenses."""
-    approved_list = DependenciesList.from_approved_packages(**kwargs)
-    for lic in approved_list.spdx_licenses():
-        print(lic)
-    return 0
-
-
-def check_dependencies(strict: bool = False, **kwargs: Any) -> int:
-    """Check if all dependencies are approved.
-
-    :return: Number of violations
-    """
-    actual_dep_list = get_dependencies(kwargs["root_package"])
-    approved_list = DependenciesList.from_approved_packages(**kwargs)
-    approved_names = approved_list.names()
-    issues_counter = 0
-    for actual_dep in actual_dep_list:
-        if actual_dep not in approved_names:
-            print(f"Package '{actual_dep}' is not among approved packages!")
-            issues_counter += 1
-            continue
-        if not approved_list.get(actual_dep).get_spdx_license():
-            print(
-                f"Package '{actual_dep}' is among approved packages, but does not have valid license!"
+    def _load_root_pkg_name(self, root_package: Optional[str] = None) -> str:
+        if root_package:
+            return root_package
+        pyproject_config = load_pyproject_toml()
+        root_package = pyproject_config.get("project", {}).get("name") or pyproject_config.get(
+            "tool", {}
+        ).get("checker_dependencies", {}).get("root_package")
+        if not root_package:
+            raise ValueError(
+                "Root package name was not found. It must be specified with root_package parameter or in pyproject.toml"
             )
-            issues_counter += 1
-            continue
-        if not strict:
-            continue
 
-        approved_dependency = approved_list.get(actual_dep)
-        license_obj = approved_dependency.get_spdx_license()
-        if license_obj and license_obj.SOURCE != "manual":
-            approved_license = license_obj.get_spdx()
-            license_obj.refresh()
-            if license_obj.get_spdx() != approved_license:
-                print(f"Package '{actual_dep}' licenses differs.")
-                issues_counter += 1
-                continue
-    return issues_counter
+        return root_package
 
+    def get_dependencies(self) -> List[str]:
+        """Get list of dependencies."""
+        dependencies = []
 
-def init_approved_file(**kwargs: Any) -> int:
-    """Initialize the file with approved dependencies."""
-    if os.path.isfile(APPROVED_PACKAGES_FILE):
-        print(f"'{APPROVED_PACKAGES_FILE}' already exists.")
-        answer = input("Do you want to continue? This will rewrite the file: (y/N): ")
-        if answer.lower() != "y":
-            return 0
+        def import_requirement(requirement: Requirement) -> None:
+            meta = get_package_metadata(name=requirement.name)
+            if meta is None:
+                raise NameError(f"Package {requirement.name} is not installed")
+            if meta.name in dependencies:
+                return
+            dependencies.append(meta.name)
+            requirements = self._get_requirements(meta=meta, extras=requirement.extras)
+            for dep in requirements:
+                if dep.name not in dependencies:
+                    import_requirement(dep)
 
-    approved_packages = DependenciesList.from_approved_packages(**kwargs)
-    actual_dependencies = get_dependencies(kwargs["root_package"])
-    for act_dep in actual_dependencies:
-        print(f"Processing the actual dependency {act_dep}")
-        if act_dep in approved_packages.names():
-            approved_packages.get(act_dep).refresh()
+        import_requirement(Requirement(self.root_package))
+        return dependencies
+
+    @staticmethod
+    def _get_requirements(meta: Metadata, extras: Optional[Set[str]] = None) -> List[Requirement]:
+        """Get list of requirements from metadata."""
+
+        def is_included(req: Requirement) -> TypeGuard[bool]:
+            if not req.marker:
+                return True
+            if not extras:
+                return req.marker.evaluate()
+            return any(req.marker.evaluate({"extra": e}) for e in extras)
+
+        if not meta.requires_dist:
+            return []
+        requirements = list(filter(is_included, meta.requires_dist))
+        # returning list-filter directly would solve the problem, but this is better for debugging
+        return requirements  # type:ignore[return-value]
+
+    def print_dependencies(self, output_file: Optional[str] = None, **kwargs: Any) -> None:
+        """Print the dependencies and their licenses."""
+        actual_dependencies = self.get_dependencies()
+        # keep only the actual dependencies
+        dependencies = DependenciesList(
+            [
+                dep
+                for dep in DependenciesList.from_approved_packages(
+                    file_path=self.approved_packages_file, **kwargs
+                )
+                if dep.name in actual_dependencies
+            ]
+        )
+        dependencies_table = dependencies.get_table_string()
+        if output_file:
+            with open(output_file, mode="w", encoding="utf-8") as file:
+                file.write(dependencies_table)
+        print(dependencies_table)
+
+    def print_licenses(self, output_file: Optional[str] = None, **kwargs: Any) -> None:
+        """Print licenses."""
+        approved_list = DependenciesList.from_approved_packages(
+            file_path=self.approved_packages_file, **kwargs
+        )
+        licenses = []
+        for lic in approved_list.spdx_licenses():
+            licenses.append(lic)
+        if output_file:
+            with open(output_file, encoding="utf-8", mode="w") as file:
+                for lic in licenses:
+                    file.write(f"{lic}\n")
         else:
-            meta = get_package_metadata(act_dep)
-            if meta is None:
-                raise ValueError(
-                    f"Package {act_dep} is not installed. Can't initialize packages metadata."
-                )
-            homepage = get_homepage(meta)
-            if not homepage:
-                raise ValueError(f"Package {act_dep} doesn't have homepage in Metadata")
-            new_dep = DependencyInfo(
-                name=act_dep,
-                home_page=homepage,
-                licenses=[LocalPackageLicense(spdx_licensies=kwargs["spdx"], package_name=act_dep)],
+            for lic in licenses:
+                print(lic)
+
+    def export_csv(self, output_file: Optional[str] = None, **kwargs: Any) -> None:
+        """Export dependencies into csv file."""
+        approved_list = DependenciesList.from_approved_packages(
+            file_path=self.approved_packages_file, **kwargs
+        )
+        data = [["Name", "Version", "Home Page", "Spdx", "Spdx Source"]]
+        for dependency in self.get_dependencies():
+            approved_package = approved_list.get(dependency)
+            lic = approved_package.get_spdx_license()
+            version = approved_package.get_version()
+            data.append(
+                [
+                    dependency,
+                    str(version) if version else "Unknown version",
+                    approved_package.home_page,
+                    lic.license if lic else "Unknown license",  # type: ignore
+                    lic.SOURCE if lic else "No license source",
+                ]
             )
-            new_dep.refresh()
-            approved_packages.append(new_dep)
+        if output_file:
+            with open(output_file, encoding="utf-8", mode="w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerows(data)
+        else:
+            # just print csv into console
+            for data_line in data:
+                print(",".join(data_line))
 
-    print(f"Writing packages info to {APPROVED_PACKAGES_FILE}")
-    approved_packages.sort()
-    data = {"packages": [package.to_dict() for package in approved_packages]}
+    def check_dependencies(self, strict: bool = False, **kwargs: Any) -> CheckerResult:
+        """Check if all dependencies are approved.
 
-    with open(APPROVED_PACKAGES_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    return 0
-
-
-def fix_dependencies(strict: bool = False, **kwargs: Any) -> int:
-    """Fix the file with approved dependencies."""
-    approved_packages = DependenciesList.from_approved_packages(**kwargs)
-    actual_dependencies = get_dependencies(kwargs["root_package"])
-    issues_counter = 0
-    for act_dep in actual_dependencies:
-        if act_dep not in approved_packages.names():
-            meta = get_package_metadata(act_dep)
-            if meta is None:
-                raise ValueError(
-                    f"Package {act_dep} is not installed. Can't fix packages metadata."
-                )
-            homepage = get_homepage(meta)
-            if not homepage:
-                raise ValueError(f"Package {act_dep} doesn't have homepage in Metadata")
-            new_dep = DependencyInfo(
-                name=act_dep,
-                home_page=homepage,
-                licenses=[LocalPackageLicense(spdx_licensies=kwargs["spdx"], package_name=act_dep)],
-            )
-            gh_license = GithubLicense.load_from_url(
-                new_dep.home_page, spdx_licensies=kwargs["spdx"]
-            )
-            if gh_license:
-                new_dep.licenses.append(gh_license)
-            new_dep.refresh()
-            approved_packages.append(new_dep)
-            # Newly added dependency still needs manual fix
-            lic = new_dep.get_spdx_license()
-            if not lic:
-                print(f"Newly added dependency '{act_dep}' does not have spdx license.")
-                issues_counter += 1
+        :return: Number of violations
+        """
+        actual_dep_list = self.get_dependencies()
+        approved_list = DependenciesList.from_approved_packages(
+            file_path=self.approved_packages_file, **kwargs
+        )
+        approved_names = approved_list.names()
+        result = CheckerResult()
+        for actual_dep in actual_dep_list:
+            if actual_dep not in approved_names:
+                result.messages.append(f"Package '{actual_dep}' is not among approved packages!")
+                result.errors += 1
                 continue
-        if not strict:
-            continue
-
-        approved_dependency = approved_packages.get(act_dep)
-        license_obj = approved_dependency.get_spdx_license()
-        if not license_obj:
-            # Try to refresh the license
-            approved_dependency.refresh()
-            if not approved_dependency.get_spdx_license():
-                print(f"Already approved dependency '{act_dep}' does not have spdx license.")
-                issues_counter += 1
-            continue
-        if license_obj.SOURCE != "manual":
-            license_obj.refresh()
-            if not approved_dependency.get_spdx_license():
-                print(
-                    f"Already approved dependency '{act_dep}' does lost the spdx license after refresh."
+            if not approved_list.get(actual_dep).get_spdx_license():
+                result.messages.append(
+                    f"Package '{actual_dep}' is among approved packages, but does not have valid license!"
                 )
-                issues_counter += 1
+                result.errors += 1
                 continue
-    approved_packages.sort()
+            if not strict:
+                continue
 
-    data = {"packages": [package.to_dict() for package in approved_packages]}
-    with open(APPROVED_PACKAGES_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    return issues_counter
+            approved_dependency = approved_list.get(actual_dep)
+            license_obj = approved_dependency.get_spdx_license()
+            if license_obj and license_obj.SOURCE != "manual":
+                approved_license = license_obj.get_spdx()
+                license_obj.refresh()
+                spdx = license_obj.get_spdx()
+                if spdx != approved_license:
+                    result.messages.append(
+                        f"Package '{actual_dep}' licenses differs."
+                        f"Approved license:{approved_license}, actual SPDX license:{spdx}"
+                    )
+                    result.errors += 1
+                    continue
+        result.messages.append(
+            f"Licenses of {len(actual_dep_list)} packages checked with {result.errors} problems."
+        )
+        return result
+
+    def init_approved_file(self, **kwargs: Any) -> None:
+        """Initialize the file with approved dependencies."""
+        if os.path.isfile(
+            self.approved_packages_file,
+        ):
+            print(f"'{self.approved_packages_file}' already exists.")
+            answer = input("Do you want to continue? This will rewrite the file: (y/N): ")
+            if answer.lower() != "y":
+                return
+
+        approved_packages = DependenciesList.from_approved_packages(
+            file_path=self.approved_packages_file, **kwargs
+        )
+        actual_dependencies = self.get_dependencies()
+        for act_dep in actual_dependencies:
+            print(f"Processing the actual dependency {act_dep}")
+            if act_dep in approved_packages.names():
+                approved_packages.get(act_dep).refresh()
+            else:
+                meta = get_package_metadata(act_dep)
+                if meta is None:
+                    raise ValueError(
+                        f"Package {act_dep} is not installed. Can't initialize packages metadata."
+                    )
+                homepage = get_homepage(meta) or ""
+                new_dep = DependencyInfo(
+                    name=act_dep,
+                    home_page=homepage,
+                    licenses=[LocalPackageLicense(package_name=act_dep)],
+                )
+                new_dep.refresh()
+                approved_packages.append(new_dep)
+
+        print(f"Writing packages info to {self.approved_packages_file}")
+        approved_packages.sort()
+        data = {"packages": [package.to_dict() for package in approved_packages]}
+
+        with open(self.approved_packages_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+
+    def fix_dependencies(self, **kwargs: Any) -> CheckerResult:
+        """Fix the file with approved dependencies."""
+        approved_packages = DependenciesList.from_approved_packages(
+            file_path=self.approved_packages_file, **kwargs
+        )
+        actual_dependencies = self.get_dependencies()
+        result = CheckerResult()
+        for act_dep in actual_dependencies:
+            if act_dep not in approved_packages.names():
+                meta = get_package_metadata(act_dep)
+                if meta is None:
+                    raise ValueError(
+                        f"Package {act_dep} is not installed. Can't fix packages metadata."
+                    )
+                homepage = get_homepage(meta) or ""
+                new_dep = DependencyInfo(
+                    name=act_dep,
+                    home_page=homepage,
+                    licenses=[LocalPackageLicense(package_name=act_dep)],
+                )
+                gh_license = GithubLicense.load_from_url(new_dep.home_page)
+                if gh_license:
+                    new_dep.licenses.append(gh_license)
+                new_dep.refresh()
+                approved_packages.append(new_dep)
+                # Newly added dependency still needs manual fix
+                if not new_dep.get_spdx_license():
+                    result.errors += 1
+                    result.messages.append(
+                        f"Newly added dependency '{act_dep}' does not have spdx license."
+                    )
+                    continue
+            approved_dependency = approved_packages.get(act_dep)
+            license_obj = approved_dependency.get_spdx_license()
+            if not license_obj:
+                # Try to refresh the license
+                approved_dependency.refresh()
+                if not approved_dependency.get_spdx_license():
+                    result.errors += 1
+                    result.messages.append(
+                        f"Already approved dependency '{act_dep}' does not have spdx license."
+                    )
+                continue
+            if license_obj.SOURCE != "manual":
+                license_obj.refresh()
+                if not approved_dependency.get_spdx_license():
+                    result.errors += 1
+                    result.messages.append(
+                        f"Already approved dependency '{act_dep}' does lost the spdx license after refresh."
+                    )
+                    continue
+        approved_packages.sort()
+
+        data = {"packages": [package.to_dict() for package in approved_packages]}
+        with open(self.approved_packages_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        return result
 
 
-def parse_inputs(root_package: str, input_args: Optional[List[str]] = None) -> dict:
+def parse_inputs(input_args: Optional[List[str]] = None) -> dict:
     """Parse user input parameters."""
     parser = argparse.ArgumentParser(
         description="Utility for checking licenses of all dependencies",
@@ -630,9 +739,7 @@ def parse_inputs(root_package: str, input_args: Optional[List[str]] = None) -> d
         "--github_token",
         help="Github authorization token.",
     )
-    parser.add_argument(
-        "-r", "--root-package", default=root_package, help="Main package to investigate"
-    )
+    parser.add_argument("-r", "--root-package", help="Main package to investigate")
 
     commands_parser = parser.add_subparsers(dest="command", metavar="SUB-COMMAND", required=True)
     check_parser = commands_parser.add_parser(
@@ -645,6 +752,7 @@ def parse_inputs(root_package: str, input_args: Optional[List[str]] = None) -> d
     )
     commands_parser.add_parser("print", help="Only print dependencies and their licenses")
     commands_parser.add_parser("print-lic", help="Only print licenses of dependencies")
+    commands_parser.add_parser("export-csv", help="Export the licenses of dependencies into csv")
     commands_parser.add_parser("init", help="Initialize the approved licenses list file")
     fix_parser = commands_parser.add_parser("fix", help="Fix the approved packaged licenses files")
     fix_parser.add_argument(
@@ -658,55 +766,27 @@ def parse_inputs(root_package: str, input_args: Optional[List[str]] = None) -> d
 
 def main() -> int:
     """Main function."""
-    if Version(pip_version) < Version(MIN_PIP_VERSION):
-        print("Please install newer version of pip")
-        print(f"Minimum version required: {MIN_PIP_VERSION}, you have: {pip_version}")
-        print("To update pip run: 'python -m pip install --upgrade pip'")
-        return 1
-
-    handlers: Dict[str, Callable[[KwArg(Any)], int]] = {
-        "print": print_dependencies,
-        "print-lic": print_licenses,
-        "check": check_dependencies,
-        "init": init_approved_file,
-        "fix": fix_dependencies,
+    handlers: Dict[str, str] = {
+        "print": "print_dependencies",
+        "print-lic": "print_licenses",
+        "export-csv": "export_csv",
+        "check": "check_dependencies",
+        "init": "init_approved_file",
+        "fix": "fix_dependencies",
     }
+    args = parse_inputs()
 
-    spdx = {}
-    toml = {}
-    root_package = "codecheck"
-
-    pyproject_toml_path = os.path.join(os.getcwd(), "pyproject.toml")
-    if os.path.exists(pyproject_toml_path):
-        with open(pyproject_toml_path, "rb") as f:
-            toml = tomli.load(f)
-
-    if toml.get("project") and toml["project"].get("name"):
-        root_package = toml["project"]["name"]
-
-    if toml.get("tool") and toml["tool"].get("checker_depencecies"):
-        root_package = toml["tool"]["checker_depencecies"].get("root_package", root_package)
-        spdx = toml["tool"]["checker_depencecies"].get("spdx", {})
-
-    args = parse_inputs(root_package)
-    args["spdx"] = spdx
-
-    file = None
-    original_stdout = None
-    # redirect the output to file
-    if args["output"]:
-        original_stdout = sys.stdout
-        sys.stdout = open(  # pylint: disable=consider-using-with
-            args["output"], "w", encoding="utf-8"
-        )
-    try:
-        handler = handlers[args["command"]]
-        exit_code = handler(**args)
-        print(f"Finished with exit code {exit_code}")
-    finally:
-        if file and isinstance(original_stdout, TextIO):
-            file.close()
-            sys.stdout = original_stdout
+    with redirect_stdout(
+        open(args["output"], "w", encoding="utf-8") if args["output"] else sys.stdout
+    ):
+        checker = DependenciesChecker(args["root_package"])
+        handler = getattr(checker, handlers[args["command"]])
+        result = handler(**args)
+        messages = result.messages if isinstance(result, CheckerResult) else []
+        for message in messages:
+            print(message)
+        exit_code = result.errors if isinstance(result, CheckerResult) else 0
+    print(f"Finished with exit code {exit_code}")
     return exit_code
 
 

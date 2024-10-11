@@ -32,6 +32,7 @@ class TaskState(Enum):
     RUNNING = 2
     PASSED = 3
     FAILED = 4
+    NOT_AVAILABLE = 5
 
 
 @dataclass
@@ -40,6 +41,7 @@ class TaskResult:
 
     error_count: int
     output_log: str
+    not_run: bool = False
 
 
 class TaskInfo:  # pylint:disable=too-many-instance-attributes
@@ -51,6 +53,7 @@ class TaskInfo:  # pylint:disable=too-many-instance-attributes
         method: Callable,
         *args: Any,
         dependencies: Optional[List[str]] = None,
+        conficts: Optional[List[str]] = None,
         inherit_failure: bool = True,
         info_only: bool = False,
         fixer: Optional[Callable[[], Any]] = None,
@@ -71,6 +74,7 @@ class TaskInfo:  # pylint:disable=too-many-instance-attributes
         self.args = args
         self.kwargs = kwargs
         self.dependencies = dependencies
+        self.conflicts = conficts
         self.inherit_failure = inherit_failure
         self.info_only = info_only
         self._state = TaskState.READY
@@ -85,7 +89,9 @@ class TaskInfo:  # pylint:disable=too-many-instance-attributes
         return f"Task information:\nName: {self.name}\nMethod: {self.method}\nDependencies: {self.dependencies}"
 
     def __repr__(self) -> str:
-        return f"<TaskInfo: {self.name} [{self.status_str()}] Depends: {self.dependencies}>"
+        return (
+            f"<TaskInfo: {self.name} [{self.status_str(color=False)}] Depends: {self.dependencies}>"
+        )
 
     @property
     def status(self) -> TaskState:
@@ -104,11 +110,13 @@ class TaskInfo:  # pylint:disable=too-many-instance-attributes
         assert state in TaskState
         self._state = state
 
-    def status_str(self) -> str:
+    def status_str(self, color: bool = True) -> str:
         """Get task status in txt form.
 
         :return: Task state.
         """
+        if not color:
+            return self._state.name
         ret = f"{self.get_color_by_status()}{self._state.name}"
         if self.info_only:
             ret += f"{colorama.Fore.CYAN} [INFO ONLY]"
@@ -131,7 +139,13 @@ class TaskInfo:  # pylint:disable=too-many-instance-attributes
         exec_stop = time.perf_counter()
         self.exec_time = exec_stop - self.exec_start
         passed = not exc and result.error_count == 0 if result else not exc
-        self.status = TaskState.PASSED if passed else TaskState.FAILED
+        if isinstance(result, TaskResult) and result.not_run:
+            self.status = TaskState.NOT_AVAILABLE
+        elif passed:
+            self.status = TaskState.PASSED
+        else:
+            self.status = TaskState.FAILED
+
         self.result = result
         self.exception = exc
 
@@ -140,7 +154,7 @@ class TaskInfo:  # pylint:disable=too-many-instance-attributes
 
         :return: True if task is finished, otherwise False.
         """
-        return self.status in [TaskState.PASSED, TaskState.FAILED]
+        return self.status in [TaskState.PASSED, TaskState.FAILED, TaskState.NOT_AVAILABLE]
 
     def is_failed(self) -> bool:
         """Get the state if the task is failed.
@@ -174,6 +188,7 @@ class TaskInfo:  # pylint:disable=too-many-instance-attributes
             TaskState.RUNNING: colorama.Fore.YELLOW,
             TaskState.PASSED: colorama.Fore.GREEN,
             TaskState.FAILED: colorama.Fore.RED,
+            TaskState.NOT_AVAILABLE: colorama.Fore.YELLOW,
         }
         return colors[self.status]
 
@@ -210,6 +225,10 @@ class TaskList(List[TaskInfo]):
         """Set the states to task by its dependencies."""
         for task in self:
             if task.status in [TaskState.READY, TaskState.BLOCKED]:
+                conflict_state = self.check_conflicts(task.conflicts)
+                task.status = conflict_state
+                if task.status == TaskState.BLOCKED:
+                    continue
                 depend_state = self.check_dependencies(task.dependencies)
                 if depend_state != TaskState.FAILED:
                     task.status = depend_state
@@ -262,6 +281,21 @@ class TaskList(List[TaskInfo]):
                 return TaskState.FAILED
 
             if task.status in [TaskState.READY, TaskState.RUNNING]:
+                return TaskState.BLOCKED
+
+        return TaskState.READY
+
+    def check_conflicts(self, conflicts: Optional[List[str]]) -> TaskState:
+        """Check if any of the conflict tasks are running."""
+        if not conflicts:
+            return TaskState.READY
+
+        for conflict in conflicts:
+            try:
+                task = self.get_task_by_name(conflict)
+            except (TaskSchedulerError, ValueError):
+                continue
+            if task.is_running():
                 return TaskState.BLOCKED
 
         return TaskState.READY

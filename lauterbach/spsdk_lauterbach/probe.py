@@ -118,16 +118,20 @@ class DebugProbeLauterbach(DebugProbeLocal):
 
         return probes
 
-    @staticmethod
-    def get_options_help() -> Dict[str, str]:
+    @classmethod
+    def get_options_help(cls) -> Dict[str, str]:
         """Get full list of options of debug probe.
 
         :return: Dictionary with individual options. Key is parameter name and value the help text.
         """
-        return {
-            "ip": "[HOST][:PORT] of the Lauterbach T32. Default HOST: localhost, default PORT: 20_000",
-            "note": "Your config.t32 file shall contain the following settings: RCL=NETTCP PORT=20000",
-        }
+        options_help = super().get_options_help()
+        options_help["ip"] = (
+            "[HOST][:PORT] of the Lauterbach T32. Default HOST: localhost, default PORT: 20_000"
+        )
+        options_help["note"] = (
+            "Your config.t32 file shall contain the following settings: RCL=NETTCP PORT=20000"
+        )
+        return options_help
 
     def open(self) -> None:
         """Debug probe open.

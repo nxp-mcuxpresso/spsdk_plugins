@@ -9,97 +9,186 @@ jupyter_check_paths: []
 
 # *********************************** Checker list ***********************************
 checkers:
-  - name: PYTEST
-    method: check_pytest
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    kwargs:
-      disable_xdist: false
-  - name: GITCOV
-    method: check_gitcov
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: true
-    dependencies: [PYTEST]
-  - name: PYLINT
-    method: check_pylint
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-  - name: MYPY
-    method: check_mypy
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-  - name: DEPENDENCIES
-    method: check_dependencies
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    fixer: fix_dependencies
-  - name: PYDOCSTYLE
-    method: check_pydocstyle
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-  - name: RADON_C
-    method: check_radon
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: true
-    kwargs:
-      min_rank: C
-  - name: RADON_D
-    method: check_radon
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    kwargs:
-      min_rank: D
-  - name: BLACK
-    method: check_black
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    dependencies: []
-    fixer: fix_black
-  - name: ISORT
-    method: check_isort
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    dependencies: []
-    fixer: fix_isort
-  - name: COPYRIGHT
-    method: check_copyright_year
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    dependencies: []
-    fixer: fix_copyright_year
-  - name: PY_HEADERS
-    method: check_py_file_headers
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    dependencies: []
-    fixer: fix_py_file_headers
-  - name: CYCLIC
-    method: check_cyclic_imports
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    dependencies: []
+    PYTEST:
+        name: PYTEST
+        method: check_pytest
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+        kwargs:
+            disable_xdist: false
+    GITCOV:
+        name: GITCOV
+        method: check_gitcov
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: true
+        dependencies: [PYTEST]
+        conflicts: []
+    PYLINT:
+        name: PYLINT
+        method: check_pylint
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+    MYPY:
+        name: MYPY
+        method: check_mypy
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+    DEPENDENCIES:
+        name: DEPENDENCIES
+        method: check_dependencies
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+        fixer: fix_dependencies
+    PYDOCSTYLE:
+        name: PYDOCSTYLE
+        method: check_pydocstyle
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+    RADON_C:
+        name: RADON_C
+        method: check_radon
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: true
+        dependencies: []
+        conflicts: []
+        kwargs:
+            min: C
+    RADON_D:
+        name: RADON_D
+        method: check_radon
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+        kwargs:
+            min: D
+    BLACK:
+        name: BLACK
+        method: check_black
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+        fixer: fix_black
+    ISORT:
+        name: ISORT
+        method: check_isort
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+        fixer: fix_isort
+    COPYRIGHT:
+        name: COPYRIGHT
+        method: check_copyright_year
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+        fixer: fix_copyright_year
+    PY_HEADERS:
+        name: PY_HEADERS
+        method: check_py_file_headers
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+        fixer: fix_py_file_headers
+    CYCLIC:
+        name: CYCLIC
+        method: check_cyclic_imports
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+    CSPELL:
+        name: CSPELL
+        method: check_cspell
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: true
+        dependencies: []
+        conflicts: []
+    BANDIT:
+        name: BANDIT
+        method: check_bandit
+        info_only: true
+        dependencies: []
+        conflicts: []
+    LYCHEE:
+        name: LYCHEE
+        method: check_lychee
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: true
+        dependencies: []
+        conflicts: []
+    # ************************** Jupyter notebooks checks *********************************
+    BLACK_NB:
+        name: BLACK_NB
+        method: check_black_nb
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: [BLACK, MYPY, ISORT]
+        inherit_failure: false
+        fixer: fix_black_nb
+        jupyter_notebook_checker: True
+    ISORT_NB:
+        name: ISORT_NB
+        method: check_isort_nb
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: [BLACK, MYPY, ISORT, BLACK_NB]
+        inherit_failure: false
+        fixer: fix_isort_nb
+        jupyter_notebook_checker: True
+    JUPYTER:
+        name: JUPYTER
+        method: check_jupyter_outputs
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: [BLACK_NB, ISORT_NB]
+        inherit_failure: false
+        jupyter_notebook_checker: True
 
-  # ************************** Jupyter notebooks checks *********************************
-  - name: BLACK_NB
-    method: check_black_nb
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    dependencies: [BLACK, MYPY, ISORT]
-    inherit_failure: false
-    fixer: fix_black_nb
-    jyputer_notebook_checker: True
-  - name: ISORT_NB
-    method: check_isort_nb
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    dependencies: [BLACK_NB]
-    inherit_failure: false
-    fixer: fix_isort_nb
-    jyputer_notebook_checker: True
-  - name: JUPYTER
-    method: check_jupyter_outputs
-    # check_paths: [] # The default check paths could be overrides by local settings
-    info_only: false
-    dependencies: [BLACK_NB, ISORT_NB]
-    inherit_failure: false
-    jyputer_notebook_checker: True
+spdx:
+    Apache-2.0:
+        [
+            Apache 2.0,
+            Apache-2.0 License,
+            Apache Software License 2.0,
+            Apache License,
+            Version 2.0,
+            Apache License 2.0,
+            Apache Software License,
+        ]
+    BSD-2-Clause: [BSD, BSD 2-Clause License]
+    BSD-3-Clause:
+        [
+            BSD,
+            BSD License,
+            BSD 3-Clause,
+            BSD (3 clause),
+            BSD 3-Clause License,
+            Modified BSD License,
+        ]
+    MIT: [MIT License, MIT license]
+    MPL-2.0: [MPL 2.0, Mozilla Public License 2.0 (MPL 2.0)]
+    NLPL: [Public domain, Public Domain]
+    PSF-2.0: [PSF, PSFL, Python Software Foundation License]
+    GPL-2.0-or-later: []
+    LGPL-2.0-only: [LGPL-2.0]
+    LGPL-2.1-or-later: []
+    LGPL-3.0-only: [LGPL-3.0]
+    ISC: [ISC license]

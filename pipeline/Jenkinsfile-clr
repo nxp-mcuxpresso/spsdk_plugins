@@ -1,0 +1,104 @@
+pipeline {
+    agent {label 'linux-spsdk'}
+    parameters {
+        string(name: 'JIRA_ID', defaultValue: '', description: 'The release jira ticket')
+        string(name: 'SPSDK_PLUGINS_BRANCH', defaultValue: 'master', description: 'Branch of SPSDK Plugins')
+    }
+    environment {
+        JIRA_TOKEN = credentials('spsdk-jira-token')
+        GITHUB_TOKEN = credentials('spsdk-github-token')
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                // checkout release tools
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: 'SPSDK-3675-jenkins-release-pipeline-for-spsdk-plugins-2']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'release_tools']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[credentialsId: 'git_credentials', url: 'ssh://git@bitbucket.sw.nxp.com/spsdk/release-tools.git']]
+                ])
+                // checkout SPSDK Plugins
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: env.SPSDK_PLUGINS_BRANCH]],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [
+                        [$class: 'CloneOption', noTags: false, reference: '', shallow: false],
+                        [$class: 'LocalBranch', localBranch: "**"],
+                        [$class: 'RelativeTargetDirectory', relativeTargetDir: 'spsdk_plugins']
+                    ],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[credentialsId: 'git_credentials', url: 'ssh://git@bitbucket.sw.nxp.com/spsdk/spsdk_plugins.git']]
+                ])
+            }
+        }
+
+        stage("Setup") {
+            steps {
+                withPythonEnv('python3.12') {
+                    sh 'python -m pip install --upgrade pip'
+                    sh 'pip install --upgrade ./release_tools'
+                    sh 'pip install --upgrade ./spsdk_plugins/codecheck'
+                }
+            }
+        }
+        stage('CLR') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    withPythonEnv('python3.12') {
+                        sh '''
+                            set +e
+                            exit_code=0
+                            # running the CLR on whole repository
+                            release_tools clr run --root-dir spsdk_plugins --report-output spsdk_plugins/clr_out/clr.txt
+                            [ $? -ne 0 ] && exit_code=$((exit_code + 1))
+                            cd spsdk_plugins
+                            packages="codecheck jlink lauterbach pemicro pqc pyocd pkcs11 pylint_plugins"
+                            for package in $packages;
+                            do
+                                [ ! -d $package ] && continue
+                                echo "****************************************"
+                                echo "CLR $package"
+                                echo "****************************************"
+                                pip install --upgrade ./$package
+                                cd $package
+                                dependencies --github_token $GITHUB_TOKEN --output ../clr_out/dep_check_$package.txt check --strict
+                                [ $? -ne 0 ] && exit_code=$((exit_code + 1))
+                                dependencies --github_token $GITHUB_TOKEN --output ../clr_out/dependencies_$package.txt print
+                                [ $? -ne 0 ] && exit_code=$((exit_code + 1))
+                                cd ..
+                            done
+                            // Keep the exit code for later stage
+                            echo $exit_code > exit_code.txt
+                            exit $exit_code
+                            '''
+                    }
+                }
+            }
+        }
+        
+        stage("Upload Jira") {
+            when {
+                expression {
+                    return env.JIRA_ID != '';
+                }
+            }
+            steps {
+                withPythonEnv('python3.12') {
+                    sh '''
+                    exitCode=`cat spsdk_plugins/exit_code.txt`
+                    release_tools clr push-jira --jira-token $JIRA_TOKEN --parent-jira-issue $JIRA_ID --report-dir spsdk_plugins/clr_out --exit-code $exitCode --zip
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: 'spsdk_plugins/clr_out/**', fingerprint: true
+        }
+    }
+}
