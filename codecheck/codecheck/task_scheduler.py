@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright 2021-2024 NXP
 #
@@ -47,16 +47,19 @@ class TaskResult:
 class TaskInfo:  # pylint:disable=too-many-instance-attributes
     """Task information class."""
 
-    def __init__(  # pylint:disable=too-many-arguments
+    # pylint:disable=too-many-arguments,too-many-positional-arguments
+    def __init__(
         self,
         name: str,
         method: Callable,
-        *args: Any,
         dependencies: Optional[List[str]] = None,
-        conficts: Optional[List[str]] = None,
+        conflicts: Optional[List[str]] = None,
         inherit_failure: bool = True,
         info_only: bool = False,
         fixer: Optional[Callable[[], Any]] = None,
+        user_args: Optional[list[str]] = None,
+        user_kwargs: Optional[dict[str, str]] = None,
+        timeout: int = 100,
         **kwargs: Any,
     ) -> None:
         """Task info initialization.
@@ -71,10 +74,9 @@ class TaskInfo:  # pylint:disable=too-many-instance-attributes
         """
         self.name = name
         self.method = method
-        self.args = args
         self.kwargs = kwargs
         self.dependencies = dependencies
-        self.conflicts = conficts
+        self.conflicts = conflicts
         self.inherit_failure = inherit_failure
         self.info_only = info_only
         self._state = TaskState.READY
@@ -83,6 +85,11 @@ class TaskInfo:  # pylint:disable=too-many-instance-attributes
         self.exec_time = 0.0
         self.exception: Optional[BaseException] = None
         self.fixer = fixer
+        if user_args:
+            self.kwargs["user_args"] = user_args
+        if user_kwargs:
+            self.kwargs["user_kwargs"] = user_kwargs
+        self.kwargs["timeout"] = timeout
 
     def __str__(self) -> str:
         """Print Task information."""
@@ -396,7 +403,7 @@ class PrettyProcessRunner:  # pylint: disable=too-few-public-methods
         self, executor: ProcessPoolExecutor, future_set: dict, task: TaskInfo
     ) -> Future:
         task.start_task()
-        future = executor.submit(task.method, *task.args, **task.kwargs)
+        future = executor.submit(task.method, **task.kwargs)
         future.add_done_callback(lambda x: (self._user_task_done_callback(x, future_set, task)))
         future_set[future] = task
         return future

@@ -9,7 +9,7 @@
 
 __author__ = """NXP"""
 __email__ = "michal.starecek@gmail.com"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 from pylint.lint import PyLinter
 

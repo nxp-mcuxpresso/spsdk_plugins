@@ -1,5 +1,5 @@
 [project]
-version = "0.2.0"
+version = "0.3.0"
 name = "spsdk_plugins"
 
 [tool.release-tools]
@@ -9,6 +9,7 @@ disabled = ['docs']
 install_hook = ['uv pip install nox tomli', "nox --session venv --no-venv"]
 package_directories = [
     "codecheck",
+    "keyfactor",
     "jlink",
     "lauterbach",
     "pemicro",
@@ -27,6 +28,7 @@ scr_file = "SW_Content_Register_SPSDK_plugins.txt"
 
 [tool.release-tools.scr.sub_projects]
 codecheck = { scr_file = "SW_Content_Register_codecheck.txt" }
+keyfactor = { scr_file = "SW_Content_Register_spsdk_keyfactor.txt" }
 jlink = { scr_file = "SW_Content_Register_spsdk_jlink.txt" }
 lauterbach = { scr_file = "SW_Content_Register_spsdk_lauterbach.txt" }
 pemicro = { scr_file = "SW_Content_Register_spsdk_pemicro.txt" }
@@ -36,7 +38,8 @@ pylint_plugins = { scr_file = "SW_Content_Register_spsdk_pylint_plugins.txt" }
 pyocd = { scr_file = "SW_Content_Register_spsdk_PyOCD.txt" }
 
 [tool.release-tools.testpypi.sub_projects]
-"codecheck" = {test_cmd = "codecheck --help"}
+"codecheck" = { test_cmd = "codecheck --help" }
+"keyfactor" = {}
 "jlink" = {}
 "lauterbach" = {}
 "pemicro" = {}
@@ -44,4 +47,3 @@ pyocd = { scr_file = "SW_Content_Register_spsdk_PyOCD.txt" }
 "pqc" = {}
 "pylint_plugins" = {}
 "pyocd" = {}
-

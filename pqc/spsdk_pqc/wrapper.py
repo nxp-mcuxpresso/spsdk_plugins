@@ -38,8 +38,9 @@ def get_crypto_library_path(mode: int = 3, use_aes: bool = False) -> str:
     :param use_aes: Use AES version of the algorithm, defaults to False
     :return: Path to crypto backend library
     """
-    assert use_aes is False, "AES mode is not yet supported"
-    return str(pathlib.Path(__file__).parent / f"_dil{mode}{'aes' if use_aes else ''}.so")
+    if use_aes:
+        raise NotImplementedError("AES mode is not yet supported")
+    return str(pathlib.Path(__file__).parent / f"_dil{mode}.so")
 
 
 def get_key_info(level: int = 3) -> KeyInfo:

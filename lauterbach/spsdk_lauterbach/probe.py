@@ -6,6 +6,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Main module for Lauterbach debug probe plugin."""
 
+# cspell: ignore NETTCP, EDBG
+
 import functools
 import logging
 import time

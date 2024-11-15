@@ -8,7 +8,7 @@
 
 __author__ = """NXP"""
 __email__ = "starecek.michal@nxp.com"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 from .probe import DebugProbePemicro
 

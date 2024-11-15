@@ -18,6 +18,8 @@ checkers:
         conflicts: []
         kwargs:
             disable_xdist: false
+        args: ["tests"]
+        timeout: 600
     GITCOV:
         name: GITCOV
         method: check_gitcov
@@ -25,6 +27,7 @@ checkers:
         info_only: true
         dependencies: [PYTEST]
         conflicts: []
+        timeout: 30
     PYLINT:
         name: PYLINT
         method: check_pylint
@@ -32,6 +35,7 @@ checkers:
         info_only: false
         dependencies: []
         conflicts: []
+        timeout: 200
     MYPY:
         name: MYPY
         method: check_mypy
@@ -39,6 +43,7 @@ checkers:
         info_only: false
         dependencies: []
         conflicts: []
+        timeout: 200
     DEPENDENCIES:
         name: DEPENDENCIES
         method: check_dependencies
@@ -47,6 +52,8 @@ checkers:
         dependencies: []
         conflicts: []
         fixer: fix_dependencies
+        args: [check]
+        timeout: 30
     PYDOCSTYLE:
         name: PYDOCSTYLE
         method: check_pydocstyle
@@ -54,6 +61,7 @@ checkers:
         info_only: false
         dependencies: []
         conflicts: []
+        timeout: 100
     RADON_C:
         name: RADON_C
         method: check_radon
@@ -61,8 +69,10 @@ checkers:
         info_only: true
         dependencies: []
         conflicts: []
+        args: [cc, --show-complexity]
         kwargs:
             min: C
+        timeout: 30
     RADON_D:
         name: RADON_D
         method: check_radon
@@ -70,8 +80,37 @@ checkers:
         info_only: false
         dependencies: []
         conflicts: []
+        args: [cc, --show-complexity]
         kwargs:
             min: D
+        timeout: 30
+    RADON_MI:
+        name: RADON_MI
+        method: check_radon
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: false
+        dependencies: []
+        conflicts: []
+        args: [mi]
+        timeout: 30
+    RADON_HAL:
+        name: RADON_HAL
+        method: check_radon
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: true
+        dependencies: []
+        conflicts: []
+        args: [hal]
+        timeout: 30
+    RADON_RAW:
+        name: RADON_RAW
+        method: check_radon
+        # check_paths: [] # The default check paths could be overrides by local settings
+        info_only: true
+        dependencies: []
+        conflicts: []
+        args: [raw]
+        timeout: 30
     BLACK:
         name: BLACK
         method: check_black
@@ -80,6 +119,8 @@ checkers:
         dependencies: []
         conflicts: []
         fixer: fix_black
+        args: [--check, --diff]
+        timeout: 30
     ISORT:
         name: ISORT
         method: check_isort
@@ -88,6 +129,7 @@ checkers:
         dependencies: []
         conflicts: []
         fixer: fix_isort
+        timeout: 30
     COPYRIGHT:
         name: COPYRIGHT
         method: check_copyright_year
@@ -96,6 +138,7 @@ checkers:
         dependencies: []
         conflicts: []
         fixer: fix_copyright_year
+        timeout: 30
     PY_HEADERS:
         name: PY_HEADERS
         method: check_py_file_headers
@@ -104,6 +147,7 @@ checkers:
         dependencies: []
         conflicts: []
         fixer: fix_py_file_headers
+        timeout: 30
     CYCLIC:
         name: CYCLIC
         method: check_cyclic_imports
@@ -111,6 +155,7 @@ checkers:
         info_only: false
         dependencies: []
         conflicts: []
+        timeout: 200
     CSPELL:
         name: CSPELL
         method: check_cspell
@@ -118,12 +163,15 @@ checkers:
         info_only: true
         dependencies: []
         conflicts: []
+        args: [lint, --no-cache, --no-progress, --no-color]
+        timeout: 100
     BANDIT:
         name: BANDIT
         method: check_bandit
         info_only: true
         dependencies: []
         conflicts: []
+        timeout: 100
     LYCHEE:
         name: LYCHEE
         method: check_lychee
@@ -131,6 +179,8 @@ checkers:
         info_only: true
         dependencies: []
         conflicts: []
+        args: [--no-progress]
+        timeout: 100
     # ************************** Jupyter notebooks checks *********************************
     BLACK_NB:
         name: BLACK_NB
@@ -142,6 +192,7 @@ checkers:
         inherit_failure: false
         fixer: fix_black_nb
         jupyter_notebook_checker: True
+        timeout: 30
     ISORT_NB:
         name: ISORT_NB
         method: check_isort_nb
@@ -152,6 +203,7 @@ checkers:
         inherit_failure: false
         fixer: fix_isort_nb
         jupyter_notebook_checker: True
+        timeout: 30
     JUPYTER:
         name: JUPYTER
         method: check_jupyter_outputs
@@ -161,17 +213,21 @@ checkers:
         conflicts: [BLACK_NB, ISORT_NB]
         inherit_failure: false
         jupyter_notebook_checker: True
+        args: ["outputs"]
+        timeout: 30
 
 spdx:
     Apache-2.0:
         [
             Apache 2.0,
             Apache-2.0 License,
+            Apache-2.0 license,
             Apache Software License 2.0,
             Apache License,
             Version 2.0,
             Apache License 2.0,
             Apache Software License,
+            "Apache License, Version 2.0",
         ]
     BSD-2-Clause: [BSD, BSD 2-Clause License]
     BSD-3-Clause:
@@ -183,7 +239,7 @@ spdx:
             BSD 3-Clause License,
             Modified BSD License,
         ]
-    MIT: [MIT License, MIT license]
+    MIT: [MIT License, MIT license, MIT Licence] # cspell:ignore Licence   # typo is on purpose
     MPL-2.0: [MPL 2.0, Mozilla Public License 2.0 (MPL 2.0)]
     NLPL: [Public domain, Public Domain]
     PSF-2.0: [PSF, PSFL, Python Software Foundation License]
@@ -192,3 +248,4 @@ spdx:
     LGPL-2.1-or-later: []
     LGPL-3.0-only: [LGPL-3.0]
     ISC: [ISC license]
+    Unlincense: [The Unlicense]

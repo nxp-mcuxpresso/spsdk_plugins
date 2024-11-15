@@ -32,7 +32,7 @@ class ClickChoiceChecker(BaseChecker):
                 isinstance(f, astroid.Name)
                 and f.name == "Choice"
                 or isinstance(f, astroid.Attribute)
-                and f.attrname == "Choice"
+                and f.attrname == "Choice"  # cspell: ignore attrname
             ):
                 # check if `case_sensitive` is set
                 for kw in node.value.keywords:

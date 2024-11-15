@@ -7,7 +7,7 @@
 
 __author__ = """NXP"""
 __email__ = "michal.starecek@nxp.com"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from .provider import PKCS11SP
 

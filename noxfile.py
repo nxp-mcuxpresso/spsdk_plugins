@@ -8,8 +8,9 @@
 
 import functools
 import shlex
+import shutil
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import nox
 import tomli
@@ -17,6 +18,7 @@ from nox.logger import logger
 
 nox.options.default_venv_backend = "uv|venv"
 nox.options.reuse_venv = "yes"
+nox.options.stop_on_first_error = True
 
 THIS_DIR = Path(__file__).parent
 
@@ -58,15 +60,27 @@ def get_args_index(args: list[str], search: str) -> Optional[int]:
     return args.index(search)
 
 
-@nox.session(default=False)
-def venv(session: nox.Session) -> None:
-    """Setup venv with all plugins and SPSDK. To update current venv use --no-venv."""
-
+def get_install_command(session: nox.Session) -> Callable[..., None]:
     install_fcn = (
         functools.partial(session.run, "uv", "pip", "install")
         if session.venv_backend == "none"
         else session.install
     )
+    return install_fcn
+
+
+def remove_posargs(session: nox.Session, *args: str) -> None:
+    for arg in args:
+        arg_index = get_args_index(session.posargs, arg)
+        if arg_index is not None:
+            session.posargs.pop(arg_index)
+            session.posargs.pop(arg_index)
+
+
+@nox.session(default=False)
+def venv(session: nox.Session) -> None:
+    """Setup venv with all plugins and SPSDK. To use custom SPSDK use `--spsdk <repo-path>`."""
+    install_fcn = get_install_command(session=session)
 
     spsdk_index = get_args_index(session.posargs, "--spsdk")
     if spsdk_index is not None:
@@ -76,34 +90,36 @@ def venv(session: nox.Session) -> None:
             session.error(f"SPSDK Path {spsdk_path} doesn't exist")
         with session.chdir(spsdk_path):
             install_fcn(".[all]")
-
-        # remove --spsdk <path> from posargs, as they will be passed down to codecheck
-        session.posargs.pop(spsdk_index)
-        session.posargs.pop(spsdk_index)
+        remove_posargs(session, "--spsdk")
     else:
         # install spsdk from Nexus, use --prerelease to get the latest version
         # latest version that is not yet released publicly
         install_fcn("spsdk[all]", "--prerelease", "allow")
 
     dependencies = collect_dependencies()
-    install_fcn(*dependencies)
     with session.chdir("codecheck"):
-        install_fcn(".")
+        install_fcn(".", "-U")
+    install_fcn(*dependencies)
+
     for project in get_projects():
+        if project == "codecheck":
+            continue
         with session.chdir(project):
             install_fcn(".", "--no-deps")
 
 
 @nox.session
 def codecheck(session: nox.Session) -> None:
-    """Run codecheck on all plugins."""
+    """Run codecheck on all plugins. Session accepts same options as `codecheck`."""
     venv(session=session)
+    remove_posargs(session, "--repository")
+
     failed = []
     for project in get_projects():
         with session.chdir(project):
             try:
                 output_idx = get_args_index(session.posargs, "--output")
-                if not output_idx:
+                if output_idx is None:
                     output_idx = get_args_index(session.posargs, "-o")
                 if output_idx is not None:
                     report_dir = session.posargs[output_idx + 1]
@@ -120,3 +136,34 @@ def codecheck(session: nox.Session) -> None:
                 session.warn(f"Codecheck for {project} failed!")
     if failed:
         session.error(f"Codecheck ended with errors for: {', '.join(failed)}")
+
+
+@nox.session
+def build(session: nox.Session) -> None:
+    """Build Python packages."""
+    print(session.posargs)
+    install_fnc = get_install_command(session=session)
+    install_fnc("build", "twine")
+    for project in get_projects():
+        with session.chdir(project):
+            if Path("dist").exists():
+                shutil.rmtree("dist")
+            session.run(
+                "python", "-m", "build", "--sdist", "--wheel", "--installer", "uv"
+            )
+            session.run("twine", "check", "--strict", "dist/*")
+
+
+@nox.session
+def upload(session: nox.Session) -> None:
+    """Use twine to upload all built packages. To use custom pypi repo use `--repository <repo-name>`."""
+    print(session.posargs)
+    repository_index = get_args_index(session.posargs, "--repository")
+    extra_args = []
+    if repository_index is not None:
+        extra_args.extend(["--repository", session.posargs[repository_index + 1]])
+    install_fnc = get_install_command(session=session)
+    install_fnc("twine")
+    for project in get_projects():
+        with session.chdir(project):
+            session.run("twine", "upload", "dist/*", *extra_args)

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
 # Copyright 2024 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -5,4 +8,4 @@
 
 __author__ = """NXP"""
 __email__ = "michal.starecek@nxp.com"
-__version__ = "0.1.16"
+__version__ = "0.2.10"

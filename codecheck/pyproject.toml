@@ -49,7 +49,7 @@ version = { attr = "codecheck.__version__" }
 dependencies = { file = ["requirements.txt"] }
 
 [tool.bumpversion]
-current_version = "0.1.16"
+current_version = "0.2.10"
 
 [[tool.bumpversion.files]]
 filename = "codecheck/__init__.py"
@@ -100,7 +100,9 @@ format = { max-line-length = 120 }
 "messages control" = { disable = ["logging-fstring-interpolation", "R0801"] }
 
 [tool.bandit]
-skips = ["B603"]
+# B101: Use of assert
+# B404: Consider possible security implications associated with subprocess module.
+skips = ["B101", "B404"]
 
 [tool.py_headers]
 excluded_files = []
@@ -120,41 +122,12 @@ verbose = 0
 debug = 0
 full-file-test = 0
 
-[tool.checker_dependencies.spdx]
-"Apache-2.0" = [
-    "Apache 2.0",
-    "Apache-2.0 License",
-    "Apache Software License 2.0",
-    "Apache License, Version 2.0",
-    "Apache License 2.0",
-    "Apache Software License",
-	"Apache-2.0 license",
-]
-"BSD-2-Clause" = ["BSD", "BSD 2-Clause License"]
-"BSD-3-Clause" = [
-    "BSD",
-    "BSD License",
-    "BSD 3-Clause",
-    "BSD (3 clause)",
-    "BSD 3-Clause License",
-    "Modified BSD License",
-]
-"MIT" = ["MIT License", "MIT license"]
-"MPL-2.0" = ["MPL 2.0", "Mozilla Public License 2.0 (MPL 2.0)"]
-"NLPL" = ["Public domain", "Public Domain"]
-"PSF-2.0" = ["PSF", "PSFL", "Python Software Foundation License"]
-"GPL-2.0-or-later" = []
-"LGPL-2.0-only" = ["LGPL-2.0"]
-"LGPL-2.1-or-later" = []
-"LGPL-3.0-only" = ["LGPL-3.0"]
-"ISC" = ["ISC license"]
-
 [tool.nxp_codecheck]
 git_parent_branch = "origin/master"
 output_directory = "reports"
 default_check_paths = ["codecheck"]
 checkers = [
-    "pytest",
+    { "pytest" = { kwargs = { disable_xdist = true } } },
     { "gitcov" = { info_only = true } },
     "pylint",
     "mypy",
@@ -166,9 +139,6 @@ checkers = [
     "isort",
     "copyright",
     "py_headers",
-    # "cyclic",
-    { "bandit" = { info_only = true } },
-    "black_nb",
-    "isort_nb",
-    "jupyter",
+    { "cspell" = { info_only = true } },
+    { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]

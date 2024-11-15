@@ -9,6 +9,7 @@
 
 import argparse
 import os
+import shlex
 import subprocess
 import sys
 from concurrent.futures import ProcessPoolExecutor
@@ -21,9 +22,11 @@ def check_file(path: str) -> int:
     :param path: File name
     :return: 0 for success, 1 for cyclic import detected
     """
-    output = subprocess.getoutput(f"{sys.executable} {path}")
-    if "(most likely due to a circular import)" in output:
-        print(output)
+    output = subprocess.run(
+        shlex.split(f'"{sys.executable}" {path}'), text=True, check=False, capture_output=True
+    )
+    if "(most likely due to a circular import)" in output.stderr + output.stdout:
+        print(output.stderr + output.stdout)
         return 1
     return 0
 

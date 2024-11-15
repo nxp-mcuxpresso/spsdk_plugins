@@ -9,7 +9,7 @@
 
 __author__ = """NXP"""
 __email__ = "michal.starecek@nxp.com"
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 from .wrapper import DilithiumPrivateKey, DilithiumPublicKey
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
 # Copyright 2024 NXP
@@ -52,7 +53,7 @@ class PKCS11SP(SignatureProvider):
         :raises SPSDKError: TOKEN or KEY was not found in the HSM
         """
         if not token_label and not token_serial:
-            raise SPSDKError("Missing 'token_label' or 'token_sertial', or both")
+            raise SPSDKError("Missing 'token_label' or 'token_serial', or both")
         self.token_label = token_label
         self.token_serial = token_serial
         if not key_label and not key_id:

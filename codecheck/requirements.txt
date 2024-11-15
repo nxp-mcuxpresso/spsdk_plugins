@@ -17,4 +17,6 @@ pydocstyle[toml]
 tomli
 nbqa
 types-pyyaml
+types-requests
 bandit[toml]
+defusedxml

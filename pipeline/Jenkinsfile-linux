@@ -47,7 +47,7 @@ pipeline {
                         sh '''
                 set +e
                 exit_code=0
-                packages="codecheck jlink lauterbach pemicro pqc pyocd pkcs11 pylint_plugins"
+                packages="codecheck jlink keyfactor lauterbach pemicro pqc pkcs11 pylint_plugins pyocd"
                 for package in $packages;
                 do
                     [ ! -d $package ] && continue
@@ -75,7 +75,7 @@ pipeline {
                     withPythonEnv('python3.12') {
                         sh 'python --version'
                         sh 'python -m pip install --upgrade pip'
-                        sh 'cd spsdk_repo && pip install --upgrade ".[all]"'
+                        sh 'cd spsdk_repo && pip install --upgrade ".[all]"
                         sh 'cd spsdk_repo && pip install --upgrade -r requirements-develop.txt'
                     }
             }
@@ -86,8 +86,8 @@ pipeline {
                     sh '''
                 set +e
                 exit_code=0
-                # pkcs11 does nto support Python3.12
-                packages="codecheck jlink lauterbach pemicro pqc pyocd pylint_plugins"
+                # pkcs11 does not support Python3.12
+                packages="codecheck jlink keyfactor lauterbach pemicro pqc pylint_plugins pyocd"
                 for package in $packages;
                 do
                     [ ! -d $package ] && continue
@@ -110,15 +110,10 @@ pipeline {
             }
         }
     }
-        post {
-            always {
-                    archiveArtifacts artifacts: 'codecheck/reports39/**, jlink/reports39/**, lauterbach/reports39/**, pemicro/reports39/**, pqc/reports39/**, pyocd/reports39/**, pkcs11/reports39/**, pylint_plugins/reports39/**', fingerprint: true
-                    archiveArtifacts artifacts: 'codecheck/reports312/**, jlink/reports312/**, lauterbach/reports312/**, pemicro/reports312/**, pqc/reports312/**, pyocd/reports312/**, pkcs11/reports312/**, pylint_plugins/reports312/**', fingerprint: true
-
-            // emailext(body: '${DEFAULT_CONTENT}', mimeType: 'text/html',
-            //  replyTo: '$DEFAULT_REPLYTO', subject: '${DEFAULT_SUBJECT}',
-            //  to: emailextrecipients([[$class: 'CulpritsRecipientProvider'],
-            //                          [$class: 'RequesterRecipientProvider']]))
-            }
-        }
+	post {
+		always {
+				archiveArtifacts artifacts: 'codecheck/reports39/**, jlink/reports39/**, lauterbach/reports39/**, pemicro/reports39/**, pqc/reports39/**, pyocd/reports39/**, pkcs11/reports39/**, pylint_plugins/reports39/**', fingerprint: true
+				archiveArtifacts artifacts: 'codecheck/reports312/**, jlink/reports312/**, lauterbach/reports312/**, pemicro/reports312/**, pqc/reports312/**, pyocd/reports312/**, pkcs11/reports312/**, pylint_plugins/reports312/**', fingerprint: true
+		}
+	}
 }

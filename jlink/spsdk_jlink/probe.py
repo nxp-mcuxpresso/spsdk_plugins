@@ -236,7 +236,9 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
     def _reinit_jlink_target(self) -> None:
         """Re-initialize the Jlink connection."""
+        if self.pylink is None:
+            raise SPSDKDebugProbeNotOpenError("The PyLink debug probe is not opened yet")
+
         if not self.disable_reinit:
-            assert self.pylink
             self.pylink.coresight_configure()
             self._reinit_target()

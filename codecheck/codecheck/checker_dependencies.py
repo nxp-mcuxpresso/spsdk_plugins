@@ -614,6 +614,9 @@ class DependenciesChecker:
                 approved_license = license_obj.get_spdx()
                 license_obj.refresh()
                 spdx = license_obj.get_spdx()
+                if not spdx:
+                    logger.warning(f"Package '{actual_dep}' doesn't have SPDX license")
+                    continue
                 if spdx != approved_license:
                     result.messages.append(
                         f"Package '{actual_dep}' licenses differs."

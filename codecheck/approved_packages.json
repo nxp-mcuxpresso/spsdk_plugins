@@ -136,6 +136,18 @@
       }
     },
     {
+      "home_page": "https://github.com/tiran/defusedxml",
+      "name": "defusedxml",
+      "package": {
+        "name": "defusedxml",
+        "license": "PSFL"
+      },
+      "github": {
+        "project_name": "tiran/defusedxml",
+        "license": ""
+      }
+    },
+    {
       "home_page": "https://github.com/tantale/deprecated",
       "name": "Deprecated",
       "package": {
@@ -173,6 +185,18 @@
       "package": {
         "name": "executing",
         "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/tox-dev/filelock",
+      "name": "filelock",
+      "package": {
+        "name": "filelock",
+        "license": "The Unlicense"
+      },
+      "github": {
+        "project_name": "tox-dev/filelock",
+        "license": "The Unlicense"
       }
     },
     {
@@ -386,7 +410,7 @@
       "name": "prettytable",
       "package": {
         "name": "prettytable",
-        "license": "BSD (3 clause)"
+        "license": "BSD License"
       }
     },
     {
@@ -643,6 +667,18 @@
       }
     },
     {
+      "home_page": "https://github.com/asottile/tokenize-rt",
+      "name": "tokenize_rt",
+      "package": {
+        "name": "tokenize_rt",
+        "license": "MIT"
+      },
+      "github": {
+        "project_name": "asottile/tokenize-rt",
+        "license": "MIT"
+      }
+    },
+    {
       "home_page": "https://github.com/hukkin/tomli",
       "name": "tomli",
       "package": {
@@ -671,7 +707,7 @@
       "name": "types-PyYAML",
       "package": {
         "name": "types-PyYAML",
-        "license": "Apache-2.0 license"
+        "license": "Apache-2.0"
       },
       "github": {
         "project_name": "python/typeshed",
@@ -679,6 +715,18 @@
       },
       "manual": {
         "license": "Apache-2.0 License"
+      }
+    },
+    {
+      "home_page": "https://github.com/python/typeshed",
+      "name": "types-requests",
+      "package": {
+        "name": "types-requests",
+        "license": "Apache-2.0"
+      },
+      "github": {
+        "project_name": "python/typeshed",
+        "license": ""
       }
     },
     {

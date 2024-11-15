@@ -6,13 +6,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 from typing import Optional
 from unittest.mock import patch
-from packaging.metadata import Metadata, RawMetadata
+
 import pytest
+from packaging.metadata import Metadata, RawMetadata
+
 from codecheck.checker_dependencies import (
     DependencyInfo,
+    GithubLicense,
     LicenseBase,
     LocalPackageLicense,
-    GithubLicense,
 )
 
 

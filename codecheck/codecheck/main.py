@@ -10,6 +10,7 @@
 import logging
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -28,7 +29,7 @@ from codecheck.checker_copyright_year import fix_copyright_in_files
 from codecheck.checker_py_headers import fix_py_headers_in_files
 from codecheck.task_scheduler import PrettyProcessRunner, TaskInfo, TaskList, TaskResult
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument,too-many-lines
 
 log = logging.getLogger(__name__)
 colorama.init()
@@ -110,6 +111,8 @@ class CodeCheckConfig:
 
             checker_name = cls._get_checker_name(checker=checker)
             checker_defaults: dict = defaults[checker_name]
+            _, checker_config = checker.popitem() if isinstance(checker, dict) else ("", {})
+            assert isinstance(checker_defaults, dict)
 
             method = globals()[checker_defaults["method"]]
             fixer_name = checker_defaults.get("fixer")
@@ -119,27 +122,41 @@ class CodeCheckConfig:
             check_paths = jupyter_check_paths if jupyter_notebook_checker else default_check_paths
             if isinstance(checker, dict):
                 check_paths = checker.get("check_paths", check_paths)
+            if isinstance(checker_config, dict):
+                check_paths = checker_config.get("check_paths", check_paths)
             if not check_paths:
                 continue
 
+            user_args = checker_defaults.get("args", [])
+            if isinstance(checker_config, dict):
+                user_args = checker_config.get("args", user_args)
+
+            user_kwargs = checker_defaults.get("kwargs", {})
+            if isinstance(checker_config, dict):
+                user_kwargs = checker_config.get("kwargs", user_kwargs)
+
             kwargs = {"output": output_directory, "check_paths": check_paths}
-            kwargs.update(checker_defaults.get("kwargs", {}))
-            if isinstance(checker, dict):
-                kwargs.update(checker.get("kwargs", {}))
 
             info_only = checker_defaults.get("info_only", False)
-            if isinstance(checker, dict):
-                info_only = checker.get("info_only", info_only)
+            if isinstance(checker_config, dict):
+                info_only = checker_config.pop("info_only", info_only)
+
+            timeout = checker_defaults.get("timeout", 100)
+            if isinstance(checker_config, dict):
+                timeout = checker_config.pop("timeout", timeout)
 
             checkers.append(
                 TaskInfo(
                     name=checker_name,
                     method=method,
                     dependencies=checker_defaults.get("dependencies", []),
-                    conficts=checker_defaults.get("conflicts", []),
+                    conflicts=checker_defaults.get("conflicts", []),
                     inherit_failure=checker_defaults.get("inherit_failure", True),
                     info_only=info_only,
                     fixer=fixer,
+                    user_args=user_args,
+                    user_kwargs=user_kwargs,
+                    timeout=timeout,
                     **kwargs,
                 )
             )
@@ -219,8 +236,31 @@ def check_results(tasks: List[TaskInfo], output: str = "reports") -> int:
     return ret
 
 
+def _serialize_args_kwargs(
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    kw_separator: str = "=",
+    kw_prefix: str = "--",
+) -> str:
+    """Serialize arguments and keyword arguments."""
+    args_s = " ".join(user_args) if user_args else ""
+    kwargs_s = (
+        " ".join([f"{kw_prefix}{key}{kw_separator}{value}" for key, value in user_kwargs.items()])
+        if user_kwargs
+        else ""
+    )
+    return f"{args_s} {kwargs_s}"
+
+
+# pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-positional-arguments
 def check_pytest(
-    output: str, check_paths: List[str], disable_xdist: bool = False, **kwargs: Dict[str, Any]
+    output: str,
+    check_paths: List[str],
+    disable_xdist: bool = False,
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Get the code coverage."""
     output_folder = os.path.join(output, "htmlcov")
@@ -232,69 +272,113 @@ def check_pytest(
     if os.path.isdir(output_folder):
         shutil.rmtree(output_folder, ignore_errors=True)
 
+    if kwargs:
+        disable_xdist |= bool(kwargs.get("disable_xdist", False))
+    if user_kwargs:
+        disable_xdist |= bool(user_kwargs.pop("disable_xdist", False))
+
     parallel = "" if disable_xdist else f"-n {CPU_CNT//2 or 1}"
     cov_path = check_paths[0]
-    args = (
-        f"pytest {parallel} tests --cov {cov_path} --cov-branch --junit-xml {junit_report}"
-        f" --cov-report term --cov-report html:{output_folder} --cov-report xml:{output_xml}"
+
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+
+    cmd = (
+        f'pytest {parallel} {user_args_s} --cov "{cov_path}" --cov-branch --junit-xml "{junit_report}"'
+        f' --cov-report term --cov-report html:"{output_folder}" --cov-report xml:"{output_xml}"'
     )
     with open(output_log, "w", encoding="utf-8") as f:
         if len(check_paths) > 1:
             f.write(f"Only first path ({cov_path}) has been used to code coverage")
             f.flush()
         res = subprocess.call(
-            args.split(),
+            shlex.split(cmd),
             stdout=f,
             stderr=f,
             env=dict(os.environ, COVERAGE_FILE=coverage_file),
+            timeout=timeout,
         )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def check_gitcov(output: str, **kwargs: Dict[str, Any]) -> TaskResult:
+def check_gitcov(
+    output: str,
+    timeout: int = 100,
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Get the code coverage."""
     output_log = os.path.join(output, "gitcov.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
     with open(output_log, "w", encoding="utf-8") as f:
         res = subprocess.call(
-            (
-                f"{sys.executable} {CODECHECK_FOLDER}/gitcov.py "
-                f"--coverage-report {os.path.join(output, 'coverage.xml')}"
-            ).split(),
+            shlex.split(
+                f"'{sys.executable}' '{CODECHECK_FOLDER}/gitcov.py' {user_args_s} "
+                f"--coverage-report '{os.path.join(output, 'coverage.xml')}'"
+            ),
             stdout=f,
             stderr=f,
+            timeout=timeout,
         )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def check_dependencies(output: str, **kwargs: Dict[str, Any]) -> TaskResult:
+def check_dependencies(
+    output: str,
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the dependencies and their licenses."""
     output_log = os.path.join(output, "dependencies.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
     with open(output_log, "w", encoding="utf-8") as f:
         res = subprocess.call(
-            f"{sys.executable} {CODECHECK_FOLDER}/checker_dependencies.py check".split(),
+            shlex.split(
+                f"'{sys.executable}' '{CODECHECK_FOLDER}/checker_dependencies.py' {user_args_s}"
+            ),
             stdout=f,
             stderr=f,
+            timeout=timeout,
         )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_dependencies(**kwargs: Dict[str, Any]) -> None:
+def fix_dependencies(timeout: int = 100, **kwargs: Dict[str, Any]) -> None:
     """Check the dependencies and their licenses."""
     subprocess.call(
-        f"{sys.executable} {CODECHECK_FOLDER}/checker_dependencies.py fix".split(),
+        shlex.split(f"'{sys.executable}' '{CODECHECK_FOLDER}/checker_dependencies.py' fix"),
         stdout=None,
         stderr=None,
+        timeout=timeout,
     )
 
 
-def check_pydocstyle(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_pydocstyle(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the dependencies and their licenses."""
     output_log = os.path.join(output, "pydocstyle.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(f"pydocstyle {' '.join(check_paths)}".split(), stdout=f, stderr=f)
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"pydocstyle {user_args_s} {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     with open(output_log, "r", encoding="utf-8") as f:
         err_cnt = re.findall(r":\d+ in", f.read())
@@ -304,25 +388,50 @@ def check_pydocstyle(output: str, check_paths: List[str], **kwargs: Dict[str, An
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def check_mypy(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_mypy(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project against mypy tool."""
     output_log = os.path.join(output, "mypy.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(["mypy"] + check_paths, stdout=f, stderr=f)
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"mypy {user_args_s} {path_slice}"), stdout=f, stderr=f, timeout=timeout
+            )
 
     with open(output_log, "r", encoding="utf-8") as f:
-        err_cnt = re.findall(r"Found \d+ error", f.read())
+        err_cnt: list[str] = re.findall(r"Found \d+ error", f.read())
         if err_cnt:
             res = int(err_cnt[0].replace("Found ", "").replace(" error", ""))
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def check_pylint_all(output: str, args: str, **kwargs: Dict[str, Any]) -> TaskResult:
+def check_pylint_all(
+    output: str,
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Call pylint with given configuration and output log."""
     output_log = os.path.join(output, "pylint_docs.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
     with open(output_log, "w", encoding="utf-8") as f:
-        subprocess.call(f"pylint {args} -j {CPU_CNT//2 or 1}".split(), stdout=f, stderr=f)
+        subprocess.call(
+            shlex.split(f"pylint {user_args_s} -j {CPU_CNT//2 or 1}"),
+            stdout=f,
+            stderr=f,
+            timeout=timeout,
+        )
 
     with open(output_log, "r", encoding="utf-8") as f:
         err_cnt = re.findall(r": [IRCWEF]\d{4}:", f.read())
@@ -333,13 +442,24 @@ def check_pylint_all(output: str, args: str, **kwargs: Dict[str, Any]) -> TaskRe
 def check_pylint(
     output: str,
     check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
     **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check Pylint log for errors."""
     output_log = os.path.join(output, "pylint.txt")
-    cmd = f"pylint {' '.join(check_paths)} -j {CPU_CNT//2 or 1}"
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+
     with open(output_log, "w", encoding="utf-8") as f:
-        subprocess.call(cmd.split(), stdout=f, stderr=f)
+        for path_slice in path_slices:
+            subprocess.call(
+                shlex.split(f"pylint {user_args_s} {path_slice} -j {CPU_CNT//2 or 1}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     with open(output_log, "r", encoding="utf-8") as f:
         err_cnt = re.findall(r": [IRCWEF]\d{4}:", f.read())
@@ -350,27 +470,24 @@ def check_pylint(
 def check_radon(
     output: str,
     check_paths: List[str],
-    changed_files: Sequence[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
     **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check the project against radon rules."""
-    extra_params = []
-    if kwargs:
-        # remove legacy kwargs
-        kwargs.pop("min_rank", None)
-        kwargs.pop("max_rank", None)
-        extra_params = [f"--{key} {value}" for key, value in kwargs.items()]
-    extra_cmd = " ".join(extra_params)
-
-    cmd = "radon cc --show-complexity"
-    cmd += " " + extra_cmd
-    cmd += f" {' '.join(check_paths)}"
-
-    file_suffix = extra_cmd.replace(" ", "-")
-
-    output_log = os.path.join(output, f"radon{file_suffix}.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    file_suffix = user_args_s.replace(" ", "-").replace("---", "-")
+    output_log = os.path.join(output, f"radon-{file_suffix}.txt")
+    path_slices = splice_changed_files(changed_files=check_paths)
     with open(output_log, "w", encoding="utf-8") as f:
-        subprocess.call(cmd.split(), stdout=f, stderr=f)
+        for path_slice in path_slices:
+            subprocess.call(
+                shlex.split(f"radon {user_args_s} {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     with open(output_log, "r", encoding="utf-8") as f:
         err_cnt = re.findall(r"[ABCDEF] \(\d{1,3}\)", f.read())
@@ -378,46 +495,95 @@ def check_radon(
     return TaskResult(error_count=len(err_cnt), output_log=output_log)
 
 
-def check_black(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_black(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project against black formatter rules."""
     output_log = os.path.join(output, "black.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(
-            f"black --check --diff {' '.join(check_paths)}".split(), stdout=f, stderr=f
-        )
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"black {user_args_s} {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_black(check_paths: List[str], **kwargs: Dict[str, Any]) -> None:
+def fix_black(check_paths: List[str], timeout: int = 100, **kwargs: Dict[str, Any]) -> None:
     """Check the project against black formatter rules."""
-    subprocess.call(f"black {' '.join(check_paths)}".split(), stdout=None, stderr=None)
+    path_slices = splice_changed_files(changed_files=check_paths)
+    for path_slice in path_slices:
+        subprocess.call(
+            shlex.split(f"black {path_slice}"), stdout=None, stderr=None, timeout=timeout
+        )
 
 
-def check_black_nb(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_black_nb(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project against black formatter rules."""
     output_log = os.path.join(output, "black_nb.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(
-            f"nbqa black --nbqa-diff {' '.join(check_paths)}".split(),
-            stdout=f,
-            stderr=f,
-        )
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"nbqa black --nbqa-diff {path_slice} {user_args_s}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_black_nb(check_paths: List[str], **kwargs: Dict[str, Any]) -> None:
+def fix_black_nb(check_paths: List[str], timeout: int = 100, **kwargs: Dict[str, Any]) -> None:
     """Check the project against black formatter rules."""
-    subprocess.call(f"nbqa black {' '.join(check_paths)}".split(), stdout=None, stderr=None)
+    path_slices = splice_changed_files(changed_files=check_paths)
+    for path_slice in path_slices:
+        subprocess.call(
+            shlex.split(f"nbqa black {path_slice}"), stdout=None, stderr=None, timeout=timeout
+        )
 
 
-def check_isort(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_isort(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project against isort imports formatter rules."""
     output_log = os.path.join(output, "isort.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(f"isort -c {' '.join(check_paths)}".split(), stdout=f, stderr=f)
-
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"isort {user_args_s} -c {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
     if res:
         with open(output_log, "r", encoding="utf-8") as f:
             res = len(f.read().splitlines())
@@ -425,21 +591,37 @@ def check_isort(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_isort(check_paths: List[str], **kwargs: Dict[str, Any]) -> None:
+def fix_isort(check_paths: List[str], timeout: int = 100, **kwargs: Dict[str, Any]) -> None:
     """Check the project against isort imports formatter rules."""
-    subprocess.call(f"isort {' '.join(check_paths)}".split(), stdout=None, stderr=None)
-
-
-def check_isort_nb(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
-    """Check the project against isort imports formatter rules."""
-    output_log = os.path.join(output, "isort_nb.txt")
-    with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(
-            f"nbqa isort --nbqa-diff {' '.join(check_paths)}".split(),
-            stdout=f,
-            stderr=f,
+    path_slices = splice_changed_files(changed_files=check_paths)
+    for path_slice in path_slices:
+        subprocess.call(
+            shlex.split(f"isort {path_slice}"), stdout=None, stderr=None, timeout=timeout
         )
 
+
+def check_isort_nb(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
+    """Check the project against isort imports formatter rules."""
+    output_log = os.path.join(output, "isort_nb.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
+    with open(output_log, "w", encoding="utf-8") as f:
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"nbqa isort --nbqa-diff {user_args_s} {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
+
     if res:
         with open(output_log, "r", encoding="utf-8") as f:
             res = len(f.read().splitlines())
@@ -447,26 +629,47 @@ def check_isort_nb(output: str, check_paths: List[str], **kwargs: Dict[str, Any]
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_isort_nb(check_paths: List[str], **kwargs: Dict[str, Any]) -> None:
+def fix_isort_nb(
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> None:
     """Check the project against isort imports formatter rules."""
-    subprocess.call(f"nbqa isort {' '.join(check_paths)}".split(), stdout=None, stderr=None)
+    path_slices = splice_changed_files(changed_files=check_paths)
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    for path_slice in path_slices:
+        subprocess.call(
+            shlex.split(f"nbqa isort {path_slice} {user_args_s}"),
+            stdout=None,
+            stderr=None,
+            timeout=timeout,
+        )
 
 
 def check_copyright_year(
     output: str,
     changed_files: Sequence[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
     **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check the project against copy right year rules."""
     output_log = os.path.join(output, "copyright_year.txt")
-    pieces = splice_changed_files(changed_files=changed_files)
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=changed_files)
     res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        for piece in pieces:
+        for path_slice in path_slices:
             res += subprocess.call(
-                f"{sys.executable} {CODECHECK_FOLDER}/checker_copyright_year.py {piece}".split(),
+                shlex.split(
+                    f'"{sys.executable}" "{CODECHECK_FOLDER}/checker_copyright_year.py" {user_args_s} {path_slice}'
+                ),
                 stdout=f,
                 stderr=f,
+                timeout=timeout,
             )
     if res:
         with open(output_log, "r", encoding="utf-8") as f:
@@ -477,23 +680,34 @@ def check_copyright_year(
 
 def fix_copyright_year(changed_files: Sequence[str], **kwargs: Dict[str, Any]) -> None:
     """Check the project against copy right year rules."""
-    fix_copyright_in_files(changed_files)
+    path_slices = splice_changed_files(changed_files)
+    for path_slice in path_slices:
+        fix_copyright_in_files(path_slice.split())
 
 
 def check_py_file_headers(
-    output: str, changed_files: Sequence[str], **kwargs: Dict[str, Any]
+    output: str,
+    changed_files: Sequence[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check that python files have valid header."""
     output_log = os.path.join(output, "py_header.txt")
-    pieces = splice_changed_files(changed_files=changed_files)
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=changed_files)
     res = 0
 
     with open(output_log, "w", encoding="utf-8") as f:
-        for piece in pieces:
+        for path_slice in path_slices:
             res += subprocess.call(
-                f"{sys.executable} {CODECHECK_FOLDER}/checker_py_headers.py {piece}".split(),
+                shlex.split(
+                    f'"{sys.executable}" "{CODECHECK_FOLDER}/checker_py_headers.py" {user_args_s} {path_slice}'
+                ),
                 stdout=f,
                 stderr=f,
+                timeout=timeout,
             )
 
     if res:
@@ -505,11 +719,18 @@ def check_py_file_headers(
 
 def fix_py_file_headers(changed_files: Sequence[str], **kwargs: Dict[str, Any]) -> None:
     """Check the project against copy right year rules."""
-    fix_py_headers_in_files(changed_files)
+    path_slices = splice_changed_files(changed_files)
+    for path_slice in path_slices:
+        fix_py_headers_in_files(path_slice.split())
 
 
 def check_jupyter_outputs(
-    output: str, changed_files: Sequence[str], **kwargs: Dict[str, Any]
+    output: str,
+    changed_files: Sequence[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Checker of Jupiter notebooks outputs.
 
@@ -519,21 +740,30 @@ def check_jupyter_outputs(
     :return: Checker result
     """
     output_log = os.path.join(output, "jupyter_outputs.txt")
-    pieces = splice_changed_files(changed_files=changed_files)
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=changed_files)
     res = 0
 
     with open(output_log, "w", encoding="utf-8") as f:
-        for piece in pieces:
+        for path_slice in path_slices:
             res += subprocess.call(
-                f"{sys.executable} {CODECHECK_FOLDER}/checker_jupyter.py outputs {piece}".split(),
+                shlex.split(
+                    f'"{sys.executable}" "{CODECHECK_FOLDER}/checker_jupyter.py" {user_args_s} {path_slice}'
+                ),
                 stdout=f,
                 stderr=f,
+                timeout=timeout,
             )
     return TaskResult(error_count=res, output_log=output_log)
 
 
 def check_cyclic_imports(
-    output: str, check_paths: List[str], **kwargs: Dict[str, Any]
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Cyclic import check.
 
@@ -543,43 +773,66 @@ def check_cyclic_imports(
     :return: Task results
     """
     output_log = os.path.join(output, "cyclic_imports.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(
-            f"{sys.executable} {CODECHECK_FOLDER}/checker_cyclic_import.py "
-            f"{' '.join(check_paths)} -j {CPU_CNT//2 or 1}".split(),
-            stdout=f,
-            stderr=f,
-        )
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(
+                    f'"{sys.executable}" "{CODECHECK_FOLDER}/checker_cyclic_import.py" {user_args_s} {path_slice}'
+                ),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def check_cspell(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_cspell(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project spelling with cspell."""
     output_log = os.path.join(output, "cspell.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+
+    cspell_path = shutil.which("cspell")
+    if not cspell_path:
+        return TaskResult(error_count=1, output_log="CSPELL NOT FOUND", not_run=True)
+
     with open(output_log, "w", encoding="utf-8") as f:
         try:
             res = subprocess.run(
-                "cspell --help",
-                shell=True,
+                f'"{cspell_path}" --help',
                 check=False,
                 capture_output=True,
+                shell=True,
                 timeout=5,
-            )
+            )  # nosec calling this without shell=True causes [WinError 193] %1 is not a valid Win32 application
         except subprocess.TimeoutExpired:
             return TaskResult(error_count=1, output_log="TIMED OUT", not_run=True)
         if res.returncode != 0:
+            f.write(res.stdout.decode("utf-8"))
             f.write(res.stderr.decode("utf-8"))
             return TaskResult(error_count=res.returncode, output_log=output_log, not_run=True)
 
-        res = subprocess.run(
-            f"cspell lint \"{' '.join(check_paths)}\" --no-cache --no-progress --no-color",
-            shell=True,
-            check=False,
-            capture_output=True,
-            timeout=100,
-        )
+        for path_slice in path_slices:
+            res = subprocess.run(
+                f'"{cspell_path}" {user_args_s} {path_slice}',
+                check=False,
+                capture_output=True,
+                shell=True,
+                timeout=timeout,
+            )  # nosec calling this without shell=True causes [WinError 193] %1 is not a valid Win32 application
 
-        f.write(res.stdout.decode("utf-8"))
+            f.write(res.stdout.decode("utf-8"))
+            f.write(res.stderr.decode("utf-8"))
 
         match = 0
         matched = None
@@ -594,13 +847,26 @@ def check_cspell(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) 
     return TaskResult(error_count=match or res.returncode, output_log=output_log)
 
 
-def check_lychee(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_lychee(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project links with lychee."""
     output_log = os.path.join(output, "lychee.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+
+    lychee_path = shutil.which("lychee")
+    if not lychee_path:
+        return TaskResult(error_count=1, output_log="LYCHEE NOT FOUND", not_run=True)
+
     with open(output_log, "w", encoding="utf-8") as f:
         res = subprocess.run(
-            "lychee --help",
-            shell=True,
+            shlex.split(f'"{lychee_path}" --help'),
             check=False,
             capture_output=True,
             timeout=5,
@@ -609,15 +875,15 @@ def check_lychee(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) 
             f.write(res.stderr.decode("utf-8"))
             return TaskResult(error_count=res.returncode, output_log=output_log, not_run=True)
 
-        res = subprocess.run(
-            f"lychee --no-progress \"{' '.join(check_paths)}\"",
-            shell=True,
-            check=False,
-            capture_output=True,
-            timeout=100,
-        )
+        for path_slice in path_slices:
+            res = subprocess.run(
+                shlex.split(f'"{lychee_path}" {user_args_s} {path_slice}'),
+                check=False,
+                capture_output=True,
+                timeout=timeout,
+            )
 
-        f.write(res.stdout.decode("utf-8"))
+            f.write(res.stdout.decode("utf-8"))
 
         match = 0
         matched = None
@@ -633,20 +899,26 @@ def check_lychee(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) 
 
 
 def check_bandit(
-    output: str, check_paths: List[str], changed_files: Sequence[str], **kwargs: str
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: str,
 ) -> TaskResult:
     """Check for project's security vulnerabilities using Bandit."""
     output_log = os.path.join(output, "bandit.txt")
-    extra_params = []
-    if kwargs:
-        extra_params = [f"--{key} {value}" for key, value in kwargs.items()]
-
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(
-            f"bandit -c pyproject.toml -r {' '.join(check_paths)} {' '.join(extra_params)}".strip().split(),
-            stderr=f,
-            stdout=f,
-        )
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"bandit -c pyproject.toml -r {path_slice} {user_args_s}"),
+                stderr=f,
+                stdout=f,
+                timeout=timeout,
+            )
     # bandit return's 1 if there are any errors, we get the exact amount from the log file
     if res > 0:
         with open(output_log, encoding="utf-8") as f:
@@ -701,7 +973,7 @@ def splice_changed_files(changed_files: Sequence[str], max_size: int = 2000) -> 
     """
     big_string = " ".join(changed_files)
     total_len = len(big_string)
-    splice_length = 1000
+    splice_length = max_size
     max_iterations = 2 * (total_len // splice_length) + 1
 
     start_offset = 0

@@ -48,7 +48,7 @@ pipeline {
                     @echo off
                     setlocal enabledelayedexpansion
                     set exit_code=0
-                    set packages=codecheck jlink lauterbach pemicro pqc pyocd pkcs11 pylint_plugins
+                    set packages=codecheck jlink keyfactor lauterbach pemicro pqc pkcs11 pylint_plugins pyocd
 
                     for %%G in (%packages%) do (
                         echo ****************************************
@@ -88,7 +88,7 @@ pipeline {
                     setlocal enabledelayedexpansion
                     set exit_code=0
                     rem pkcs11 does not support Python3.12
-                    set packages=codecheck jlink lauterbach pemicro pqc pyocd pylint_plugins
+                    set packages=codecheck jlink keyfactor lauterbach pemicro pqc pylint_plugins pyocd
 
                     for %%G in (%packages%) do (
                         echo ****************************************
