@@ -103,6 +103,7 @@ checkers = [
     "mypy",
     "dependencies",
     "pydocstyle",
+    "ruff",
     { "radon_c" = { info_only = true } },
     "radon_d",
     "black",

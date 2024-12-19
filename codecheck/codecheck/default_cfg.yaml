@@ -181,6 +181,14 @@ checkers:
         conflicts: []
         args: [--no-progress]
         timeout: 100
+    RUFF:
+        name: RUFF
+        method: check_ruff
+        info_only: false
+        dependencies: []
+        conflicts: []
+        fixer: fix_ruff
+        timeout: 100
     # ************************** Jupyter notebooks checks *********************************
     BLACK_NB:
         name: BLACK_NB

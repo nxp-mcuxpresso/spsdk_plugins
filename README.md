@@ -13,7 +13,7 @@ Affected functionality is the following:
 - PE Micro debug probe support, installable via `pip install spsdk-pemicro`
 - Added support for Lauterbach debug probe, installable via `pip install spsdk-lauterbach`
 
-J-Link and PE Micro over PyOCD is kept in the base SPSDK installation.
+J-Link and PE Micro over PyOCD are also in a form of a plugin, but they are installed by default in SPSDK.
 
 ## Supported plugin types
 

@@ -4,7 +4,7 @@ description = "Post-Quatum Crypto support for SPSDK"
 dynamic = ["version"]
 
 requires-python = ">= 3.9"
-dependencies = []
+dependencies = ["pyasn1", "typing_extensions", "click"]
 
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "michal.starecek@nxp.com" }]
@@ -24,6 +24,11 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
+[project.entry-points]
+pyinstaller40 = { hook-dirs = "spsdk_pqc.__pyinstaller:get_hook_dirs" }
+console_scripts = { pqctool = "spsdk_pqc.__main__:main" }
+
+
 [project.urls]
 Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/pqc"
 Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
@@ -34,13 +39,13 @@ requires = ["setuptools >= 61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["spsdk_pqc"]
+packages = ["spsdk_pqc", "spsdk_pqc.__pyinstaller"]
 
 [tool.setuptools.dynamic]
 version = { attr = "spsdk_pqc.__version__" }
 
 [tool.bumpversion]
-current_version = "0.3.2"
+current_version = "0.5.0"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pqc/__init__.py"
@@ -81,15 +86,25 @@ disallow_untyped_defs = true
 ignore_missing_imports = true
 warn_unused_ignores = true
 
+[[tool.mypy.overrides]]
+module = "spsdk_pqc.liboqs_oqs.*"
+ignore_errors = true
+
 [tool.pydocstyle]
 convention = "google"
 add_ignore = "D105,D301"
-match = '(?!test_|__version__).*\.py'
+match = '(?!test_|__version__|liboqs_oqs).*\.py'
+
+[tool.copyright]
+excluded_files = ["spsdk_pqc/liboqs_oqs.py"]
+
+[tool.py_headers]
+excluded_files = ["spsdk_pqc/liboqs_oqs.py"]
 
 [tool.pylint]
 format = { max-line-length = 120 }
 "messages control" = { disable = ["logging-fstring-interpolation"] }
-
+ignore-patterns = "liboqs_oqs"
 
 [tool.nxp_codecheck]
 git_parent_branch = "origin/master"
@@ -102,6 +117,7 @@ checkers = [
     "mypy",
     "dependencies",
     "pydocstyle",
+    "ruff",
     { "radon_c" = { info_only = true } },
     "radon_d",
     "black",

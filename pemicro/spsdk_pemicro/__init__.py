@@ -8,8 +8,24 @@
 
 __author__ = """NXP"""
 __email__ = "starecek.michal@nxp.com"
-__version__ = "0.1.2"
+__version__ = "0.3.0"
 
-from .probe import DebugProbePemicro
+try:
+    from spsdk.__version__ import version, version_tuple
+except ImportError as exc:
+    raise RuntimeError("Unable to detect SPSDK version. Is SPSDK installed?") from exc
+
+
+MIN_SPSDK_VERSION = (2, 3)
+MIN_SPSDK_VERSION_STR = ".".join(str(i) for i in MIN_SPSDK_VERSION)
+
+if version_tuple < MIN_SPSDK_VERSION:
+    raise RuntimeError(
+        f"You are using old version of SPSDK ({version}). "
+        f"Please update SPSDK to at least version: {MIN_SPSDK_VERSION_STR}"
+    )
+
+# pylint: disable=wrong-import-position
+from .probe import DebugProbePemicro  # noqa: E402
 
 __all__ = ["DebugProbePemicro"]

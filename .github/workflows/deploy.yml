@@ -1,0 +1,77 @@
+name: Publish To PyPi
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  get-packages:
+    name: Get Package List
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.get-packages.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install TOML parser
+        run: pip install toml
+          
+      - id: get-packages
+        run: |
+          python -c "import toml; print('packages=' + str(toml.load('pyproject.toml')['tool']['release-tools']['clr']['package_directories']))" >> $GITHUB_OUTPUT
+
+  package:
+    name: Build Packages
+    needs: [get-packages]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
+    strategy:
+      matrix:
+        package: ${{fromJson(needs.get-packages.outputs.packages)}}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build and Check Package
+        uses: hynek/build-and-inspect-python-package@v2.10.0
+        with:
+          path: ${{ matrix.package }}
+          attest-build-provenance-github: 'true'
+          upload-name-suffix: -${{ matrix.package }}
+
+  deploy:
+    name: Upload Releases To PyPI
+    needs: [get-packages, package]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/
+    permissions:
+      id-token: write
+    strategy:
+      matrix:
+        package: ${{fromJson(needs.get-packages.outputs.packages)}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Package
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages-${{ matrix.package }}
+          path: dist
+
+      - name: Publish packages to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.9.0
+        with:
+          skip-existing: true

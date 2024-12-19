@@ -8,4 +8,4 @@
 
 __author__ = """NXP"""
 __email__ = "michal.starecek@nxp.com"
-__version__ = "0.2.10"
+__version__ = "0.3.1"

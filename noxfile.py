@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 import nox
+import nox.command
 import tomli
 from nox.logger import logger
 
@@ -62,7 +63,7 @@ def get_args_index(args: list[str], search: str) -> Optional[int]:
 
 def get_install_command(session: nox.Session) -> Callable[..., None]:
     install_fcn = (
-        functools.partial(session.run, "uv", "pip", "install")
+        functools.partial(session.run, "uv", "pip", "install", "--upgrade")
         if session.venv_backend == "none"
         else session.install
     )
@@ -98,7 +99,7 @@ def venv(session: nox.Session) -> None:
 
     dependencies = collect_dependencies()
     with session.chdir("codecheck"):
-        install_fcn(".", "-U")
+        install_fcn(".")
     install_fcn(*dependencies)
 
     for project in get_projects():
@@ -131,7 +132,7 @@ def codecheck(session: nox.Session) -> None:
                 if session.python:
                     report_dir += f"-{session.python}"
                 session.run("codecheck", *session.posargs, "-o", report_dir)
-            except:
+            except nox.command.CommandFailed:
                 failed.append(project)
                 session.warn(f"Codecheck for {project} failed!")
     if failed:
@@ -167,3 +168,37 @@ def upload(session: nox.Session) -> None:
     for project in get_projects():
         with session.chdir(project):
             session.run("twine", "upload", "dist/*", *extra_args)
+
+
+@nox.session(default=False)
+def bump(session: nox.Session) -> None:
+    """Bump version on each package. Use `major`, `minor`, or `patch` to indicate version bump."""
+    install_fnc = get_install_command(session=session)
+    install_fnc("bump-my-version", "GitPython")
+    if len(session.posargs) != 1:
+        session.error(
+            "Invalid input. Need one parameter indicating bump `major`, `minor`, or `patch`"
+        )
+    bump = session.posargs[0]
+    if bump not in ["major", "minor", "patch"]:
+        session.error(
+            "Invalid input. Need one parameter indicating bump `major`, `minor`, or `patch`"
+        )
+
+    import git
+
+    repo = git.Repo()
+
+    changed_files: list[str] = []
+    changed_files.extend(repo.untracked_files)
+    changed_files.extend([item.a_path for item in repo.index.diff("Head")])
+    changed_files.extend([item.a_path for item in repo.index.diff(None)])
+
+    for project in get_projects():
+        with session.chdir(project):
+            # check if there are any changed files here
+            changes_detected = any(f.startswith(project) for f in changed_files)
+            if not changes_detected:
+                logger.info(f"No changes detected in {project}")
+                continue
+            session.run("bump-my-version", "bump", bump, "--allow-dirty")

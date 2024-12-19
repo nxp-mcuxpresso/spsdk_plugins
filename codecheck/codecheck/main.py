@@ -24,6 +24,7 @@ import tomli
 from typing_extensions import Self
 from yaml import safe_load
 
+from codecheck import __version__ as codecheck_version
 from codecheck import gitcov
 from codecheck.checker_copyright_year import fix_copyright_in_files
 from codecheck.checker_py_headers import fix_py_headers_in_files
@@ -928,6 +929,66 @@ def check_bandit(
     return TaskResult(error_count=res, output_log=output_log)
 
 
+def check_ruff(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: str,
+) -> TaskResult:
+    """Check for project's security vulnerabilities using Bandit."""
+    output_log = os.path.join(output, "ruff.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
+    with open(output_log, "w", encoding="utf-8") as f:
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"ruff check {path_slice} {user_args_s}"),
+                stderr=f,
+                stdout=f,
+                timeout=timeout,
+            )
+    # bandit return's 1 if there are any errors, we get the exact amount from the log file
+    if res > 0:
+        with open(output_log, encoding="utf-8") as f:
+            log_data = f.read()
+        res = int(re.findall(r"Found (\d+) error", log_data)[0])
+
+    return TaskResult(error_count=res, output_log=output_log)
+
+
+def fix_ruff(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: str,
+) -> TaskResult:
+    """Check for project's security vulnerabilities using Bandit."""
+    output_log = os.path.join(output, "ruff.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
+    with open(output_log, "w", encoding="utf-8") as f:
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"ruff check --fix {path_slice} {user_args_s}"),
+                stderr=f,
+                stdout=f,
+                timeout=timeout,
+            )
+    # bandit return's 1 if there are any errors, we get the exact amount from the log file
+    if res > 0:
+        with open(output_log, encoding="utf-8") as f:
+            log_data = f.read()
+        res = int(re.findall(r"Found (\d+) errors", log_data)[0])
+
+    return TaskResult(error_count=res, output_log=output_log)
+
+
 def fix_found_problems(
     checks: TaskList,
     all_checks: TaskList,
@@ -1080,6 +1141,7 @@ def splice_changed_files(changed_files: Sequence[str], max_size: int = 2000) -> 
     default=False,
     help="Quick test mode, do not run INFO_ONLY checks.",
 )
+@click.version_option(codecheck_version)
 def main(  # pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
     check: List[str],
     info_check: List[str],

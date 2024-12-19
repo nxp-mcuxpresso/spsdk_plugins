@@ -47,7 +47,7 @@ def test_dependency_info_get_version():
         name="my_another_dependency", home_page="github.com/my_another_dependency"
     )
     version = dep_info.get_version()
-    assert version == None
+    assert version is None
 
 
 @patch("codecheck.checker_dependencies.get_package_metadata", mock_get_package_metadata)
@@ -137,4 +137,4 @@ def test_dependency_info_get_spdx(licenses_cfg, expected_spdx):
         assert isinstance(spdx, LicenseBase)
         assert spdx.get_spdx() == expected_spdx
     else:
-        assert spdx == None
+        assert spdx is None

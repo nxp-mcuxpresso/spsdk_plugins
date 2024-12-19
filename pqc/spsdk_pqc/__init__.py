@@ -9,8 +9,22 @@
 
 __author__ = """NXP"""
 __email__ = "michal.starecek@nxp.com"
-__version__ = "0.3.2"
+__version__ = "0.5.0"
 
-from .wrapper import DilithiumPrivateKey, DilithiumPublicKey
+from .errors import PQCError
+from .wrapper import (
+    DilithiumPrivateKey,
+    DilithiumPublicKey,
+    MLDSAPrivateKey,
+    MLDSAPublicKey,
+    PQCAlgorithm,
+)
 
-__all__ = ["DilithiumPrivateKey", "DilithiumPublicKey"]
+__all__ = [
+    "DilithiumPrivateKey",
+    "DilithiumPublicKey",
+    "MLDSAPrivateKey",
+    "MLDSAPublicKey",
+    "PQCAlgorithm",
+    "PQCError",
+]

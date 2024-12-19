@@ -3,6 +3,10 @@
 pipeline {
     agent none
 
+    options {
+        timeout(time: 2, unit: 'HOURS', activity: true)   // timeout on whole pipeline job
+    }
+
     stages {
         stage ("Quick check") {
             agent {
@@ -14,7 +18,7 @@ pipeline {
                     checkoutRepo("spsdk", "master", "spsdk_repo")
                     withVenv(
                         'uv pip install nox tomli',
-                        'nox -P 3.9 -- --spsdk spsdk_repo -s -o quick-reports'
+                        'nox -P 3.9 --session codecheck -- --spsdk spsdk_repo -s -o quick-reports'
                     )
                 }
             }
@@ -58,7 +62,7 @@ pipeline {
                             script {
                                 withVenv(
                                     'uv pip install nox tomli',
-                                    'nox -P 3.9 3.12 -- --spsdk spsdk_repo -s'
+                                    'nox -P 3.9 3.12 --session codecheck -- --spsdk spsdk_repo -s'
                                 )
                             }
                         }

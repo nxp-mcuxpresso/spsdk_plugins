@@ -19,7 +19,7 @@ class Nieco:
     param: Optional[List] = None
 
 
-l: List = [1, 2, 3]
+l1: List = [1, 2, 3]
 
 d: Dict[str, Any] = {}
 

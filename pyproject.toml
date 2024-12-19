@@ -1,5 +1,5 @@
 [project]
-version = "0.3.0"
+version = "0.4.0"
 name = "spsdk_plugins"
 
 [tool.release-tools]
@@ -7,10 +7,13 @@ disabled = ['docs']
 
 [tool.release-tools.clr]
 install_hook = ['uv pip install nox tomli', "nox --session venv --no-venv"]
+# TODO: Move this to sub_project once this ticket is done: SPSDK-4495
+excluded_files = ["pqc/spsdk_pqc/liboqs_oqs.py"]
 package_directories = [
     "codecheck",
     "keyfactor",
     "jlink",
+    "mcu_link",
     "lauterbach",
     "pemicro",
     "pkcs11",
@@ -28,6 +31,7 @@ scr_file = "SW_Content_Register_SPSDK_plugins.txt"
 
 [tool.release-tools.scr.sub_projects]
 codecheck = { scr_file = "SW_Content_Register_codecheck.txt" }
+mcu_link = { scr_file = "SW_Content_Register_spsdk_mcu_link.txt" }
 keyfactor = { scr_file = "SW_Content_Register_spsdk_keyfactor.txt" }
 jlink = { scr_file = "SW_Content_Register_spsdk_jlink.txt" }
 lauterbach = { scr_file = "SW_Content_Register_spsdk_lauterbach.txt" }
@@ -41,9 +45,23 @@ pyocd = { scr_file = "SW_Content_Register_spsdk_PyOCD.txt" }
 "codecheck" = { test_cmd = "codecheck --help" }
 "keyfactor" = {}
 "jlink" = {}
+"mcu_link" = {}
 "lauterbach" = {}
 "pemicro" = {}
 "pkcs11" = {}
 "pqc" = {}
 "pylint_plugins" = {}
 "pyocd" = {}
+
+[tool.release-tools.test_artifacts_collector.sub_projects]
+"codecheck" = {}
+"keyfactor" = {}
+"jlink" = {}
+"mcu_link" = {}
+"lauterbach" = {}
+"pemicro" = {}
+"pkcs11" = {}
+"pqc" = {}
+"pylint_plugins" = {}
+"pyocd" = {}
+

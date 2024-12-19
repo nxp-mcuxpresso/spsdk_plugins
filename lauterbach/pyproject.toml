@@ -4,8 +4,7 @@ description = "Lauterbach debug probe plugin for SPSDK"
 dynamic = ["version"]
 
 requires-python = ">= 3.9"
-dependencies = ["spsdk>=2.2.0", "lauterbach-trace32-rcl"]
-entry-points = { "spsdk.debug_probe" = { lauterbach = "spsdk_lauterbach.probe" } }
+dependencies = ["lauterbach-trace32-rcl"]
 
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "Michal Starecek", email = "michal.starecek@nxp.com" }]
@@ -25,6 +24,10 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
+[project.entry-points]
+"spsdk.debug_probe" = { lauterbach = "spsdk_lauterbach.probe" }
+pyinstaller40 = { hook-dirs = "spsdk_lauterbach.__pyinstaller:get_hook_dirs" }
+
 [project.urls]
 Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/lauterbach"
 Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
@@ -35,13 +38,13 @@ requires = ["setuptools >= 61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["spsdk_lauterbach"]
+packages = ["spsdk_lauterbach", "spsdk_lauterbach.__pyinstaller"]
 
 [tool.setuptools.dynamic]
 version = { attr = "spsdk_lauterbach.__version__" }
 
 [tool.bumpversion]
-current_version = "0.1.2"
+current_version = "0.3.0"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_lauterbach/__init__.py"
@@ -103,6 +106,7 @@ checkers = [
     "mypy",
     "dependencies",
     "pydocstyle",
+    "ruff",
     { "radon_c" = { info_only = true } },
     "radon_d",
     "black",

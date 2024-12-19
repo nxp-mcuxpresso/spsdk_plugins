@@ -319,6 +319,18 @@
       }
     },
     {
+      "home_page": "https://github.com/pyasn1/pyasn1",
+      "name": "pyasn1",
+      "package": {
+        "name": "pyasn1",
+        "license": "BSD-2-Clause"
+      },
+      "github": {
+        "project_name": "pyasn1/pyasn1",
+        "license": "BSD-2-Clause"
+      }
+    },
+    {
       "home_page": "https://github.com/eliben/pycparser",
       "name": "pycparser",
       "package": {

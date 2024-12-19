@@ -1,0 +1,24 @@
+-- Definition derived from oqs-provider
+PQC DEFINITIONS ::= BEGIN
+
+KeyInfo ::= SEQUENCE {
+    algorithm      OBJECT IDENTIFIER,
+    parameter      ANY DEFINED BY algorithm OPTIONAL
+}
+
+PublicKey ::= BIT STRING
+
+PublicKeyEnvelope ::= SEQUENCE {
+    info           KeyInfo,
+    puk            PublicKey
+}
+
+PrivateKey ::= OCTET STRING
+
+PrivateKeyEnvelope ::= SEQUENCE {
+    version        INTEGER,
+    info           KeyInfo,
+    prk            OCTET STRING (CONTAINING PrivateKey)
+}
+
+END

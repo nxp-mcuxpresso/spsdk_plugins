@@ -593,6 +593,14 @@
       }
     },
     {
+      "home_page": "https://docs.astral.sh/ruff",
+      "name": "ruff",
+      "package": {
+        "name": "ruff",
+        "license": "MIT"
+      }
+    },
+    {
       "home_page": "https://github.com/pypa/setuptools",
       "name": "setuptools",
       "package": {

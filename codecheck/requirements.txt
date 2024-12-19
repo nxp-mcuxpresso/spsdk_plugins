@@ -20,3 +20,4 @@ types-pyyaml
 types-requests
 bandit[toml]
 defusedxml
+ruff

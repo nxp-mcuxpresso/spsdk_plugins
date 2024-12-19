@@ -3,7 +3,7 @@ requires = ["setuptools >= 61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["spsdk_keyfactor"]
+packages = ["spsdk_keyfactor", "spsdk_keyfactor.__pyinstaller"]
 
 [tool.setuptools.dynamic]
 version = { attr = "spsdk_keyfactor.__version__" }
@@ -15,7 +15,7 @@ name = "spsdk_keyfactor"
 description = "SPSDK Signature Provider plugin using Keyfactor's API"
 
 requires-python = ">= 3.9"
-dependencies = ["spsdk>2.4.0.dev", "requests-pkcs12", "python-dotenv"]
+dependencies = ["requests-pkcs12", "python-dotenv"]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "michal.starecek@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -25,7 +25,7 @@ keywords = ["NXP", "SPSDK", "Keyfactor", "Signature Provider"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD 3-Clause 'New' or 'Revised' License",
+    "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -34,18 +34,19 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
-[project.entry-points."spsdk.sp"]
-keyfactor = "spsdk_keyfactor.provider"
+[project.entry-points]
+"spsdk.sp" = { keyfactor = "spsdk_keyfactor.provider" }
+pyinstaller40 = { hook-dirs = "spsdk_keyfactor.__pyinstaller:get_hook_dirs" }
 
 [project.urls]
 Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/keyfactor"
 Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
 
 [tool.bumpversion]
-current_version = "0.1.0"
+current_version = "0.3.0"
 
 [[tool.bumpversion.files]]
-filename = "spsdk_lauterbach/__init__.py"
+filename = "spsdk_keyfactor/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
 
@@ -93,6 +94,8 @@ match = '(?!test_|__version__).*\.py'
 format = { max-line-length = 120 }
 "messages control" = { disable = ["logging-fstring-interpolation"] }
 
+[tool.bandit]
+skips = ["B101"]
 
 [tool.nxp_codecheck]
 git_parent_branch = "origin/master"
@@ -105,6 +108,7 @@ checkers = [
     "mypy",
     "dependencies",
     "pydocstyle",
+    "ruff",
     { "radon_c" = { info_only = true } },
     "radon_d",
     "black",

@@ -1,3 +1,10 @@
+@Library('shared-lib') _
+
+// Abort older builds
+def buildNumber = BUILD_NUMBER as int
+if (buildNumber > 1) milestone(buildNumber - 1)
+milestone(buildNumber)
+
 pipeline {
     agent { label 'linux-spsdk' }
     // agent any
@@ -5,22 +12,9 @@ pipeline {
         timeout(time: 1, unit: 'HOURS', activity: true)   // timeout on whole pipeline job
     }
     stages {
-        stage('Checkout') {
-            steps {
-                // checkout SPSDK repository
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: 'master']],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [
-                        [$class: 'RelativeTargetDirectory', relativeTargetDir: 'spsdk_repo'],
-                        [$class: 'CloneOption', noTags: false, reference: '', shallow: false]
-                    ],
-                    submoduleCfg: [],
-                    userRemoteConfigs: [[credentialsId: 'git_credentials', url: 'ssh://git@bitbucket.sw.nxp.com/spsdk/spsdk.git']]
-                ])
-                // checkout plugins repository
-                checkout([
+            stage ("Checkout") {
+                steps {
+                    checkout([
                         $class: 'GitSCM',
                         branches: scm.branches,
                         doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
@@ -28,92 +22,21 @@ pipeline {
                         submoduleCfg: [],
                         userRemoteConfigs: scm.userRemoteConfigs
                     ])
+                }
             }
-        }
-        stage('Setup 3.9') {
+        stage ("Test") {
             steps {
-                    withPythonEnv('python3.9') {
-                        sh 'python --version'
-                        sh 'python -m pip install --upgrade pip'
-                        sh 'cd spsdk_repo && pip install --upgrade ".[all]"'
-                        sh 'cd spsdk_repo && pip install --upgrade -r requirements-develop.txt'
-                    }
-            }
-        }
-        stage('Codecheck 3.9') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    withPythonEnv('python3.9') {
-                        sh '''
-                set +e
-                exit_code=0
-                packages="codecheck jlink keyfactor lauterbach pemicro pqc pkcs11 pylint_plugins pyocd"
-                for package in $packages;
-                do
-                    [ ! -d $package ] && continue
-                    echo "****************************************"
-                    echo "Codecheck $package"
-                    echo "****************************************"
-                    cd $package
-                    pip install --upgrade .
-                    codecheck -s -o reports39
-                    codecheck_exit_code=$?
-                    cd ..
-                    if [ $codecheck_exit_code -ne 0 ]; then
-                        echo "Codecheck failed for $package"
-                        exit_code=$codecheck_exit_code
-                    fi
-                done
-                exit $exit_code
-                '''
+                script {
+                    try {
+                        withVenv(
+                            "uv pip install nox tomli",
+                            "nox -P 3.9 3.13 --session codecheck -- -s -o reports",
+                        )
+                    } finally {
+                        archiveArtifacts(artifacts: '*/reports*/*.txt', allowEmptyArchive: true)
                     }
                 }
             }
-        }
-        stage('Setup 3.12') {
-            steps {
-                    withPythonEnv('python3.12') {
-                        sh 'python --version'
-                        sh 'python -m pip install --upgrade pip'
-                        sh 'cd spsdk_repo && pip install --upgrade ".[all]"
-                        sh 'cd spsdk_repo && pip install --upgrade -r requirements-develop.txt'
-                    }
-            }
-        }
-        stage('Codecheck 3.12') {
-            steps {
-                withPythonEnv('python3.12') {
-                    sh '''
-                set +e
-                exit_code=0
-                # pkcs11 does not support Python3.12
-                packages="codecheck jlink keyfactor lauterbach pemicro pqc pylint_plugins pyocd"
-                for package in $packages;
-                do
-                    [ ! -d $package ] && continue
-                    echo "****************************************"
-                    echo "Codecheck $package"
-                    echo "****************************************"
-                    cd $package
-                    pip install --upgrade .
-                    codecheck -s -o reports312
-                    codecheck_exit_code=$?
-                    cd ..
-                    if [ $codecheck_exit_code -ne 0 ]; then
-                        echo "Codecheck failed for $package"
-                        exit_code=$codecheck_exit_code
-                    fi
-                done
-                exit $exit_code
-                '''
-                }
-            }
-        }
+        }    
     }
-	post {
-		always {
-				archiveArtifacts artifacts: 'codecheck/reports39/**, jlink/reports39/**, lauterbach/reports39/**, pemicro/reports39/**, pqc/reports39/**, pyocd/reports39/**, pkcs11/reports39/**, pylint_plugins/reports39/**', fingerprint: true
-				archiveArtifacts artifacts: 'codecheck/reports312/**, jlink/reports312/**, lauterbach/reports312/**, pemicro/reports312/**, pqc/reports312/**, pyocd/reports312/**, pkcs11/reports312/**, pylint_plugins/reports312/**', fingerprint: true
-		}
-	}
 }

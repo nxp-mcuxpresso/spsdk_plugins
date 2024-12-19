@@ -184,7 +184,7 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
             raise SPSDKDebugProbeNotOpenError("The PyOCD debug probe is not opened yet")
         try:
             if access_port:
-                if not PyOCDDebugProbe.Capability.MANAGED_AP_SELECTION in self.probe.capabilities:
+                if PyOCDDebugProbe.Capability.MANAGED_AP_SELECTION not in self.probe.capabilities:
                     self.select_ap(addr)
                     addr = addr & 0x0F
                 ret = self.probe.read_ap(addr=addr)
@@ -214,7 +214,7 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
             raise SPSDKDebugProbeNotOpenError("The PyOCD debug probe is not opened yet")
         try:
             if access_port:
-                if not PyOCDDebugProbe.Capability.MANAGED_AP_SELECTION in self.probe.capabilities:
+                if PyOCDDebugProbe.Capability.MANAGED_AP_SELECTION not in self.probe.capabilities:
                     self.select_ap(addr)
                     addr = addr & 0x0F
                 self.probe.write_ap(addr=addr, data=data)
