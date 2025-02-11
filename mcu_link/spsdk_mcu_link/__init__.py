@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 """Top-level package for MCU-Link."""
 
 __author__ = """NXP"""
 __email__ = "michal.kelnar@nxp.com"
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 try:
     from spsdk.__version__ import version, version_tuple

@@ -1,0 +1,53 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-02-10T14:04:30Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "spsdk_plugins_pqc-0.5.3",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/a2555197-82d2-4200-87aa-c0862acd93d6",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-a2555197-82d2-4200-87aa-c0862acd93d6",
+      "name": "spsdk_plugins_pqc",
+      "versionInfo": "0.5.3",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-483a2901-aa0a-48af-9b9d-487485664ca2",
+      "name": "open-quantum-safe/liboqs",
+      "versionInfo": "0.10.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "originator": "NOASSERTION",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-a2555197-82d2-4200-87aa-c0862acd93d6"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-a2555197-82d2-4200-87aa-c0862acd93d6",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-package-483a2901-aa0a-48af-9b9d-487485664ca2"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -55,7 +55,9 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
 
     @classmethod
     def get_connected_probes(
-        cls, hardware_id: Optional[str] = None, options: Optional[dict] = None
+        cls,
+        hardware_id: Optional[str] = None,
+        options: Optional[dict] = None,  # pylint: disable=unused-argument
     ) -> DebugProbes:
         """Functions returns the list of all connected probes in system.
 

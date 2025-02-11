@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from spsdk.crypto.keys import PrivateKey

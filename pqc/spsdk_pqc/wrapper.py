@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -19,6 +19,8 @@ from .errors import PQCError
 from .liboqs_oqs import Signature
 
 logger = logging.getLogger(__name__)
+
+DISABLE_DIL_MLDSA_PUBLIC_KEY_MISMATCH_WARNING = False
 
 
 class PQCAlgorithm(str, Enum):
@@ -179,9 +181,13 @@ class PQCPublicKey(PQCKey):
         """Create key from raw or PEM/DER encoded data."""
         try:
             key = cls(public_data=data)
-            logger.warning(
+            logger_func = (
+                logger.debug if DISABLE_DIL_MLDSA_PUBLIC_KEY_MISMATCH_WARNING else logger.warning
+            )
+            logger_func(
                 "Parsing raw public key data. Key type (Dilithium/ML-DSA) might be incorrect."
             )
+
             return key
         except PQCError:
             pass

@@ -1,4 +1,4 @@
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 # Reports output directory
@@ -164,7 +164,7 @@ checkers:
         dependencies: []
         conflicts: []
         args: [lint, --no-cache, --no-progress, --no-color]
-        timeout: 100
+        timeout: 200
     BANDIT:
         name: BANDIT
         method: check_bandit

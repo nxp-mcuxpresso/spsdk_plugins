@@ -47,7 +47,7 @@ packages = ["spsdk_pyocd", "spsdk_pyocd.__pyinstaller"]
 version = { attr = "spsdk_pyocd.__version__" }
 
 [tool.bumpversion]
-current_version = "0.3.0"
+current_version = "0.3.1"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pyocd/__init__.py"

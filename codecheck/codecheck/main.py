@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2021-2024 NXP
+# Copyright 2021-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -26,7 +26,7 @@ from yaml import safe_load
 
 from codecheck import __version__ as codecheck_version
 from codecheck import gitcov
-from codecheck.checker_copyright_year import fix_copyright_in_files
+from codecheck.checker_copyright_year import CopyrightChecker
 from codecheck.checker_py_headers import fix_py_headers_in_files
 from codecheck.task_scheduler import PrettyProcessRunner, TaskInfo, TaskList, TaskResult
 
@@ -224,7 +224,8 @@ def check_results(tasks: List[TaskInfo], output: str = "reports") -> int:
                 f.write(str(task.exception))
             output_log.append(exc_log)
 
-        if not task.result or (err_cnt != 0 and not task.info_only):
+        # The info only tasks are not counted to overall results
+        if not task.info_only and (task.result is None or err_cnt != 0):
             ret = 1
 
         if task.result:
@@ -682,8 +683,9 @@ def check_copyright_year(
 def fix_copyright_year(changed_files: Sequence[str], **kwargs: Dict[str, Any]) -> None:
     """Check the project against copy right year rules."""
     path_slices = splice_changed_files(changed_files)
+    checker = CopyrightChecker()
     for path_slice in path_slices:
-        fix_copyright_in_files(path_slice.split())
+        checker.fix_files(path_slice.split())
 
 
 def check_py_file_headers(
@@ -824,14 +826,16 @@ def check_cspell(
             return TaskResult(error_count=res.returncode, output_log=output_log, not_run=True)
 
         for path_slice in path_slices:
-            res = subprocess.run(
-                f'"{cspell_path}" {user_args_s} {path_slice}',
-                check=False,
-                capture_output=True,
-                shell=True,
-                timeout=timeout,
-            )  # nosec calling this without shell=True causes [WinError 193] %1 is not a valid Win32 application
-
+            try:
+                res = subprocess.run(
+                    f'"{cspell_path}" {user_args_s} {path_slice}',
+                    check=False,
+                    capture_output=True,
+                    shell=True,
+                    timeout=timeout,
+                )  # nosec calling this without shell=True causes [WinError 193] %1 is not a valid Win32 application
+            except subprocess.TimeoutExpired:
+                return TaskResult(error_count=1, output_log="TIMED OUT", not_run=True)
             f.write(res.stdout.decode("utf-8"))
             f.write(res.stderr.decode("utf-8"))
 

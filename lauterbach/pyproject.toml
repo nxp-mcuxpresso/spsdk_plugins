@@ -44,7 +44,7 @@ packages = ["spsdk_lauterbach", "spsdk_lauterbach.__pyinstaller"]
 version = { attr = "spsdk_lauterbach.__version__" }
 
 [tool.bumpversion]
-current_version = "0.3.0"
+current_version = "0.3.1"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_lauterbach/__init__.py"

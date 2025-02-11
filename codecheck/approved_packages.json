@@ -89,7 +89,7 @@
       "name": "click",
       "package": {
         "name": "click",
-        "license": "BSD-3-Clause"
+        "license": "BSD License"
       }
     },
     {
@@ -200,6 +200,30 @@
       }
     },
     {
+      "home_page": "https://github.com/gitpython-developers/gitdb",
+      "name": "gitdb",
+      "package": {
+        "name": "gitdb",
+        "license": "BSD License"
+      },
+      "github": {
+        "project_name": "gitpython-developers/gitdb",
+        "license": ""
+      }
+    },
+    {
+      "home_page": "https://github.com/gitpython-developers/GitPython",
+      "name": "GitPython",
+      "package": {
+        "name": "GitPython",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "gitpython-developers/GitPython",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
       "home_page": "https://github.com/kjd/idna",
       "name": "idna",
       "package": {
@@ -240,6 +264,18 @@
       }
     },
     {
+      "home_page": "https://github.com/pallets/jinja/",
+      "name": "Jinja2",
+      "package": {
+        "name": "Jinja2",
+        "license": "BSD License"
+      },
+      "github": {
+        "project_name": "pallets/jinja",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
       "home_page": "https://mando.readthedocs.org/",
       "name": "mando",
       "package": {
@@ -257,6 +293,18 @@
       "github": {
         "project_name": "executablebooks/markdown-it-py",
         "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pallets/markupsafe/",
+      "name": "MarkupSafe",
+      "package": {
+        "name": "MarkupSafe",
+        "license": "Copyright 2010 Pallets"
+      },
+      "github": {
+        "project_name": "pallets/markupsafe",
+        "license": "BSD-3-Clause"
       }
     },
     {
@@ -629,6 +677,18 @@
       "package": {
         "name": "six",
         "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/gitpython-developers/smmap",
+      "name": "smmap",
+      "package": {
+        "name": "smmap",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "gitpython-developers/smmap",
+        "license": "BSD-3-Clause"
       }
     },
     {

@@ -21,3 +21,4 @@ types-requests
 bandit[toml]
 defusedxml
 ruff
+jinja2

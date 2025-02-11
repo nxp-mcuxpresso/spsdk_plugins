@@ -1,5 +1,5 @@
 [project]
-version = "0.4.0"
+version = "0.5.0"
 name = "spsdk_plugins"
 
 [tool.release-tools]
@@ -25,6 +25,9 @@ package_directories = [
 [tool.release-tools.blackduck.env]
 PROTEX_PROJECT_ID = "c_spsdk_plugins_automation_22659"
 PROTEX_TEMPLATE = "t_reportwithobligations_7215"
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins"
 
 [tool.release-tools.scr]
 scr_file = "SW_Content_Register_SPSDK_plugins.txt"

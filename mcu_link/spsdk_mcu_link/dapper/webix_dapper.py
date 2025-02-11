@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
+# Copyright 2025 Oidis
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -11,24 +12,20 @@ It implements classes and utilities for managing DAP (Debug Access Port) probes,
 including probe discovery, connection handling, and communication. The module supports
 various probe interfaces and provides data structures for probe information management.
 """
-import ctypes
+
 import logging
 from dataclasses import dataclass
 from time import sleep
-from typing import Any, Callable, cast
+from typing import Any, Callable, Optional, Union, cast
 
-import hid
-import libusb_package
-import usb.core
-import usb.util
-from typing_extensions import Optional, Union
-
-from .webix_dapper_wasm import Uint8Array, WebixDapperWasm
+from .core import Uint8Array
+from .interfaces import Interface, InterfaceFactory
+from .webix_dapper_wasm import WebixDapperWasm
 
 logger = logging.getLogger("dapper")
 
 # todo(mkelnar) replace by trace flag and prepare formatter stdout/json for it
-deep_trace: bool = False
+deep_trace: bool = True
 
 
 @dataclass
@@ -86,313 +83,6 @@ class ProbeInfo:
         return instance
 
 
-class Interface:
-    """Base class for probe interfaces.
-
-    This class provides a common interface for working with different types of debug probes.
-    It defines basic properties and methods that all probe interfaces should implement.
-    """
-
-    def __init__(self) -> None:
-        """Initialize Interface instance.
-
-        :return: None
-        """
-        self._type: str = "unknown"
-        self._device: Any = None
-        self.vid: int = 0
-        self.pid: int = 0
-        self.vendor: str = ""
-        self.product: str = ""
-        self.serial_no: str = ""
-        self.packet_size: int = 0
-
-    @staticmethod
-    def list_probes() -> list["Interface"]:
-        """List available probes.
-
-        :return: List of Interface instances
-        """
-        raise NotImplementedError("Probes listing not implemented")
-
-    @property
-    def type(self) -> str:
-        """Get interface type.
-
-        :return: Interface type string
-        """
-        return self._type
-
-    @property
-    def probe_id(self) -> str:
-        """Get probe identifier.
-
-        :return: Probe serial number
-        :raises RuntimeError: If device is not initialized
-        """
-        if self._device is None:
-            raise RuntimeError("Device not initialized")
-        return self._device.serial_number
-
-    @property
-    def description(self) -> str:
-        """Get interface description.
-
-        :return: Description string combining vendor and product
-        """
-        return f"{self.vendor} {self.product}"
-
-    def open(self) -> None:
-        """Open the interface connection.
-
-        :return: None
-        :raises RuntimeError: If USB device is undefined
-        """
-        if self._device is None:
-            raise RuntimeError("USB device is undefined.")
-
-    def close(self) -> None:
-        """Close the interface connection.
-
-        :return: None
-        :raises NotImplementedError: If not implemented in derived class
-        """
-        raise NotImplementedError(f"{self.__class__}.close() must be implemented.")
-
-    def write(self, data: Uint8Array) -> None:
-        """Write data to interface.
-
-        :param data: Data to write
-        :return: None
-        :raises NotImplementedError: If not implemented in derived class
-        """
-        raise NotImplementedError(f"{self.__class__}.write() must be implemented.")
-
-    def read(self) -> Uint8Array:
-        """Read data from interface.
-
-        :return: Data read from interface
-        :raises NotImplementedError: If not implemented in derived class
-        """
-        raise NotImplementedError(f"{self.__class__}.read() must be implemented.")
-
-
-class HidInterface(Interface):
-    """HID interface implementation for communicating with USB HID devices.
-
-    This class provides functionality for interfacing with USB HID devices,
-    specifically NXP debug probes like LPC-Link2, MCU-Link and DAP-Link.
-    It handles device enumeration, connection management and data transfer.
-    """
-
-    def __init__(
-        self, device: hid.device, info: dict  # pylint: disable=c-extension-no-member
-    ) -> None:
-        """Initialize HID interface.
-
-        :param device: HID device instance
-        :param info: Dictionary containing device information
-        """
-        super().__init__()
-        self._type = "hid"
-        self._device = device
-
-        self.serial_no = info["serial_number"]
-        self.vid = info["vendor_id"]
-        self.pid = info["product_id"]
-        self.vendor = info["manufacturer_string"]
-        self.product = info["product_string"]
-        self.device_info = info
-
-        self.packet_size = 64
-
-    @staticmethod
-    def list_probes() -> list[Interface]:
-        """List available HID probes.
-
-        :return: List of available HID interfaces
-        """
-        probes: list[Interface] = []
-
-        devices = hid.enumerate()  # pylint: disable=c-extension-no-member
-        for device_info in devices:
-            if device_info["vendor_id"] in {0x1FC9, 0xD28}:  # nxp vid, dap link vid
-                if device_info["product_id"] in {
-                    0x0090,
-                    0x0143,
-                    0x204,
-                }:  # lpc-link, mcu-link, dap-link
-                    if device_info["usage_page"] == 0xFF00:  # vendor defined usage page
-                        device = hid.device(  # pylint: disable=c-extension-no-member
-                            vendor_id=device_info["vendor_id"],
-                            product_id=device_info["product_id"],
-                            path=device_info["path"],
-                        )
-                        probes.append(HidInterface(device, device_info))
-
-        return probes
-
-    def open(self) -> None:
-        """Open the HID interface connection.
-
-        :raises RuntimeError: If device is not initialized
-        """
-        super().open()
-
-        self._device.open_path(self.device_info["path"])
-
-    def close(self) -> None:
-        """Close the HID interface connection."""
-        if self._device is not None:
-            self._device.close()
-
-    def write(self, data: Uint8Array) -> None:
-        """Write data to HID interface.
-
-        :param data: Data to write
-        """
-        write_data = ([0] + list(data.buffer))[0:64]
-        self._device.write(write_data)
-        if deep_trace:
-            print(
-                "write: ("
-                + str(len(data.buffer))
-                + ") ["
-                + ",".join(f"{x:02X}" for x in write_data[0:64])
-                + "]"
-            )
-
-    def read(self) -> Uint8Array:
-        """Read data from HID interface.
-
-        :return: Data read from interface
-        :raises RuntimeError: If device endpoint is not opened
-        """
-        if self._device is None:
-            raise RuntimeError("Device endpoint needs to be opened first.")
-        data = self._device.read(self.packet_size)
-        if deep_trace:
-            print(
-                "read:  (" + str(len(data)) + ") [" + ",".join(f"{x:02X}" for x in data[0:64]) + "]"
-            )
-
-        return Uint8Array((ctypes.c_uint8 * len(data))(*data))
-
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        """Exit the context manager.
-
-        :param exc_type: Exception type
-        :param exc_val: Exception value
-        :param exc_tb: Exception traceback
-        """
-        if self._device is not None:
-            self._device.close()
-
-
-# todo(mkelnar) try import libusb_package, and usb imports to make it available
-
-
-class UsbInterface(Interface):
-    """USB Interface implementation for communicating with USB devices.
-
-    This class provides functionality for USB communication including device enumeration,
-    reading/writing data, and managing USB endpoints. It supports NXP specific interfaces
-    and handles USB device configuration.
-    """
-
-    def __init__(self, device: usb.core.Device) -> None:
-        """Initialize USB interface.
-
-        :param device: USB device instance
-        """
-        super().__init__()
-        self._type = "usb"
-        self._device = device
-        self._endpoint_in: Optional[usb.core.Endpoint] = None
-        self._endpoint_out: Optional[usb.core.Endpoint] = None
-
-        self.serial_no = device.serial_number
-        self.vendor = device.manufacturer
-        self.product = device.product
-        self.vid = device.idVendor
-        self.pid = device.idProduct
-        self.packet_size = 64
-
-    @staticmethod
-    def list_probes() -> list[Interface]:
-        """List available USB probes.
-
-        :return: List of available USB interfaces
-        """
-        probes: list[Interface] = []
-        # todo(mkelnar) supported_vendor_ids will be changed
-        for vid in list([0x1FC9]):
-            usb_devices = libusb_package.find(find_all=True, idVendor=vid)
-            for usb_device in usb_devices:
-                if usb_device.bDeviceClass in {0x00, 0xEF}:  # not HID
-                    config = usb_device.get_active_configuration()
-                    ifaces = usb.util.find_descriptor(config, find_all=True)
-                    for iface in ifaces:
-                        if iface.bInterfaceClass == 0xFF:  # nxp specific interface
-                            probes.append(UsbInterface(usb_device))
-        return probes
-
-    def open(self) -> None:
-        """Open the USB interface connection.
-
-        :raises RuntimeError: If unable to find USB device endpoints
-        """
-        super().open()
-
-        logger.info(f"Device to open: {self._device.product} ({self._device.manufacturer})")
-
-        self._device.set_configuration()
-        cfg = self._device.get_active_configuration()
-        interfaces = cfg[(0, 0)]
-
-        self._endpoint_in = usb.util.find_descriptor(
-            interfaces,
-            custom_match=lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
-            == usb.util.ENDPOINT_IN,
-        )
-        self._endpoint_out = usb.util.find_descriptor(
-            interfaces,
-            custom_match=lambda e: usb.util.endpoint_direction(e.bEndpointAddress)
-            == usb.util.ENDPOINT_OUT,
-        )
-
-        if self._endpoint_in is None or self._endpoint_out is None:
-            raise RuntimeError("Unable to fine USB device endpoints.")
-
-    def close(self) -> None:
-        """Close the USB interface connection."""
-        self._endpoint_in = None
-        self._endpoint_out = None
-
-    def write(self, data: Uint8Array) -> None:
-        """Write data to USB interface.
-
-        :param data: Data to write
-        :raises RuntimeError: If device endpoint is not opened or data is not Uint8Array
-        """
-        if self._endpoint_out is None:
-            raise RuntimeError("Device endpoint needs to be opened first.")
-        if not isinstance(data, Uint8Array):
-            raise RuntimeError("Data must be an instance of Uint8Array.")
-        self._endpoint_out.write(data.buffer, self.packet_size)
-
-    def read(self) -> Uint8Array:
-        """Read data from USB interface.
-
-        :return: Data read from interface
-        :raises RuntimeError: If device endpoint is not opened
-        """
-        if self._endpoint_in is None:
-            raise RuntimeError("Device endpoint needs to be opened first.")
-        data = self._endpoint_in.read(self.packet_size)
-        return Uint8Array((ctypes.c_uint8 * len(data))(*data))
-
-
 class WebixDapper:  # pylint: disable=too-many-public-methods
     """WebixDapper class for handling WASM-based DAP operations."""
 
@@ -439,7 +129,15 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         if callable(value):
             self._stdout_handler = value
         else:
-            self._stdout_handler = print
+
+            def custom_print(*args: Any) -> None:
+                last = args[-1] if args else ""
+                if not last.endswith("\n"):
+                    print(*args)
+                else:
+                    print(*args, end="")
+
+            self._stdout_handler = custom_print
 
     @property
     def stderr_handler(self) -> Optional[Callable]:
@@ -757,12 +455,13 @@ class DapperFactory:
 
         :return: List of available probes
         """
-        probes = UsbInterface.list_probes()
-        hid_to_add = []
-        for hid_device in HidInterface.list_probes():
-            if hid_device.serial_no not in {probe.serial_no for probe in probes}:
-                hid_to_add.append(hid_device)
-        probes += hid_to_add
+        interfaces = InterfaceFactory.load_interfaces()
+        probes: list[Interface] = []
+        for interface in interfaces:
+            for probe in interface.list_probes():
+                if probe.serial_no not in {known_probe.serial_no for known_probe in probes}:
+                    probes.append(probe)
+
         DapperFactory.probes = probes
         return probes
 

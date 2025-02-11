@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 """Main module for PKCS11SP."""
 
 import os
@@ -123,7 +124,7 @@ class PKCS11SP(SignatureProvider):
     def _get_pkcs1_1_5_padding(cls, digest: bytes, key_length: int) -> bytes:
         hash_id = b"\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20"
         padding_len = key_length - len(hash_id) - len(digest) - 3
-        padding = b"\xFF" * padding_len
+        padding = b"\xff" * padding_len
         return b"\x00\x01" + padding + b"\x00" + hash_id + digest
 
     def sign(self, data: bytes) -> bytes:

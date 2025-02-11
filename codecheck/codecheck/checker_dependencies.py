@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2021-2024 NXP
+# Copyright 2021-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 """Script to list all Python package dependencies and their dependencies."""
@@ -140,6 +140,8 @@ class LocalPackageLicense(LicenseBase):
             assert meta
             if meta.license:
                 return meta.license
+            if meta.license_expression:
+                return meta.license_expression
             if meta.classifiers:
                 for classifier in meta.classifiers:
                     if "License :: OSI Approved :: " in classifier:

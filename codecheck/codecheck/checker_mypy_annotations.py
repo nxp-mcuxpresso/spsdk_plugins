@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2020-2024 NXP
+# Copyright 2020-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 """Checker for annotations within mypy."""
 import logging
 import subprocess
@@ -21,7 +22,7 @@ from .git_operations import get_changed_files, get_number_of_commits
     required=False,
     default=".",
     help="Path to root of repository",
-    show_default=True,  # type: ignore  # Mypy is getting confused here
+    show_default=True,
 )
 @click.option(
     "-m",
@@ -44,7 +45,7 @@ from .git_operations import get_changed_files, get_number_of_commits
 )
 @click.option("-d", "--debug", "log_level", flag_value=logging.DEBUG, help="Display debugging info")
 @click.option("-a", "--all-files", is_flag=True, help="Check mypy for all files")
-def main(repo_path, parent_branch, module, log_level, all_files):
+def main(repo_path: str, parent_branch: str, module: str, log_level: int, all_files: bool) -> int:
     """Run mypy with --disallow-untyped-defs option on changed files."""
     logging.basicConfig(level=log_level or logging.WARNING)
     module = module.replace("\\", "/")
@@ -52,15 +53,15 @@ def main(repo_path, parent_branch, module, log_level, all_files):
     if all_files:
         filtered_output = [line for line in output.splitlines() if line.startswith(module)]
         logging.debug(f"post filter: {filtered_output}")
-        filtered_output = "\n".join(filtered_output)
+        filtered_output_str = "\n".join(filtered_output)
     else:
         commits = get_number_of_commits(repo_path, parent_branch)
         files = get_changed_files(repo_path, commits, file_extension_regex=r"\.pyi?")
         files = [f for f in files if f.startswith(module)]
         logging.debug(f"files to process: {files}\n")
-        filtered_output = filter_files(output, files)
-    logging.info(f"Mypy output:\n{filtered_output}")
-    error_counter = get_number_of_errors(filtered_output)
+        filtered_output_str = filter_files(output, files)
+    logging.info(f"Mypy output:\n{filtered_output_str}")
+    error_counter = get_number_of_errors(filtered_output_str)
     if error_counter == 0:
         logging.info("No errors found")
     else:

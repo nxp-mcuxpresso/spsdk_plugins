@@ -47,6 +47,8 @@ build-backend = "setuptools.build_meta"
 packages = [
     "spsdk_mcu_link",
     "spsdk_mcu_link.dapper",
+    "spsdk_mcu_link.dapper.core",
+    "spsdk_mcu_link.dapper.interfaces",
     "spsdk_mcu_link.__pyinstaller",
 ]
 include-package-data = true
@@ -58,7 +60,7 @@ include-package-data = true
 version = { attr = "spsdk_mcu_link.__version__" }
 
 [tool.bumpversion]
-current_version = "0.5.0"
+current_version = "0.6.0"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_mcu_link/__init__.py"
@@ -166,3 +168,5 @@ checkers = [
     "py_headers",
     { "bandit" = { info_only = true } },
 ]
+[tool.copyright]
+excluded_files = ["spsdk_mcu_link/dapper/*"]

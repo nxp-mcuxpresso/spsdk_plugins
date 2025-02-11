@@ -44,12 +44,26 @@ def get_requirements(pyproject: Path) -> list[str]:
     return data["project"].get("dependencies")
 
 
-def collect_dependencies() -> list[str]:
+def get_dev_requirements(pyproject: Path) -> list[str]:
+    requirements_dev = pyproject.parent.joinpath("requirements_dev.txt")
+    if requirements_dev.exists():
+        return shlex.split(
+            requirements_dev.read_text(encoding="utf-8"),
+            comments=True,
+        )
+    return []
+
+
+def collect_dependencies(include_dev_deps: bool = False) -> list[str]:
+    logger.info(f"Collecting: {include_dev_deps }")
     requirements: list[str] = []
     project_files = [THIS_DIR.joinpath(p, "pyproject.toml") for p in get_projects()]
     for project in project_files:
         logger.info(f"Processing: {project}")
         requirements.extend(get_requirements(project))
+        if include_dev_deps:
+            logger.info(f"Including development dependencies")
+            requirements.extend(get_dev_requirements(project))
     requirements = list(set(requirements))
     requirements = list(filter(lambda x: not x.startswith("spsdk"), requirements))
     return requirements
@@ -96,8 +110,7 @@ def venv(session: nox.Session) -> None:
         # install spsdk from Nexus, use --prerelease to get the latest version
         # latest version that is not yet released publicly
         install_fcn("spsdk[all]", "--prerelease", "allow")
-
-    dependencies = collect_dependencies()
+    dependencies = collect_dependencies(include_dev_deps=True)
     with session.chdir("codecheck"):
         install_fcn(".")
     install_fcn(*dependencies)
@@ -149,9 +162,7 @@ def build(session: nox.Session) -> None:
         with session.chdir(project):
             if Path("dist").exists():
                 shutil.rmtree("dist")
-            session.run(
-                "python", "-m", "build", "--sdist", "--wheel", "--installer", "uv"
-            )
+            session.run("python", "-m", "build", "--sdist", "--installer", "uv")
             session.run("twine", "check", "--strict", "dist/*")
 
 
@@ -191,7 +202,7 @@ def bump(session: nox.Session) -> None:
 
     changed_files: list[str] = []
     changed_files.extend(repo.untracked_files)
-    changed_files.extend([item.a_path for item in repo.index.diff("Head")])
+    changed_files.extend([item.a_path for item in repo.index.diff("HEAD")])
     changed_files.extend([item.a_path for item in repo.index.diff(None)])
 
     for project in get_projects():

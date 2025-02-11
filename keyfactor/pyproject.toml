@@ -43,7 +43,7 @@ Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/keyfacto
 Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
 
 [tool.bumpversion]
-current_version = "0.3.0"
+current_version = "0.3.1"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_keyfactor/__init__.py"
