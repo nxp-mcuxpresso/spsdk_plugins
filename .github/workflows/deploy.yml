@@ -49,6 +49,7 @@ jobs:
           path: ${{ matrix.package }}
           attest-build-provenance-github: 'true'
           upload-name-suffix: -${{ matrix.package }}
+          skip-wheel: 'true'
 
   deploy:
     name: Upload Releases To PyPI
