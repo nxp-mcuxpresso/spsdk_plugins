@@ -175,6 +175,10 @@ class KeyfactorSP(SignatureProvider):
             }
         else:
             data_out = data
+            payload["metaData"] = {
+                "USING_CLIENTSUPPLIED_HASH": "true",
+                "CLIENTSIDE_HASHDIGESTALGORITHM": self.prehash.name.upper(),
+            }
 
         payload["data"] = base64.b64encode(data_out).decode(encoding="utf-8")
 
@@ -195,7 +199,7 @@ class KeyfactorSP(SignatureProvider):
         )
         signature = base64.b64decode(response_data["data"])
 
-        if not self.signer_certificate.get_public_key().verify_signature(signature, data):
+        if not self.signer_certificate.get_public_key().verify_signature(signature, data, pss_padding=True):
             raise KeyfactorPluginError(
                 "Signature verification failed. Please check your KEYFACTOR_PREHASH settings."
             )
