@@ -33,9 +33,9 @@ All of plugin configuration can be done via environment variables:
 - `KEYFACTOR_AUTH_VALUE`: Coma-separated string of values described by `KEYFACTOR_AUTH_TYPE` (example for PKCS#12: "path_to_pkcs.p12,path_to_pass.txt")
 - `KEYFACTOR_WORKER`: Name or ID of the Keyfactor Worker to use (example: "PlainSigner")
 - `KEYFACTOR_PREHASH`: Client-side pre-hashing of data  (example: "NONE", "SHA-256")
-    - if this setting is skipped, the plugin will autodetect the value
+    - This setting cannot be autodetected and must be provided
 - `KEYFACTOR_SIGNATURE_LENGTH`: Length in bytes of the raw signature (without potential DER encoding) (example: 256 for RSA, 64 for ECC-256)
-    - if this setting is skipped, the plugin will autodetect the value
+    - This setting cannot be autodetected and must be provided
 
 Environment variables may be specified in a file.
 By default the plugin searches for file named `.keyfactor.env` in the following locations: `CWD`, `HOME`, `~/.config`  
