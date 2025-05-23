@@ -24,7 +24,7 @@ jobs:
           
       - id: get-packages
         run: |
-          python -c "import toml; print('packages=' + str(toml.load('pyproject.toml')['tool']['release-tools']['clr']['package_directories']))" >> $GITHUB_OUTPUT
+          python -c "import toml; print('packages=' + str(toml.load('pyproject.toml')['tool']['release-tools']['sub_projects']['package_directories']))" >> $GITHUB_OUTPUT
 
   package:
     name: Build Packages
