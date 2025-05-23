@@ -17,7 +17,8 @@ description = "Signature Provider plugin for SPSDK using PKCS#11 interface"
 requires-python = ">= 3.9"
 dependencies = [
     # use fork until this is resolved https://github.com/pyauth/python-pkcs11/issues/165
-    "python-pkcs11 @ git+https://github.com/joseavegaa/python-pkcs11",
+    # "python-pkcs11 @ git+https://github.com/joseavegaa/python-pkcs11",
+    "python-pkcs11",
     "cached-property",
 ]
 authors = [{ name = "NXP" }]
