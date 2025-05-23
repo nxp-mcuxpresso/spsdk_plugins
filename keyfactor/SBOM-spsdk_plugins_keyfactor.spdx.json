@@ -2,26 +2,50 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-02-10T14:15:59Z",
+    "created": "2025-05-22T09:23:47Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_keyfactor-0.3.1",
+  "name": "spsdk_plugins_keyfactor-0.4.0",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/9b8b31d7-3164-4a0a-9f94-70ffa0e4e9bc",
+  "documentNamespace": "https://nxp.com/spdx/fde4f0d0-04d2-41ab-a9f9-1975ec259ea0",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-9b8b31d7-3164-4a0a-9f94-70ffa0e4e9bc",
+      "SPDXID": "SPDXRef-package-fde4f0d0-04d2-41ab-a9f9-1975ec259ea0",
       "name": "spsdk_plugins_keyfactor",
-      "versionInfo": "0.3.1",
+      "versionInfo": "0.4.0",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: NXP",
-      "supplier": "NOASSERTION",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/keyfactor",
       "externalRefs": [],
+      "filesAnalyzed": false,
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-d45edb16-940d-4e80-99d0-42e2180c8402",
+      "name": "python-dotenv",
+      "versionInfo": "1.1.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "http://github.com/theskumar/python-dotenv",
+      "downloadLocation": "https://pypi.org/project/python-dotenv/1.1.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/python-dotenv@1.1.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "79bafb2b-c412-46c2-98bf-356a9e6c31c7",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -29,7 +53,12 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-9b8b31d7-3164-4a0a-9f94-70ffa0e4e9bc"
+      "relatedSpdxElement": "SPDXRef-package-fde4f0d0-04d2-41ab-a9f9-1975ec259ea0"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-fde4f0d0-04d2-41ab-a9f9-1975ec259ea0",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-d45edb16-940d-4e80-99d0-42e2180c8402"
     }
   ]
 }

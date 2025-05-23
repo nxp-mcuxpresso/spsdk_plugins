@@ -9,13 +9,12 @@ dependencies = ["pyasn1", "typing_extensions", "click"]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "michal.starecek@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
-license = { text = "BSD-3-Clause" }
+license = "BSD-3-Clause"
 
-keywords = ["NXP", "SPSDK", "PQC", "Dilithium"]
+keywords = ["NXP", "SPSDK", "PQC", "Dilithium", "ML-DSA"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -26,7 +25,9 @@ classifiers = [
 
 [project.entry-points]
 pyinstaller40 = { hook-dirs = "spsdk_pqc.__pyinstaller:get_hook_dirs" }
-console_scripts = { pqctool = "spsdk_pqc.__main__:main" }
+
+[project.scripts]
+pqctool = "spsdk_pqc.__main__:main"
 
 
 [project.urls]
@@ -35,7 +36,7 @@ Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
 
 
 [build-system]
-requires = ["setuptools >= 61.0", "wheel"]
+requires = ["setuptools >= 77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -45,7 +46,7 @@ packages = ["spsdk_pqc", "spsdk_pqc.__pyinstaller"]
 version = { attr = "spsdk_pqc.__version__" }
 
 [tool.bumpversion]
-current_version = "0.5.3"
+current_version = "0.6.1"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pqc/__init__.py"
@@ -127,3 +128,14 @@ checkers = [
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins_pqc"
+include_detector_types = ["setuptools"]
+sbom_location = "SBOM-spsdk_plugins_pqc.spdx.json"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_spsdk_pqc.txt"
+
+[tool.release-tools.clr]
+excluded_files = ["spsdk_pqc/liboqs_oqs.py"]

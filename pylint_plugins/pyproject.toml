@@ -40,7 +40,7 @@ packages = ["spsdk_pylint_plugins"]
 version = { attr = "spsdk_pylint_plugins.__version__" }
 
 [tool.bumpversion]
-current_version = "0.2.1"
+current_version = "0.2.2"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pylint_plugins/__init__.py"
@@ -113,3 +113,11 @@ checkers = [
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins_pylint_plugins"
+include_detector_types = ["setuptools"]
+sbom_location = "SBOM-spsdk_plugins_pylint_plugins.spdx.json"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_spsdk_pylint_plugins.txt"

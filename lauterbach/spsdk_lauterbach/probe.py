@@ -15,7 +15,7 @@ import time
 from typing import Any, Callable, Dict, Optional, Tuple
 
 from spsdk.debuggers.debug_probe import (
-    DebugProbeLocal,
+    DebugProbeCoreSightOnly,
     DebugProbes,
     ProbeDescription,
     SPSDKDebugProbeError,
@@ -57,7 +57,7 @@ def ensure_mode(mode: Optional[T32Mode]) -> Callable:
     return decorator
 
 
-class DebugProbeLauterbach(DebugProbeLocal):
+class DebugProbeLauterbach(DebugProbeCoreSightOnly):
     """SPSDK Debug Probe Lauterbach debug probe plugin class."""
 
     NAME = "lauterbach"

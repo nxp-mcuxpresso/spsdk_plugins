@@ -2,13 +2,13 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-02-10T14:18:24Z",
+    "created": "2025-05-22T10:25:18Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_mcu_link-0.6.0",
+  "name": "spsdk_plugins_mcu_link-0.6.4",
   "dataLicense": "CC0-1.0",
   "hasExtractedLicensingInfos": [
     {
@@ -17,18 +17,65 @@
       "name": "Apache License 2.0 with Exceptions"
     }
   ],
-  "documentNamespace": "https://nxp.com/spdx/f56a2871-89c1-4491-bec4-e5b928686f24",
+  "documentNamespace": "https://nxp.com/spdx/e37bbac2-6580-41f2-a6aa-f3bcf6806e01",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-f56a2871-89c1-4491-bec4-e5b928686f24",
+      "SPDXID": "SPDXRef-package-e37bbac2-6580-41f2-a6aa-f3bcf6806e01",
       "name": "spsdk_plugins_mcu_link",
-      "versionInfo": "0.6.0",
+      "versionInfo": "0.6.4",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: NXP",
-      "supplier": "NOASSERTION",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/mcu_link",
       "externalRefs": [],
+      "filesAnalyzed": false,
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-0ea8e5e8-6b1a-410c-b88e-21789ebf5a2f",
+      "name": "PyUSB",
+      "versionInfo": "1.2.1",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "http://sourceforge.net/projects/pyusb",
+      "downloadLocation": "https://pypi.org/project/pyusb/1.2.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "ba912008-9540-4d42-9fab-aaf5ac04070e",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pyusb@1.2.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-9deb658a-af5d-4562-96de-7f89ef37e30a",
+      "name": "spsdk-mcu-link",
+      "versionInfo": "0.6.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/spsdk-mcu-link/0.6.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk-mcu-link@0.6.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "9ce45e9f-02b1-4f5a-aa29-fcc2fb381c9f",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -36,7 +83,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-f56a2871-89c1-4491-bec4-e5b928686f24"
+      "relatedSpdxElement": "SPDXRef-package-e37bbac2-6580-41f2-a6aa-f3bcf6806e01"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-e37bbac2-6580-41f2-a6aa-f3bcf6806e01",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-0ea8e5e8-6b1a-410c-b88e-21789ebf5a2f"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-e37bbac2-6580-41f2-a6aa-f3bcf6806e01",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-9deb658a-af5d-4562-96de-7f89ef37e30a"
     }
   ]
 }

@@ -15,7 +15,7 @@ from pyasn1.codec.der.encoder import encode
 from pyasn1.error import PyAsn1Error
 from pyasn1.type import namedtype, univ
 
-from .errors import PQCError
+from spsdk_pqc.errors import PQCError
 
 
 class KeyInfo(univ.Sequence):
@@ -41,13 +41,32 @@ class PrivateKey(univ.OctetString):
     """
 
 
+class PrivateKeyWithSeed(univ.Sequence):
+    """Private key with seed.
+
+    PrivateKeyWithSeed ::= SEQUENCE {
+        seed    OCTET STRING,
+        prk     OCTET STRING
+    }
+    """
+
+
+PrivateKeyWithSeed.componentType = namedtype.NamedTypes(
+    namedtype.NamedType("seed", univ.OctetString()),
+    namedtype.NamedType("prk", univ.OctetString()),
+)
+
+
 class PrivateKeyEnvelope(univ.Sequence):
     """Encoded envelope for private key.
 
     PrivateKeyEnvelope ::= SEQUENCE {
         version        INTEGER,
         info           KeyInfo,
-        prk            OCTET STRING (CONTAINING PrivateKey)
+        prkData        CHOICE {
+            prk	PrivateKey,
+            prkSeed PrivateKeyWithSeed
+        }
     }
     """
 
@@ -55,7 +74,15 @@ class PrivateKeyEnvelope(univ.Sequence):
 PrivateKeyEnvelope.componentType = namedtype.NamedTypes(
     namedtype.NamedType("version", univ.Integer()),
     namedtype.NamedType("info", KeyInfo()),
-    namedtype.NamedType("prk", univ.OctetString()),
+    namedtype.NamedType(
+        "prkData",
+        univ.Choice(
+            componentType=namedtype.NamedTypes(
+                namedtype.NamedType("prk", PrivateKey()),
+                namedtype.NamedType("prkSeed", PrivateKeyWithSeed()),
+            )
+        ),
+    ),
 )
 
 
@@ -118,9 +145,14 @@ def decode_prk(data: bytes) -> tuple[str, bytes]:
         data = pem_2_der(data=data)
         result, _ = decode(data, asn1Spec=PrivateKeyEnvelope())
         info = str(result["info"]["algorithm"])
-        prk_octet = bytes(result["prk"])
-        prk, _ = decode(prk_octet, asn1Spec=PrivateKey())
-        return info, bytes(prk)
+        prk_component = result["prkData"].getComponent()
+        try:
+            result2, _ = decode(prk_component, asn1Spec=PrivateKey())
+            return info, bytes(result2)
+        except PyAsn1Error:
+            pass
+        result2, _ = decode(prk_component, asn1Spec=PrivateKeyWithSeed())
+        return info, bytes(result2["prk"])
     except PyAsn1Error as exc:
         raise PQCError(str(exc)) from exc
 
@@ -134,7 +166,9 @@ def encode_prk(data: bytes, oid: str, pem: bool = True, algorithm_name: str = "P
                 "algorithm": univ.ObjectIdentifier(oid),
                 "parameter": bytes(),
             },
-            "prk": univ.OctetString(encode(PrivateKey(data))),
+            "prkData": {
+                "prk": univ.OctetString(encode(PrivateKey(data))),
+            },
         }
         key = bytes(encode(key_data, asn1Spec=PrivateKeyEnvelope()))
         if pem:

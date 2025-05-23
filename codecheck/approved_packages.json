@@ -101,6 +101,18 @@
       }
     },
     {
+      "home_page": "https://github.com/rtfd/commonmark.py",
+      "name": "commonmark",
+      "package": {
+        "name": "commonmark",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "rtfd/commonmark.py",
+        "license": ""
+      }
+    },
+    {
       "home_page": "https://github.com/nedbat/coveragepy",
       "name": "coverage",
       "package": {
@@ -176,7 +188,7 @@
       "name": "execnet",
       "package": {
         "name": "execnet",
-        "license": "MIT License"
+        "license": "MIT"
       }
     },
     {
@@ -236,7 +248,7 @@
       "name": "iniconfig",
       "package": {
         "name": "iniconfig",
-        "license": "MIT License"
+        "license": "MIT"
       }
     },
     {
@@ -244,6 +256,18 @@
       "name": "ipython",
       "package": {
         "name": "ipython",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/ipython/ipython-pygments-lexers",
+      "name": "ipython_pygments_lexers",
+      "package": {
+        "name": "ipython_pygments_lexers",
+        "license": "BSD License"
+      },
+      "github": {
+        "project_name": "ipython/ipython-pygments-lexers",
         "license": "BSD-3-Clause"
       }
     },
@@ -359,6 +383,18 @@
       }
     },
     {
+      "home_page": "https://github.com/python/mypy_extensions",
+      "name": "mypy_extensions",
+      "package": {
+        "name": "mypy_extensions",
+        "license": "MIT"
+      },
+      "github": {
+        "project_name": "python/mypy_extensions",
+        "license": ""
+      }
+    },
+    {
       "home_page": "https://github.com/nbQA-dev/nbQA",
       "name": "nbqa",
       "package": {
@@ -442,7 +478,7 @@
       "name": "platformdirs",
       "package": {
         "name": "platformdirs",
-        "license": "MIT License"
+        "license": "MIT"
       }
     },
     {
@@ -458,7 +494,7 @@
       "name": "prettytable",
       "package": {
         "name": "prettytable",
-        "license": "BSD License"
+        "license": "BSD-3-Clause"
       }
     },
     {

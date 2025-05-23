@@ -2,13 +2,13 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-02-10T14:04:44Z",
+    "created": "2025-05-22T10:23:04Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_codecheck-0.3.7",
+  "name": "spsdk_plugins_codecheck-0.3.10",
   "dataLicense": "CC0-1.0",
   "hasExtractedLicensingInfos": [
     {
@@ -17,18 +17,659 @@
       "name": "Expat License"
     }
   ],
-  "documentNamespace": "https://nxp.com/spdx/b9998d4c-1765-4d69-bf65-38b3e072c0b4",
+  "documentNamespace": "https://nxp.com/spdx/dffe7be5-47ac-4ffb-b898-668799bdb3d1",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-b9998d4c-1765-4d69-bf65-38b3e072c0b4",
+      "SPDXID": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
       "name": "spsdk_plugins_codecheck",
-      "versionInfo": "0.3.7",
+      "versionInfo": "0.3.10",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: NXP",
-      "supplier": "NOASSERTION",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/codecheck",
       "externalRefs": [],
+      "filesAnalyzed": false,
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-90ad55a2-9f86-43ae-b451-49ef7d02c870",
+      "name": "bandit",
+      "versionInfo": "1.8.3",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://wiki.openstack.org/wiki/Security/Projects/Bandit",
+      "downloadLocation": "https://pypi.org/project/bandit/1.8.3",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "5a725f10-0736-44c1-93bf-30f1578c24bb",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/bandit@1.8.3",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-85451b53-b49d-461e-9739-d935d46a0c37",
+      "name": "black",
+      "versionInfo": "25.1.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/ambv/black",
+      "downloadLocation": "https://pypi.org/project/black/25.1.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "0cb22f11-e60c-46a8-bdd7-6c69c83dc922",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:black:25.1.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/black@25.1.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-26024ac4-7443-4339-9cf0-c41adfbe869d",
+      "name": "geomt",
+      "versionInfo": "0.0.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/inteplus/geomt",
+      "downloadLocation": "https://pypi.org/project/geomt/0.0.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/geomt@0.0.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "62c1cb60-3405-418b-85d0-29280b9ff0b4",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-56504a5e-a133-4a22-b81a-043e4815ca9a",
+      "name": "GitPython",
+      "versionInfo": "3.1.43",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/gitpython-developers/GitPython",
+      "downloadLocation": "https://pypi.org/project/GitPython/3.1.43",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:gitpython_project:gitpython:3.1.43:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/gitpython@3.1.43",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "96499712-de08-4eed-83b2-40d194b882b0",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:GitPython:3.1.43:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:gitpython:3.1.43:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-50e946ca-026c-4fcf-8fcc-83e460831ade",
+      "name": "isort",
+      "versionInfo": "6.0.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/timothycrosley/isort",
+      "downloadLocation": "https://pypi.org/project/isort/6.0.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/isort@6.0.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "318de826-ade3-4ab0-bf72-d29c442859c4",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-98c71400-c8bd-4723-8982-3aef8badc9d2",
+      "name": "jinjapython",
+      "versionInfo": "3.1.4",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://jinja.palletsprojects.com",
+      "downloadLocation": "https://pypi.org/project/Jinja2/3.1.4",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "e84bd98a-5a0e-4135-8a36-62665f81d8e8",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:jinja2:3.1.4:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/jinja2@3.1.4",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:Jinja2:3.1.4:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pocoo:jinja2:3.1.4:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:palletsprojects:jinja:3.1.4:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-892e3fc5-0245-426e-81d5-6b9819b5b994",
+      "name": "nbqa",
+      "versionInfo": "1.9.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/MarcoGorelli/nbQA",
+      "downloadLocation": "https://pypi.org/project/nbqa/1.9.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/nbqa@1.9.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "43913baa-3803-461b-ac01-f3ecc596f615",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-17a2041c-aef9-49b5-9e80-c8cbe72b2d18",
+      "name": "nxp-codecheck",
+      "versionInfo": "0.3.7",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/nxp-codecheck/0.3.7",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/nxp-codecheck@0.3.7",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "fbbeee33-4244-48f2-878e-37b57cfe4922",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-81e2d41d-3400-4313-a586-9a7249e53f6d",
+      "name": "platformdirs",
+      "versionInfo": "4.3.8",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/platformdirs/platformdirs",
+      "downloadLocation": "https://pypi.org/project/platformdirs/4.3.8",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/platformdirs@4.3.8",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "5bb8524d-927a-4e03-854a-f7696ba27042",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a93c7f4b-1abe-45c6-bfdb-3c331057bf6d",
+      "name": "prettytable",
+      "versionInfo": "3.16.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/jazzband/prettytable",
+      "downloadLocation": "https://pypi.org/project/prettytable/3.16.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/prettytable@3.16.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "eabe1adf-a6f5-4207-a13f-b6d5d402c877",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-b0de04ee-b765-40d9-9587-0a2ffeae22fb",
+      "name": "pylint-dev/astroid",
+      "versionInfo": "v3.3.10",
+      "licenseConcluded": "LGPL-2.1-only",
+      "licenseDeclared": "LGPL-2.1-only",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-04e310e3-5e72-4a22-9798-8984d4221bf2",
+      "name": "pytest",
+      "versionInfo": "8.3.5",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "http://pytest.org",
+      "downloadLocation": "https://pypi.org/project/pytest/8.3.5",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pytest@8.3.5",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "5b56b10c-e249-4251-b8a1-0dbcc9395943",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-5638d34b-80e2-42ed-a5ac-862608153058",
+      "name": "pytest-cov",
+      "versionInfo": "6.1.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/schlamar/pytest-cov",
+      "downloadLocation": "https://pypi.org/project/pytest-cov/6.1.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pytest-cov@6.1.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "299cd762-a426-4a84-bfcb-e7eb3b7a8eb5",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-33e0c420-a84e-4104-a925-0c8574902a00",
+      "name": "pytest-xdist",
+      "versionInfo": "3.6.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/pytest-dev/pytest-xdist",
+      "downloadLocation": "https://pypi.org/project/pytest-xdist/3.6.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pytest-xdist@3.6.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b8baac12-f4bc-489e-b705-2280670a778c",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-cf430f1a-5e32-400b-82db-64212bc08830",
+      "name": "python-dill",
+      "versionInfo": "0.4.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://pypi.org/project/dill/",
+      "downloadLocation": "https://pypi.org/project/dill/0.4.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/dill@0.4.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "0156568f-c86f-4757-89d2-8ddd5df13865",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-9b9de880-c075-4785-ad91-f79da8586fb5",
+      "name": "python-typing-extensions",
+      "versionInfo": "4.13.2",
+      "licenseConcluded": "PSF-2.0",
+      "licenseDeclared": "PSF-2.0",
+      "downloadLocation": "https://pypi.org/project/typing-extensions/4.13.2",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "57dbac15-1179-43c7-a9e8-2fd7b4761f8e",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/typing-extensions@4.13.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-28f39e0e-5918-4923-87f1-33cd12bf9dda",
+      "name": "PyYAML",
+      "versionInfo": "6.0.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://pyyaml.org/",
+      "downloadLocation": "https://pypi.org/project/PyYAML/6.0.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:PyYAML:6.0.1:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:pyyaml:6.0.1:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pyyaml_project:pyyaml:6.0.1:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pyyaml@6.0.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:yaml:pyyaml:6.0.1:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pyyaml:pyyaml:6.0.1:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "f6f5ab12-9343-4dcf-9281-b2e2cdd9a6d8",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-747cc960-60a5-4ac2-9f59-9003fba8cf4f",
+      "name": "radon",
+      "versionInfo": "6.0.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://radon.readthedocs.org/",
+      "downloadLocation": "https://pypi.org/project/radon/6.0.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/radon@6.0.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "8809f3b4-9080-4049-b29d-fead0b361f6c",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-71922310-d469-40cb-a8b7-29fd337b431d",
+      "name": "ruff",
+      "versionInfo": "0.11.10",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/charliermarsh/ruff",
+      "downloadLocation": "https://pypi.org/project/ruff/0.11.10",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/ruff@0.11.10",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "d02a42f9-5260-45bc-b921-f25e248d8c93",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-da9e4c24-8074-4d0b-a5d5-6c83fb5389aa",
+      "name": "tomli",
+      "versionInfo": "2.0.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/hukkin/tomli",
+      "downloadLocation": "https://pypi.org/project/tomli/2.0.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/tomli@2.0.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "82c157e7-f953-4281-aea9-1052347909f7",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-268cfded-5d63-45f6-8ef9-d3870b95d6d7",
+      "name": "tomlkit",
+      "versionInfo": "0.13.2",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/sdispater/tomlkit",
+      "downloadLocation": "https://pypi.org/project/tomlkit/0.13.2",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "f1620a49-04e5-4a05-9be1-54d92eca467a",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/tomlkit@0.13.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-2750b9e9-d415-4666-b99f-afbc2e03fabc",
+      "name": "types-PyYAML",
+      "versionInfo": "6.0.12.20250516",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "NOASSERTION",
+      "homepage": "https://github.com/python/typeshed",
+      "downloadLocation": "https://pypi.org/project/types-PyYAML/6.0.12.20250516",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/types-pyyaml@6.0.12.20250516",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "d84084c5-e2c3-4f78-a804-c5f50e279b03",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-6c232b8e-a0de-40b3-a585-8ee8164ac478",
+      "name": "types-requests",
+      "versionInfo": "2.32.0.20250515",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "NOASSERTION",
+      "homepage": "https://github.com/python/typeshed",
+      "downloadLocation": "https://pypi.org/project/types-requests/2.32.0.20250515",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/types-requests@2.32.0.20250515",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "377f65f3-5616-4d09-adbf-275299833751",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-fe06e7b3-6255-46e8-90f3-7dacfe5d77cd",
+      "name": "urllib3",
+      "versionInfo": "2.4.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://urllib3.readthedocs.io/en/stable",
+      "downloadLocation": "https://pypi.org/project/urllib3/2.4.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "10f2746c-6f7c-42a3-ac64-6c4ae7f9ef83",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:python:urllib3:2.4.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:urllib3:2.4.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/urllib3@2.4.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:urllib3_project:urllib3:2.4.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -36,7 +677,127 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-b9998d4c-1765-4d69-bf65-38b3e072c0b4"
+      "relatedSpdxElement": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-26024ac4-7443-4339-9cf0-c41adfbe869d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-17a2041c-aef9-49b5-9e80-c8cbe72b2d18"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-56504a5e-a133-4a22-b81a-043e4815ca9a"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-28f39e0e-5918-4923-87f1-33cd12bf9dda"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-b0de04ee-b765-40d9-9587-0a2ffeae22fb"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-fe06e7b3-6255-46e8-90f3-7dacfe5d77cd"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-81e2d41d-3400-4313-a586-9a7249e53f6d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-71922310-d469-40cb-a8b7-29fd337b431d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-50e946ca-026c-4fcf-8fcc-83e460831ade"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-892e3fc5-0245-426e-81d5-6b9819b5b994"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-5638d34b-80e2-42ed-a5ac-862608153058"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-2750b9e9-d415-4666-b99f-afbc2e03fabc"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-85451b53-b49d-461e-9739-d935d46a0c37"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-04e310e3-5e72-4a22-9798-8984d4221bf2"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-a93c7f4b-1abe-45c6-bfdb-3c331057bf6d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-6c232b8e-a0de-40b3-a585-8ee8164ac478"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-9b9de880-c075-4785-ad91-f79da8586fb5"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-da9e4c24-8074-4d0b-a5d5-6c83fb5389aa"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-98c71400-c8bd-4723-8982-3aef8badc9d2"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-747cc960-60a5-4ac2-9f59-9003fba8cf4f"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-cf430f1a-5e32-400b-82db-64212bc08830"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-90ad55a2-9f86-43ae-b451-49ef7d02c870"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-33e0c420-a84e-4104-a925-0c8574902a00"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-dffe7be5-47ac-4ffb-b898-668799bdb3d1",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-268cfded-5d63-45f6-8ef9-d3870b95d6d7"
     }
   ]
 }

@@ -47,7 +47,7 @@ packages = ["spsdk_pyocd", "spsdk_pyocd.__pyinstaller"]
 version = { attr = "spsdk_pyocd.__version__" }
 
 [tool.bumpversion]
-current_version = "0.3.1"
+current_version = "0.3.2"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pyocd/__init__.py"
@@ -119,3 +119,11 @@ checkers = [
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins_pyocd"
+include_detector_types = ["setuptools"]
+sbom_location = "SBOM-spsdk_plugins_pyocd.spdx.json"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_spsdk_PyOCD.txt"

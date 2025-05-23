@@ -54,7 +54,6 @@ class CMakeBuild(build_ext):
                 cmake_args += [
                     "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE",
                     "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
-                    "-DCMAKE_OBJECT_PATH_MAX=260",
                 ]
                 if self.compiler.compiler_type == "msvc":
                     cmake_args += [

@@ -77,14 +77,15 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
             connected_probes = []
 
         for probe in connected_probes:
-            probes.append(
-                ProbeDescription(
-                    interface="mcu-link",
-                    hardware_id=probe.serial_no,
-                    description=probe.description,
-                    probe=DebugProbeMCULink,
+            if not hardware_id or hardware_id == probe.serial_no:
+                probes.append(
+                    ProbeDescription(
+                        interface="mcu-link",
+                        hardware_id=probe.serial_no,
+                        description=probe.description,
+                        probe=DebugProbeMCULink,
+                    )
                 )
-            )
 
         return probes
 

@@ -16,6 +16,7 @@ from codecheck.checker_copyright_year import (
     JavaScriptSourceFile,
     PythonSourceFile,
     SourceFile,
+    TypeScriptSourceFile,
     XmlSourceFile,
     YamlSourceFile,
     YearRange,
@@ -90,6 +91,10 @@ def test_year_ranges():
             "js",
             JavaScriptSourceFile,
         ),
+        (
+            "ts",
+            TypeScriptSourceFile,
+        )
     ],
 )
 def test_get_source_file_by_file_type(extension, source_class):
@@ -173,11 +178,15 @@ def test_pyproject_toml_ignored_results_files(
         ),
         (
             CSourceFile,
-            "/*\n * Copyright 2025 NXP\n *\n * SPDX-License-Identifier: BSD-3-Clause\n */",
+            " * Copyright 2025 NXP\n *\n * SPDX-License-Identifier: BSD-3-Clause",
         ),
         (
             JavaScriptSourceFile,
-            "/*\n * Copyright 2025 NXP\n *\n * SPDX-License-Identifier: BSD-3-Clause\n */",
+            " * Copyright 2025 NXP\n *\n * SPDX-License-Identifier: BSD-3-Clause",
+        ),
+        (
+            TypeScriptSourceFile,
+            " * Copyright 2025 NXP\n *\n * SPDX-License-Identifier: BSD-3-Clause",
         ),
     ],
 )

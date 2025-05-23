@@ -8,7 +8,7 @@
 
 __author__ = """NXP"""
 __email__ = "michal.kelnar@nxp.com"
-__version__ = "0.6.0"
+__version__ = "0.6.4"
 
 try:
     from spsdk.__version__ import version, version_tuple

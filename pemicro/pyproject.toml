@@ -44,7 +44,7 @@ packages = ["spsdk_pemicro", "spsdk_pemicro.__pyinstaller"]
 version = { attr = "spsdk_pemicro.__version__" }
 
 [tool.bumpversion]
-current_version = "0.3.1"
+current_version = "0.3.2"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pemicro/__init__.py"
@@ -116,3 +116,11 @@ checkers = [
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins_pemicro"
+include_detector_types = ["setuptools"]
+sbom_location = "SBOM-spsdk_plugins_pemicro.spdx.json"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_spsdk_pemicro.txt"

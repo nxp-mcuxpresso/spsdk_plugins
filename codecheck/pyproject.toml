@@ -49,7 +49,7 @@ version = { attr = "codecheck.__version__" }
 dependencies = { file = ["requirements.txt"] }
 
 [tool.bumpversion]
-current_version = "0.3.7"
+current_version = "0.3.10"
 
 [[tool.bumpversion.files]]
 filename = "codecheck/__init__.py"
@@ -143,3 +143,17 @@ checkers = [
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins_codecheck"
+include_detector_types = ["pip"]
+sbom_location = "SBOM-spsdk_plugins_codecheck.spdx.json"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_codecheck.txt"
+
+[tool.release-tools.testpypi]
+test_cmd = "codecheck --help"
+
+[tool.release-tools.test_artifacts_collector]
+install_hook = ["uv pip install .", "uv pip install -r requirements_dev.txt"]

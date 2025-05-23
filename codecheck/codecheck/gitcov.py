@@ -18,6 +18,7 @@ from os import path
 from pathlib import Path
 from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Tuple, cast
 
+import git
 import tomli
 from defusedxml.ElementTree import parse as xml_parse
 
@@ -173,7 +174,7 @@ def parse_input(input_args: Optional[Sequence[str]] = None) -> argparse.Namespac
 # pylint: disable=too-many-locals
 def get_changed_files(
     repo_path: str,
-    include_merges: bool,
+    include_merges: bool = True,  # pylint: disable=unused-argument # backward compatibility
     parent_branch: str = "origin/master",
     file_extensions: Optional[Iterable[str]] = None,
 ) -> Sequence[str]:
@@ -185,57 +186,50 @@ def get_changed_files(
     :param file_extensions: File extensions to be searched
     :return: List of changed files
     """
-    if file_extensions is None:
-        file_extensions = [".*"]
-    file_extension_regex = "(" + "|".join(file_extensions) + ")"
-    file_regex_str = rf"^(?P<op>[AM])\s+(?P<path>[a-zA-Z0-9_/\\]+\.{file_extension_regex})$"
-    file_regex = re.compile(file_regex_str)
-
-    # fetch changed files from previous commits
-    logger.info("Fetching files from previous commits\n")
-    cmd = f"{GIT_PATH} log {'--first-parent' if include_merges else '--no-merges'} --name-status {parent_branch}..HEAD"
-    logger.debug(f"Executing: {cmd}")
-    all_files = subprocess.check_output(cmd.split(), cwd=repo_path).decode("utf-8")
-    logger.debug(f"Result:\n{all_files}")
-
-    # fetch changed files that are potentially not committed yet
-    logger.info("Fetching uncommitted files\n")
-    cmd = f"{GIT_PATH} diff --name-status"
-    logger.debug(f"Executing: {cmd}")
-    uncommitted = subprocess.check_output(cmd.split(), cwd=repo_path).decode("utf-8")
-    logger.debug(f"Result:\n{uncommitted}")
-    all_files += uncommitted
-
-    # fetch staged new files
-    logger.info("Fetching new files... those need to be staged\n")
-    cmd = f"{GIT_PATH} diff --name-status --cached"
-    logger.debug(f"Executing: {cmd}")
-    staged = subprocess.check_output(cmd.split(), cwd=repo_path).decode("utf-8")
-    logger.debug(f"Result:\n{staged}")
-    all_files += staged
-
-    filtered = []
-    for item in all_files.split("\n"):
-        match = file_regex.match(item)
-        if match:
-            filtered.append(match.group("path"))
-    # remove duplicates
-    filtered = list(set(filtered))
-    logger.debug(f"Files to consider: {len(filtered)}: {filtered}")
     # root of project may not be the root of the git repository
-    # so we need to adjust the paths
     git_top_level = subprocess.check_output(
         f"{GIT_PATH} rev-parse --show-toplevel".split(), text=True
     ).strip()
-    prefix = Path(repo_path).absolute().relative_to(git_top_level)
 
+    repo = git.Repo(git_top_level)
+
+    changed_files: list[str] = []
+    untracked = repo.untracked_files
+    logger.debug(f"Untracked: {untracked}")
+    changed_files.extend(untracked)
+
+    unstaged = [i.a_path for i in repo.index.diff(None)]
+    logger.debug(f"Unstaged: {unstaged}")
+    changed_files.extend(filter(None, unstaged))
+
+    modified = [i.a_path for i in repo.index.diff("HEAD")]
+    logger.debug(f"Modified: {modified}")
+    changed_files.extend(filter(None, modified))
+
+    common_commit = repo.merge_base(parent_branch, "HEAD")[0]
+    previously_changed = [i.a_path for i in repo.index.diff(common_commit)]
+    logger.debug(f"Previously changed: {previously_changed}")
+    changed_files.extend(filter(None, previously_changed))
+
+    # remove duplicates
+    changed_files = list(set(changed_files))
+
+    # filter files based on extensions
+    if file_extensions:
+        logger.debug(f"File extension filter: {file_extensions}")
+        changed_files = list(filter(lambda x: x.endswith(tuple(file_extensions)), changed_files))
+        logger.debug(f"After filter: {changed_files}")
+
+    # root of project may not be the root of the git repository
+    # so we need to adjust the paths
+    prefix = Path(repo_path).absolute().relative_to(git_top_level)
+    logger.debug(f"Project prefix (from repo root): {prefix}")
     project_scope = []
-    for f in filtered:
+    for f in changed_files:
         try:
             project_scope.append(Path(f).relative_to(prefix).as_posix())
         except ValueError:
             logger.debug(f"File {f} is not in the project scope")
-
     logger.debug(f"Files after scope check: {len(project_scope)}: {project_scope}")
     return project_scope
 

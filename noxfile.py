@@ -26,7 +26,7 @@ THIS_DIR = Path(__file__).parent
 
 def get_projects() -> list[str]:
     data = tomli.loads(THIS_DIR.joinpath("pyproject.toml").read_text(encoding="utf-8"))
-    projects = data["tool"]["release-tools"]["clr"]["package_directories"]
+    projects = data["tool"]["release-tools"]["sub_projects"]
     logger.info(f"Projects found: {', '.join(projects) }")
     return projects
 

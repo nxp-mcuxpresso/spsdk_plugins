@@ -66,7 +66,7 @@ class YearRanges(list[YearRange]):
     """List of year ranges."""
 
     def __str__(self) -> str:
-        """Year ranges as a string, such as '2021-2024,2025'."""
+        """Year ranges as a string, such as '2021-2024,2025' or '2012, 2014, 2016-2017', etc."""
         self.sort(key=lambda x: x.from_year, reverse=False)
         ranges = []
         for year_range in self:
@@ -208,7 +208,7 @@ class SourceFile:
     """Represent single file with copyright header."""
 
     FILE_EXTENSIONS: list[str] = []
-    YEAR_RANGE_REGEX = r"((?:\d{4}(?:-\d{4})?(?:,\d{4}(?:-\d{4})?)*)+)"
+    YEAR_RANGE_REGEX = r"((?:\d{4}(?:-\d{4})?(?:, ?\d{4}(?:-\d{4})?)*)+)"
 
     def __init__(
         self,
@@ -486,9 +486,45 @@ class CSourceFile(SourceFile):
         lines = text.splitlines(keepends=False)
         for i, s in enumerate(lines):
             lines[i] = f" * {s}" if s else " *"
-        lines.insert(0, "/*")
-        lines.append(" */")
+        # lines.insert(0, "/*")
+        # lines.append(" */")
         return "\n".join(lines)
+
+    def calc_copyright_position(self) -> int:
+        """Calculate expected position of copyright header to be places in a file."""
+        text = self._load_file()
+        lines = text.splitlines(keepends=True)
+        index = 0
+        for i, s in enumerate(lines):
+            # copyright is always placed after first commented line
+            if re.match(string=s, pattern=r"^ *?\n"):  # Empty lines
+                continue
+            if s.startswith("/*"):  # Found comment at beginning of file
+                index = i
+                break
+            # No comments before code!
+            index = 0
+            break
+        return index
+
+    def add_copyright(self, year_ranges: YearRanges) -> None:
+        """Add new copyright to the file."""
+        copyright_lines = self.render_copyright_text(str(year_ranges)).splitlines(keepends=True)
+        index = self.calc_copyright_position()
+        if index == 0:
+            copyright_lines.insert(0, "/*\n")
+            copyright_lines.append(" */\n")
+        else:
+            copyright_lines.append(" *")
+        with open(self.file_path, encoding="utf-8") as f:
+            content_lines = f.read().splitlines(keepends=True)
+        for i, c in enumerate(copyright_lines):
+            content_lines.insert(index + i, c)
+        # add newline if enabled and not there already
+        if self.trailing_newline and content_lines[index + len(copyright_lines)] != "\n":
+            content_lines.insert(index + len(copyright_lines), "\n")
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            f.write("".join(content_lines))
 
 
 class JavaScriptSourceFile(SourceFile):
@@ -502,9 +538,97 @@ class JavaScriptSourceFile(SourceFile):
         lines = text.splitlines(keepends=False)
         for i, s in enumerate(lines):
             lines[i] = f" * {s}" if s else " *"
-        lines.insert(0, "/*")
-        lines.append(" */")
+        # lines.insert(0, "/*")
+        # lines.append(" */")
         return "\n".join(lines)
+
+    def calc_copyright_position(self) -> int:
+        """Calculate expected position of copyright header to be places in a file."""
+        text = self._load_file()
+        lines = text.splitlines(keepends=True)
+        index = 0
+        for i, s in enumerate(lines):
+            # copyright is always placed after first commented line
+            if re.match(string=s, pattern=r"^ *?\n"):  # Empty lines
+                continue
+            if s.startswith("/*"):  # Found comment at beginning of file
+                index = i
+                break
+            # No comments before code!
+            index = 0
+            break
+        return index
+
+    def add_copyright(self, year_ranges: YearRanges) -> None:
+        """Add new copyright to the file."""
+        copyright_lines = self.render_copyright_text(str(year_ranges)).splitlines(keepends=True)
+        index = self.calc_copyright_position()
+        if index == 0:
+            copyright_lines.insert(0, "/*\n")
+            copyright_lines.append(" */\n")
+        else:
+            copyright_lines.append(" *")
+        with open(self.file_path, encoding="utf-8") as f:
+            content_lines = f.read().splitlines(keepends=True)
+        for i, c in enumerate(copyright_lines):
+            content_lines.insert(index + i, c)
+        # add newline if enabled and not there already
+        if self.trailing_newline and content_lines[index + len(copyright_lines)] != "\n":
+            content_lines.insert(index + len(copyright_lines), "\n")
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            f.write("".join(content_lines))
+
+
+class TypeScriptSourceFile(SourceFile):
+    """Represent single TypeScript file with copyright header."""
+
+    FILE_EXTENSIONS = ["ts"]
+
+    @classmethod
+    def comment_text(cls, text: str) -> str:
+        """Create commented text from input string."""
+        lines = text.splitlines(keepends=False)
+        for i, s in enumerate(lines):
+            lines[i] = f" * {s}" if s else " *"
+        # lines.insert(0, "/*")
+        # lines.append(" */")
+        return "\n".join(lines)
+
+    def calc_copyright_position(self) -> int:
+        """Calculate expected position of copyright header to be places in a file."""
+        text = self._load_file()
+        lines = text.splitlines(keepends=True)
+        index = 0
+        for i, s in enumerate(lines):
+            # copyright is always placed after first commented line
+            if re.match(string=s, pattern=r"^ *?\n"):  # Empty lines
+                continue
+            if s.startswith("/*"):  # Found comment at beginning of file
+                index = i
+                break
+            # No comments before code!
+            index = 0
+            break
+        return index
+
+    def add_copyright(self, year_ranges: YearRanges) -> None:
+        """Add new copyright to the file."""
+        copyright_lines = self.render_copyright_text(str(year_ranges)).splitlines(keepends=True)
+        index = self.calc_copyright_position()
+        if index == 0:
+            copyright_lines.insert(0, "/*\n")
+            copyright_lines.append(" */\n")
+        else:
+            copyright_lines.append(" *")
+        with open(self.file_path, encoding="utf-8") as f:
+            content_lines = f.read().splitlines(keepends=True)
+        for i, c in enumerate(copyright_lines):
+            content_lines.insert(index + i, c)
+        # add newline if enabled and not there already
+        if self.trailing_newline and content_lines[index + len(copyright_lines)] != "\n":
+            content_lines.insert(index + len(copyright_lines), "\n")
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            f.write("".join(content_lines))
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:

@@ -17,10 +17,7 @@ description = "Signature Provider plugin for SPSDK using PKCS#11 interface"
 requires-python = ">= 3.9"
 dependencies = [
     # use fork until this is resolved https://github.com/pyauth/python-pkcs11/issues/165
-    # "python-pkcs11 @ git+https://github.com/joseavegaa/python-pkcs11",
-    # we can't push a package to PyPI with direct link to a fork.
-    # Thus the released package won't work on Win with Python 3.12+
-    "python-pkcs11",
+    "python-pkcs11 @ git+https://github.com/joseavegaa/python-pkcs11",
     "cached-property",
 ]
 authors = [{ name = "NXP" }]
@@ -50,7 +47,7 @@ Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
 
 
 [tool.bumpversion]
-current_version = "0.3.1"
+current_version = "0.3.2"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pkcs11/__init__.py"
@@ -122,3 +119,11 @@ checkers = [
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins_pkcs11"
+include_detector_types = ["setuptools"]
+sbom_location = "SBOM-spsdk_plugins_pkcs11.spdx.json"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_spsdk_pkcs11.txt"

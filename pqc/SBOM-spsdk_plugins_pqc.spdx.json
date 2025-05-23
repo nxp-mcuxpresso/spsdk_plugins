@@ -2,39 +2,97 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-02-10T14:04:30Z",
+    "created": "2025-05-22T10:28:22Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_pqc-0.5.3",
+  "name": "spsdk_plugins_pqc-0.6.1",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/a2555197-82d2-4200-87aa-c0862acd93d6",
+  "documentNamespace": "https://nxp.com/spdx/bcf11eaf-3030-453e-b3ad-179503db802d",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-a2555197-82d2-4200-87aa-c0862acd93d6",
+      "SPDXID": "SPDXRef-package-bcf11eaf-3030-453e-b3ad-179503db802d",
       "name": "spsdk_plugins_pqc",
-      "versionInfo": "0.5.3",
+      "versionInfo": "0.6.1",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: NXP",
-      "supplier": "NOASSERTION",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/pqc",
       "externalRefs": [],
+      "filesAnalyzed": false,
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-3f843603-1645-45c2-8df1-f23f4e424fff",
+      "name": "open-quantum-safe/liboqs",
+      "versionInfo": "0.12.0",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://openquantumsafe.org/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: opensuse",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/opensuse/liboqs-devel@0.12.0-1.1?arch=riscv64",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "26f31cfb-b95f-4831-b08e-b624a493a338",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-483a2901-aa0a-48af-9b9d-487485664ca2",
-      "name": "open-quantum-safe/liboqs",
-      "versionInfo": "0.10.0",
-      "licenseConcluded": "MIT",
-      "licenseDeclared": "MIT",
-      "homepage": "NOASSERTION",
-      "downloadLocation": "NOASSERTION",
-      "originator": "NOASSERTION",
+      "SPDXID": "SPDXRef-package-acacdb7f-c5f7-4849-8524-9ab53fa32dbf",
+      "name": "pyasn1",
+      "versionInfo": "0.6.1",
+      "licenseConcluded": "BSD-2-Clause",
+      "licenseDeclared": "BSD-2-Clause",
+      "homepage": "https://pypi.org/project/pyasn1/",
+      "downloadLocation": "https://pypi.org/project/pyasn1/0.6.1",
+      "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
-      "externalRefs": [],
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "3d753839-2455-4f99-8fa5-2e0411c428d1",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pyasn1@0.6.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-9b9de880-c075-4785-ad91-f79da8586fb5",
+      "name": "python-typing-extensions",
+      "versionInfo": "4.13.2",
+      "licenseConcluded": "PSF-2.0",
+      "licenseDeclared": "PSF-2.0",
+      "downloadLocation": "https://pypi.org/project/typing-extensions/4.13.2",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/typing-extensions@4.13.2",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "57dbac15-1179-43c7-a9e8-2fd7b4761f8e",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -42,12 +100,22 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-a2555197-82d2-4200-87aa-c0862acd93d6"
+      "relatedSpdxElement": "SPDXRef-package-bcf11eaf-3030-453e-b3ad-179503db802d"
     },
     {
-      "spdxElementId": "SPDXRef-package-a2555197-82d2-4200-87aa-c0862acd93d6",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-package-483a2901-aa0a-48af-9b9d-487485664ca2"
+      "spdxElementId": "SPDXRef-package-bcf11eaf-3030-453e-b3ad-179503db802d",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-9b9de880-c075-4785-ad91-f79da8586fb5"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-bcf11eaf-3030-453e-b3ad-179503db802d",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-3f843603-1645-45c2-8df1-f23f4e424fff"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-bcf11eaf-3030-453e-b3ad-179503db802d",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-acacdb7f-c5f7-4849-8524-9ab53fa32dbf"
     }
   ]
 }

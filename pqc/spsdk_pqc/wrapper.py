@@ -46,7 +46,7 @@ DILITHIUM_LEVEL = {
     5: PQCAlgorithm.DILITHIUM5,
 }
 
-ML_DSA_GROUP_OID = "1.3.6.1.4.1.2.267.12"
+ML_DSA_GROUP_OID = "2.16.840.1.101.3.4.3"
 ML_DSA_ALGORITHMS = [
     PQCAlgorithm.ML_DSA_44,
     PQCAlgorithm.ML_DSA_65,
@@ -102,21 +102,21 @@ KEY_INFO = {
         private_key_size=2560,
         public_key_size=1312,
         signature_size=2420,
-        oid=ML_DSA_GROUP_OID + ".4.4",
+        oid=ML_DSA_GROUP_OID + ".17",
     ),
     PQCAlgorithm.ML_DSA_65: KeyInfo(
         level=3,
         private_key_size=4032,
         public_key_size=1952,
         signature_size=3309,
-        oid=ML_DSA_GROUP_OID + ".6.5",
+        oid=ML_DSA_GROUP_OID + ".18",
     ),
     PQCAlgorithm.ML_DSA_87: KeyInfo(
         level=5,
         private_key_size=4896,
         public_key_size=2592,
         signature_size=4627,
-        oid=ML_DSA_GROUP_OID + ".8.7",
+        oid=ML_DSA_GROUP_OID + ".19",
     ),
 }
 
@@ -225,10 +225,10 @@ class PQCPrivateKey(PQCKey):
                 self.private_data = sig.export_secret_key()
         else:
             for alg in self.ALGORITHMS:
-                if len(data) == KEY_INFO[alg].data_size:
+                if len(data) in [KEY_INFO[alg].private_key_size, KEY_INFO[alg].data_size]:
                     super().__init__(algorithm=alg)
                     self.private_data = data[: KEY_INFO[alg].private_key_size]
-                    self.public_data = data[KEY_INFO[alg].private_key_size :]
+                    self.public_data = None
                     break
             else:
                 raise PQCError(f"Invalid data size {len(data)} for {self.__class__.__name__}")

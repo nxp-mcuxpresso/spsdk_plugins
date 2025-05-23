@@ -44,7 +44,7 @@ packages = ["spsdk_lauterbach", "spsdk_lauterbach.__pyinstaller"]
 version = { attr = "spsdk_lauterbach.__version__" }
 
 [tool.bumpversion]
-current_version = "0.3.1"
+current_version = "0.4.0"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_lauterbach/__init__.py"
@@ -116,3 +116,11 @@ checkers = [
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins_lauterbach"
+include_detector_types = ["setuptools"]
+sbom_location = "SBOM-spsdk_plugins_lauterbach.spdx.json"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_spsdk_lauterbach.txt"

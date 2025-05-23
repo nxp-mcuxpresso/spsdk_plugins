@@ -423,9 +423,21 @@ def get_package_metadata(name: str) -> Optional[Metadata]:
     try:
         meta_file = next(gen)
     except StopIteration:
-        return None
+        pass
+    # some packages such as boolean.py replace dot with underscore
+    new_name = name.replace(".", "_")
+    gen = Path(LIBRARY_PATH).glob(f"{new_name}-*dist-info/METADATA")
+    try:
+        meta_file = next(gen)
+    except StopIteration:
+        # this is for cases where maintainers doesn't use proper casing
+        pass
 
-    return Metadata.from_email(meta_file.read_text(encoding="utf-8"), validate=False)
+    return (
+        Metadata.from_email(meta_file.read_text(encoding="utf-8"), validate=False)
+        if meta_file
+        else None
+    )
 
 
 def get_homepage(meta: Metadata) -> Optional[str]:

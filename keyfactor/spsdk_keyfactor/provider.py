@@ -19,7 +19,7 @@ import requests_pkcs12
 from dotenv import load_dotenv
 from spsdk.crypto.certificate import Certificate
 from spsdk.crypto.hash import EnumHashAlgorithm, get_hash
-from spsdk.crypto.keys import PublicKey
+from spsdk.crypto.keys import PublicKey, PublicKeyRsa
 from spsdk.crypto.signature_provider import SignatureProvider
 from spsdk.exceptions import SPSDKError
 from spsdk.utils.misc import load_secret
@@ -29,6 +29,10 @@ logger = logging.getLogger(__name__)
 
 class KeyfactorPluginError(SPSDKError):
     """Keyfactor Plugin error."""
+
+
+class KeyfactorHTTPError(SPSDKError):
+    """Keyfactor HTTP Error."""
 
 
 class KeyfactorAuthType(str, Enum):
@@ -186,7 +190,8 @@ class KeyfactorSP(SignatureProvider):
         try:
             response.raise_for_status()
         except requests.HTTPError as exc:
-            raise KeyfactorPluginError(f"HTTP error: {exc}") from exc
+            message: str = json.loads(response.content)
+            raise KeyfactorHTTPError(f"HTTP error: {exc}\n{json.dumps(message, indent=2)}") from exc
         response_data: dict[str, str] = response.json()
         logger.debug(json.dumps(response_data, indent=2))
 
@@ -195,10 +200,20 @@ class KeyfactorSP(SignatureProvider):
         )
         signature = base64.b64decode(response_data["data"])
 
-        if not self.signer_certificate.get_public_key().verify_signature(signature, data):
-            raise KeyfactorPluginError(
-                "Signature verification failed. Please check your KEYFACTOR_PREHASH settings."
-            )
+        puk = self.signer_certificate.get_public_key()
+        is_rsa = isinstance(puk, PublicKeyRsa)
+
+        if not puk.verify_signature(signature, data):
+            if not is_rsa:
+                raise KeyfactorPluginError(
+                    "Signature verification failed. "
+                    "Please check your KEYFACTOR_PREHASH and/or SIGNATUREALGORITHM settings."
+                )
+            if not puk.verify_signature(signature, data, pss_padding=True):
+                raise KeyfactorPluginError(
+                    "Signature verification failed. "
+                    "Please check your KEYFACTOR_PREHASH and/or SIGNATUREALGORITHM settings."
+                )
 
         return signature
 

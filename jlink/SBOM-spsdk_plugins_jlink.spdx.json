@@ -2,26 +2,50 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-02-10T14:15:37Z",
+    "created": "2025-05-22T10:29:06Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_jlink-0.3.1",
+  "name": "spsdk_plugins_jlink-0.3.2",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/697d373f-1136-4d03-afde-5986e8fa694e",
+  "documentNamespace": "https://nxp.com/spdx/3db2ad62-9a40-40eb-beec-e1c9d444d7ac",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-697d373f-1136-4d03-afde-5986e8fa694e",
+      "SPDXID": "SPDXRef-package-3db2ad62-9a40-40eb-beec-e1c9d444d7ac",
       "name": "spsdk_plugins_jlink",
-      "versionInfo": "0.3.1",
+      "versionInfo": "0.3.2",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: NXP",
-      "supplier": "NOASSERTION",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/jlink",
       "externalRefs": [],
+      "filesAnalyzed": false,
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-e3ed00b2-490e-4396-82f8-fbabb6ecd23b",
+      "name": "pylink-square",
+      "versionInfo": "1.6.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "http://www.github.com/Square/pylink",
+      "downloadLocation": "https://pypi.org/project/pylink-square/1.6.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pylink-square@1.6.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "5d3d2a1a-016f-4e88-83d4-a55017943c15",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -29,7 +53,12 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-697d373f-1136-4d03-afde-5986e8fa694e"
+      "relatedSpdxElement": "SPDXRef-package-3db2ad62-9a40-40eb-beec-e1c9d444d7ac"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-3db2ad62-9a40-40eb-beec-e1c9d444d7ac",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-e3ed00b2-490e-4396-82f8-fbabb6ecd23b"
     }
   ]
 }

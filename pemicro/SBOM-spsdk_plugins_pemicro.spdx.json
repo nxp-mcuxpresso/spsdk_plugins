@@ -2,34 +2,34 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-02-10T14:18:37Z",
+    "created": "2025-05-22T10:29:41Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_pemicro-0.3.1",
+  "name": "spsdk_plugins_pemicro-0.3.2",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/928eea49-f6d2-48aa-bd92-8c67c871b851",
+  "documentNamespace": "https://nxp.com/spdx/20f2b216-6067-4ee7-bc50-7ccacc88dcd7",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-928eea49-f6d2-48aa-bd92-8c67c871b851",
+      "SPDXID": "SPDXRef-package-20f2b216-6067-4ee7-bc50-7ccacc88dcd7",
       "name": "spsdk_plugins_pemicro",
-      "versionInfo": "0.3.1",
+      "versionInfo": "0.3.2",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: NXP",
-      "supplier": "NOASSERTION",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/pemicro",
       "externalRefs": [],
-      "filesAnalyzed": false
+      "filesAnalyzed": false,
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION"
     }
   ],
   "relationships": [
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-928eea49-f6d2-48aa-bd92-8c67c871b851"
+      "relatedSpdxElement": "SPDXRef-package-20f2b216-6067-4ee7-bc50-7ccacc88dcd7"
     }
   ]
 }

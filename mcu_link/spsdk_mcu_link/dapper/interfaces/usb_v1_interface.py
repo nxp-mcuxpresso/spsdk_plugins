@@ -96,6 +96,8 @@ class UsbV1Interface(Interface[usb.core.Device]):
                             probes.append(UsbV1Interface(usb_device))
                     except usb.core.USBError:
                         pass
+                    finally:
+                        usb_device._finalize_object()  # pylint: disable=protected-access
 
         return probes
 
@@ -161,6 +163,7 @@ class UsbV1Interface(Interface[usb.core.Device]):
         usb.util.dispose_resources(self._device)
         self._endpoint_in = None
         self._endpoint_out = None
+        self._device.finalize()
 
     def write(self, data: Uint8Array) -> None:
         """Write data to USB interface.

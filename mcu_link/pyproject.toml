@@ -60,7 +60,7 @@ include-package-data = true
 version = { attr = "spsdk_mcu_link.__version__" }
 
 [tool.bumpversion]
-current_version = "0.6.0"
+current_version = "0.6.4"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_mcu_link/__init__.py"
@@ -170,3 +170,11 @@ checkers = [
 ]
 [tool.copyright]
 excluded_files = ["spsdk_mcu_link/dapper/*"]
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins_mcu_link"
+include_detector_types = ["setuptools"]
+sbom_location = "SBOM-spsdk_plugins_mcu_link.spdx.json"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_spsdk_mcu_link.txt"

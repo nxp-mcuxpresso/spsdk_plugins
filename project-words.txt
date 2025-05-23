@@ -9,6 +9,7 @@ datas
 defusedxml
 dilithium
 dlen
+DOTENV
 gitcov
 hiddenimports
 hrules
@@ -20,6 +21,7 @@ isort
 jlink
 jtag
 keepends
+Keyfactor
 keygen
 keypair
 kwargs
