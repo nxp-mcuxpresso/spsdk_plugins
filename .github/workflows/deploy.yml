@@ -62,16 +62,16 @@ jobs:
       matrix:
         package: ${{fromJson(needs.get-packages.outputs.packages)}}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
       - name: Download Package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: Packages-${{ matrix.package }}
           path: dist
 
       - name: Publish packages to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.9.0
+        uses: pypa/gh-action-pypi-publish@v1.12.4
         with:
           skip-existing: true
 
@@ -89,15 +89,15 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5.6.0
         name: Install Python
         with:
           python-version: '3.x'
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v2.23.3
         with:
           package-dir: ${{ matrix.package }}
           output-dir: dist
@@ -105,7 +105,7 @@ jobs:
           CIBW_SKIP: "pp*"
 
       - name: Publish packages to GH
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: wheels-${{ matrix.package }}-${{ matrix.os }} # this is a "artifact already exists" workaround
           path: dist/*.whl
