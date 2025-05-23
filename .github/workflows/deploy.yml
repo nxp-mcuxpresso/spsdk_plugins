@@ -42,7 +42,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build and Check Package
-        uses: hynek/build-and-inspect-python-package@v2.10.0
+        uses: hynek/build-and-inspect-python-package@v2.12.0
         with:
           path: ${{ matrix.package }}
           attest-build-provenance-github: 'true'
