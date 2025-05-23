@@ -110,9 +110,3 @@ jobs:
           name: wheels-${{ matrix.package }}-${{ matrix.os }} # this is a "artifact already exists" workaround
           path: dist/*.whl
           overwrite: true
-
-      - name: Publish packages to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.9.0
-        with:
-          skip-existing: true
-          packages-dir: dist
