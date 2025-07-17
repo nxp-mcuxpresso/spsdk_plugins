@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2020-2024 NXP
+# Copyright 2020-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 """Checker for pydocstyle."""
 import logging
 import re
@@ -22,7 +23,7 @@ from .git_operations import get_changed_files, get_number_of_commits
     required=False,
     default=".",
     help="Path to root of repository",
-    show_default=True,  # type: ignore  # Mypy is getting confused here
+    show_default=True,
 )
 @click.option(
     "-m",
@@ -45,11 +46,11 @@ from .git_operations import get_changed_files, get_number_of_commits
     "-v", "--verbose", "log_level", flag_value=logging.INFO, help="Display more verbose output"
 )
 @click.option("-d", "--debug", "log_level", flag_value=logging.DEBUG, help="Display debugging info")
-def main(repo_path, parent_branch, module, log_level, all_files):
+def main(repo_path: str, parent_branch: str, module: str, log_level: int, all_files: bool) -> int:
     """Run pydocstyle of changed lines of code."""
     logging.basicConfig(level=log_level or logging.WARNING)
     if all_files:
-        error_counter = execute_pydocstyle(module)
+        error_counter: int = execute_pydocstyle(module)
     else:
         commits = get_number_of_commits(repo_path, parent_branch)
         files = get_changed_files(repo_path, commits)

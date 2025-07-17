@@ -1,75 +1,78 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 """Wrapper for Dilithium library."""
 
+import os
 import platform
-from distutils.command.build_ext import build_ext
+import shutil
+import subprocess
 
 from setuptools import Extension, setup
+from setuptools.command.build_ext import build_ext
 
 
-class CTypesExtension(Extension):
-    pass
+class CMakeExtension(Extension):
+    def __init__(self, name, cmake_lists_dir="./ref", sources=[], **kwa):
+        Extension.__init__(self, name, sources=sources, **kwa)
+        self.cmake_lists_dir = os.path.abspath(cmake_lists_dir)
 
 
-class build_ctypes_ext(build_ext):
-    def build_extension(self, ext) -> None:
-        self._ctypes = isinstance(ext, CTypesExtension)
-        return super().build_extension(ext)
+class CMakeBuild(build_ext):
 
-    def get_ext_filename(self, ext_name: str) -> str:
-        if self._ctypes:
-            return ext_name + ".so"
-        return super().get_ext_filename(ext_name)
+    def get_ext_filename(self, fullname):
+        return "spsdk_pqc/liboqs.so"
 
-    def get_export_symbols(self, ext: CTypesExtension):
-        if self._ctypes:
-            return ext.export_symbols
-        return super().get_export_symbols(ext)
+    def get_ext_fullpath(self, ext_name):
+        return f"{self.build_lib}/spsdk_pqc/liboqs.so"
 
+    def build_extensions(self):
+        if not shutil.which("cmake"):
+            raise RuntimeError("Cannot find CMake executable")
 
-if platform.system() == "Windows":
-    c_args = ["/nologo", "/O2", "/W4", "/wd4146", "/wd4244"]
-    l_libs = ["advapi32"]
-else:
-    c_args = ["-Wall", "-Wextra", "-Wpedantic", "-Werror", "-O3"]
-    l_libs = []
+        for ext in self.extensions:
 
-sources = [
-    "ref/sign.c",
-    "ref/packing.c",
-    "ref/polyvec.c",
-    "ref/poly.c",
-    "ref/ntt.c",
-    "ref/reduce.c",
-    "ref/rounding.c",
-    "ref/randombytes.c",
-    "ref/symmetric-shake.c",
-    "ref/fips202.c",
-]
+            extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+            cfg = "Release"
 
+            cmake_args = [
+                "-DBUILD_SHARED_LIBS=ON",
+                "-DOQS_BUILD_ONLY_LIB=ON",
+                "-DOQS_USE_OPENSSL=OFF",
+                "-DOQS_MINIMAL_BUILD=SIG_dilithium_2;SIG_dilithium_3;SIG_dilithium_5;SIG_ml_dsa_44;SIG_ml_dsa_65;SIG_ml_dsa_87",
+                "-DCMAKE_BUILD_TYPE=%s" % cfg,
+                "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
+                "-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), self.build_temp),
+            ]
 
-def make_extension(level: int) -> CTypesExtension:
-    return CTypesExtension(
-        f"spsdk_pqc._dil{level}",
-        define_macros=[("DILITHIUM_MODE", str(level)), ("DILITHIUM_RANDOMIZED_SIGNING", "1")],
-        include_dirs=["ref"],
-        sources=sources,
-        extra_compile_args=c_args,
-        libraries=l_libs,
-    )
+            if platform.system() == "Windows":
+                plat = "x64" if platform.architecture()[0] == "64bit" else "Win32"
+                cmake_args += [
+                    "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE",
+                    "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
+                ]
+                if self.compiler.compiler_type == "msvc":
+                    cmake_args += [
+                        "-DCMAKE_GENERATOR_PLATFORM=%s" % plat,
+                    ]
+                else:
+                    cmake_args += [
+                        "-G",
+                        "MinGW Makefiles",
+                    ]
+
+            if not os.path.exists(self.build_temp):
+                os.makedirs(self.build_temp)
+            # Config and build the extension
+            subprocess.check_call(["cmake", ext.cmake_lists_dir] + cmake_args, cwd=self.build_temp)
+            subprocess.check_call(["cmake", "--build", ".", "--config", cfg], cwd=self.build_temp)
 
 
 setup(
-    ext_modules=[
-        make_extension(level=2),
-        make_extension(level=3),
-        make_extension(level=5),
-    ],
-    cmdclass={"build_ext": build_ctypes_ext},
+    ext_modules=[CMakeExtension("spsdk_pqc.liboqs")],
+    cmdclass={"build_ext": CMakeBuild},
 )

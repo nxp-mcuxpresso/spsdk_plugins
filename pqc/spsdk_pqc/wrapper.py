@@ -1,293 +1,341 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-"""Wrapper for Dilithium library."""
+"""Wrapper for Open-Quantum-Safe python library."""
 
-import pathlib
-from ctypes import CDLL, POINTER, byref, c_char_p, c_int, c_ulonglong, create_string_buffer
+import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Optional
+
+from typing_extensions import Self
+
+from . import pqc_asn
+from .errors import PQCError
+from .liboqs_oqs import Signature
+
+logger = logging.getLogger(__name__)
+
+DISABLE_DIL_MLDSA_PUBLIC_KEY_MISMATCH_WARNING = False
+
+
+class PQCAlgorithm(str, Enum):
+    """Supported PQC algorithms."""
+
+    DILITHIUM2 = "Dilithium2"
+    DILITHIUM3 = "Dilithium3"
+    DILITHIUM5 = "Dilithium5"
+    ML_DSA_44 = "ML-DSA-44"
+    ML_DSA_65 = "ML-DSA-65"
+    ML_DSA_87 = "ML-DSA-87"
+
+
+DILITHIUM_GROUP_OID = "1.3.6.1.4.1.2.267.7"
+DILITHIUM_ALGORITHMS = [
+    PQCAlgorithm.DILITHIUM2,
+    PQCAlgorithm.DILITHIUM3,
+    PQCAlgorithm.DILITHIUM5,
+]
+DILITHIUM_LEVEL = {
+    2: PQCAlgorithm.DILITHIUM2,
+    3: PQCAlgorithm.DILITHIUM3,
+    5: PQCAlgorithm.DILITHIUM5,
+}
+
+ML_DSA_GROUP_OID_LEGACY = "1.3.6.1.4.1.2.267.12"
+ML_DSA_GROUP_OID = "2.16.840.1.101.3.4.3"
+ML_DSA_ALGORITHMS = [
+    PQCAlgorithm.ML_DSA_44,
+    PQCAlgorithm.ML_DSA_65,
+    PQCAlgorithm.ML_DSA_87,
+]
+ML_DSA_LEVEL = {
+    2: PQCAlgorithm.ML_DSA_44,
+    3: PQCAlgorithm.ML_DSA_65,
+    5: PQCAlgorithm.ML_DSA_87,
+}
 
 
 @dataclass
 class KeyInfo:
-    """Dilithium Key information class."""
+    """PQC Key information class."""
 
     level: int
     private_key_size: int
     public_key_size: int
     signature_size: int
+    oid: str
+
+    @property
+    def data_size(self) -> int:
+        """Raw key data size."""
+        return self.private_key_size + self.public_key_size
 
 
 KEY_INFO = {
-    2: KeyInfo(level=2, private_key_size=2528, public_key_size=1312, signature_size=2420),
-    3: KeyInfo(level=3, private_key_size=4000, public_key_size=1952, signature_size=3293),
-    5: KeyInfo(level=5, private_key_size=4864, public_key_size=2592, signature_size=4595),
+    PQCAlgorithm.DILITHIUM2: KeyInfo(
+        level=2,
+        private_key_size=2528,
+        public_key_size=1312,
+        signature_size=2420,
+        oid=DILITHIUM_GROUP_OID + ".4.4",
+    ),
+    PQCAlgorithm.DILITHIUM3: KeyInfo(
+        level=3,
+        private_key_size=4000,
+        public_key_size=1952,
+        signature_size=3293,
+        oid=DILITHIUM_GROUP_OID + ".6.5",
+    ),
+    PQCAlgorithm.DILITHIUM5: KeyInfo(
+        level=5,
+        private_key_size=4864,
+        public_key_size=2592,
+        signature_size=4595,
+        oid=DILITHIUM_GROUP_OID + ".8.7",
+    ),
+    PQCAlgorithm.ML_DSA_44: KeyInfo(
+        level=2,
+        private_key_size=2560,
+        public_key_size=1312,
+        signature_size=2420,
+        oid=ML_DSA_GROUP_OID + ".17",
+    ),
+    PQCAlgorithm.ML_DSA_65: KeyInfo(
+        level=3,
+        private_key_size=4032,
+        public_key_size=1952,
+        signature_size=3309,
+        oid=ML_DSA_GROUP_OID + ".18",
+    ),
+    PQCAlgorithm.ML_DSA_87: KeyInfo(
+        level=5,
+        private_key_size=4896,
+        public_key_size=2592,
+        signature_size=4627,
+        oid=ML_DSA_GROUP_OID + ".19",
+    ),
 }
 
 
-def get_crypto_library_path(mode: int = 3, use_aes: bool = False) -> str:
-    """Get path to selected crypto backend library.
+class PQCKey:
+    """Base class for all supported PQC keys."""
 
-    :param level: NIST claim level, defaults to 3
-    :param use_aes: Use AES version of the algorithm, defaults to False
-    :return: Path to crypto backend library
-    """
-    assert use_aes is False, "AES mode is not yet supported"
-    return str(pathlib.Path(__file__).parent / f"_dil{mode}{'aes' if use_aes else ''}.so")
+    ALGORITHMS: list[PQCAlgorithm] = []
 
-
-def get_key_info(level: int = 3) -> KeyInfo:
-    """Get sizes of private key, public key, and signature for Dilithium in given mode.
-
-    :param mode: NIST claim level (Dilithium mode) (2, 3, 5), defaults to 3
-    :return: Tuple of private key, public key, and signature lengths
-    """
-    return KEY_INFO[level]
-
-
-class DilithiumWrapper:
-    """Wrapper class for Dilithium DLL."""
-
-    # pylint: disable=too-many-instance-attributes
-    def __init__(self, level: int = 3, use_aes: bool = False, randomized: bool = True) -> None:
-        """Initialize the Dilithium wrapper class.
-
-        :param mode: Dilithium mode (NIST claim level), defaults to 2
-        :param use_aes: Use AES-CRT instead of SHAKE256, defaults to False
-        :param randomized: Use randomized signing
-        """
-        self.level = level
-        self.use_aes = use_aes
-        self.randomized = randomized
-        self._lib_path = get_crypto_library_path(mode=level, use_aes=use_aes)
-        self.key_info = get_key_info(level=level)
-
-        self._lib = CDLL(self._lib_path)
-        self._infix = f"{level}{'aes' if use_aes else ''}"
-
-        self._keypair = self._lib[f"pqcrystals_dilithium{self._infix}_ref_keypair"]
-        self._keypair.argtypes = [c_char_p, c_char_p]
-        self._keypair.restype = c_int
-
-        self._sign = self._lib[f"pqcrystals_dilithium{self._infix}_ref_signature"]
-        self._sign.argtypes = [
-            c_char_p,
-            POINTER(c_ulonglong),
-            c_char_p,
-            c_ulonglong,
-            c_char_p,
-        ]
-        self._sign.restype = c_int
-
-        self._verify = self._lib[f"pqcrystals_dilithium{self._infix}_ref_verify"]
-        self._verify.argtypes = [c_char_p, c_ulonglong, c_char_p, c_ulonglong, c_char_p]
-        self._verify.restype = c_int
-
-    def key_pair(self) -> Tuple[bytes, bytes]:
-        """Generate a key pair.
-
-        :raises RuntimeError: Failure during key generation
-        :return: Tuple containing private key and public key
-        """
-        public_key = create_string_buffer(self.key_info.public_key_size)
-        private_key = create_string_buffer(self.key_info.private_key_size)
-
-        if self._keypair(public_key, private_key):
-            raise RuntimeError("Keygen malfunctioned!")
-        return private_key.raw, public_key.raw
-
-    def sign(self, data: bytes, private_key: bytes) -> bytes:
-        """Sign data using the private key.
-
-        :param data: Data to sign
-        :param private_key: Private key to sign the data
-        :raises RuntimeError: Invalid size of the private key
-        :raises RuntimeError: Sign operation fails
-        :return: Signature
-        """
-        if len(private_key) != self.key_info.private_key_size:
-            raise RuntimeError(
-                "Invalid private key size! "
-                f"Expected: {self.key_info.private_key_size}, got: {len(private_key)}"
+    def __init__(self, algorithm: PQCAlgorithm):
+        """Initialize PQC key with given algorithm."""
+        if algorithm not in self.ALGORITHMS:
+            raise PQCError(
+                f"Algorithm {algorithm} is not allowed in class {self.__class__.__name__}"
             )
-        d = create_string_buffer(data)
-        dlen = c_ulonglong(len(data))
-        s = create_string_buffer(self.key_info.signature_size)
-        slen = c_ulonglong(0)
-        prk = create_string_buffer(private_key)
-
-        if self._sign(s, byref(slen), d, dlen, prk):
-            raise RuntimeError("Signing malfunctioned!")
-        return s.raw[: slen.value]
-
-    def verify(self, data: bytes, signature: bytes, public_key: bytes) -> bool:
-        """Verify signature using the public key.
-
-        :param data: Original data that were signed
-        :param signature: Signature
-        :param public_key: Public key
-        :raises RuntimeError: Invalid size of the signature
-        :raises RuntimeError: Invalid size of the public key
-        :return: True if signature matches
-        """
-        if len(signature) != self.key_info.signature_size:
-            raise RuntimeError(
-                "Invalid signature size! "
-                f"Expected {self.key_info.signature_size}, got: {len(signature)}"
-            )
-        if len(public_key) != self.key_info.public_key_size:
-            raise RuntimeError(
-                "Invalid public key size! "
-                f"Expected {self.key_info.public_key_size}, got {len(public_key)}"
-            )
-        d = create_string_buffer(data)
-        dlen = c_ulonglong(len(data))
-        s = create_string_buffer(signature)
-        puk = create_string_buffer(public_key)
-
-        if self._verify(s, self.key_info.signature_size, d, dlen, puk):
-            return False
-        return True
-
-
-BACKENDS = {
-    2: DilithiumWrapper(level=2),
-    3: DilithiumWrapper(level=3),
-    5: DilithiumWrapper(level=5),
-}
-
-
-class DilObjectType(Enum):
-    """Dilithium Object type enumeration."""
-
-    PRIVATE_DATA = "private_data"
-    PUBLIC_DATA = "public_data"
-    PRIVATE_PUBLIC_DATA = "private_public_data"
-    SIGNATURE_DATA = "signature_data"
-
-    @classmethod
-    def detect(cls, data: bytes) -> Tuple["DilObjectType", KeyInfo]:
-        """Detect the Dilithium key type.
-
-        :param data: Data representation of Dilithium key/signature
-        :raises ValueError: Invalid data given.
-        :return: Tuple of data type and its key information.
-        """
-        for key_info in KEY_INFO.values():
-            if len(data) == key_info.private_key_size + key_info.public_key_size:
-                return cls.PRIVATE_PUBLIC_DATA, key_info
-            if len(data) == key_info.private_key_size:
-                return cls.PRIVATE_DATA, key_info
-            if len(data) == key_info.public_key_size:
-                return cls.PUBLIC_DATA, key_info
-            if len(data) == key_info.signature_size:
-                return cls.SIGNATURE_DATA, key_info
-        raise ValueError(f"Data of length {len(data)} doesn't represent any object in Dilithium.")
-
-
-class DilithiumPrivateKey:
-    """Dilithium private key class."""
-
-    def __init__(self, level: Optional[int] = None, data: Optional[bytes] = None) -> None:
-        """Dilithium private key constructor.
-
-        :param level: Optional level of dilithium algorithm, defaults to None
-        :param data: Data of private key, defaults to None
-        :raises ValueError: You must provide either 'data' or 'level'
-        :raises ValueError: Provided data do not represent a private key
-        """
-        self.public_data: Optional[bytes] = None
-        if data is None:
-            if level is None:
-                raise ValueError("You must provide either 'data' or 'level'")
-            self.backend = BACKENDS[level]
-            self.private_data, self.public_data = self.backend.key_pair()
-        else:
-            data_type, key_info = DilObjectType.detect(data=data)
-            if data_type not in [DilObjectType.PRIVATE_DATA, DilObjectType.PRIVATE_PUBLIC_DATA]:
-                raise ValueError("Provided data do not represent a private key")
-            self.backend = BACKENDS[key_info.level]
-            self.private_data = data[: key_info.private_key_size]
-            if data_type == DilObjectType.PRIVATE_PUBLIC_DATA:
-                self.public_data = data[key_info.private_key_size :]
-
-    def sign(self, data: bytes) -> bytes:
-        """Sign the data by Dilithium key.
-
-        :param data: Data to sign.
-        :return: Signature data.
-        """
-        return self.backend.sign(data=data, private_key=self.private_data)
-
-    def verify(self, data: bytes, signature: bytes) -> bool:
-        """Verify Dilithium signature.
-
-        :param data: Signed data.
-        :param signature: Signature data.
-        :raises ValueError: The key doesn't contains the public data usable to verify.
-        :return: True if signature fits the data, False otherwise.
-        """
-        if self.public_data is None:
-            raise ValueError("The key doesn't contains the public data usable to verify.")
-        return self.backend.verify(data=data, signature=signature, public_key=self.public_data)
+        self.algorithm = algorithm
+        self.key_info = KEY_INFO[self.algorithm]
 
     @property
     def signature_size(self) -> int:
-        """Signature size."""
-        return self.backend.key_info.signature_size
-
-    @property
-    def key_size(self) -> int:
-        """Key size."""
-        return self.backend.key_info.private_key_size
+        """Size of signature data."""
+        return KEY_INFO[self.algorithm].signature_size
 
     @property
     def level(self) -> int:
-        """Dilithium algorithm level."""
-        return self.backend.key_info.level
+        """NIST claim level."""
+        return KEY_INFO[self.algorithm].level
 
 
-class DilithiumPublicKey:
-    """Dilithium public key class."""
+class PQCPublicKey(PQCKey):
+    """Base class for all supported PQC public keys."""
+
+    ALGORITHMS = DILITHIUM_ALGORITHMS + ML_DSA_ALGORITHMS
 
     def __init__(self, public_data: bytes) -> None:
-        """Dilithium public key constructor.
+        """Initialize PQC public key."""
+        for alg in self.ALGORITHMS:
+            if len(public_data) == KEY_INFO[alg].public_key_size:
+                super().__init__(algorithm=alg)
+                self.public_data = public_data
+                break
+        else:
+            raise PQCError(f"Invalid data size {len(public_data)} for {self.__class__.__name__}")
 
-        :param public_data: Dilithium public key data.
-        :raises ValueError: Provided data do not represent a public key.
-        """
-        data_type, key_info = DilObjectType.detect(data=public_data)
-        if data_type != DilObjectType.PUBLIC_DATA:
-            raise ValueError("Provided data do not represent a public key")
-        self.backend = BACKENDS[key_info.level]
-        self.public_data = public_data
+    def verify(self, signature: bytes, data: bytes) -> bool:
+        """Verify signature."""
+        with Signature(alg_name=self.algorithm.value) as sig:
+            result = sig.verify(message=data, signature=signature, public_key=self.public_data)
+        return result
 
-    def verify(self, data: bytes, signature: bytes) -> bool:
-        """Verify Dilithium signature.
+    def export(self, pem: bool = True) -> bytes:
+        """Export key in PEM or DER format."""
+        return pqc_asn.encode_puk(
+            data=self.public_data,
+            oid=self.key_info.oid,
+            pem=pem,
+            algorithm_name=self.algorithm.value,
+        )
 
-        :param data: Signed data.
-        :param signature: Signature data.
-        :return: True if signature fits the data, False otherwise.
-        """
-        return self.backend.verify(data=data, signature=signature, public_key=self.public_data)
+    @classmethod
+    def parse(cls, data: bytes) -> Self:
+        """Create key from raw or PEM/DER encoded data."""
+        try:
+            key = cls(public_data=data)
+            logger_func = (
+                logger.debug if DISABLE_DIL_MLDSA_PUBLIC_KEY_MISMATCH_WARNING else logger.warning
+            )
+            logger_func(
+                "Parsing raw public key data. Key type (Dilithium/ML-DSA) might be incorrect."
+            )
 
-    @property
-    def signature_size(self) -> int:
-        """Signature size."""
-        return self.backend.key_info.signature_size
+            return key
+        except PQCError:
+            pass
+        oid, data = pqc_asn.decode_puk(data=data)
+        if oid.startswith(DILITHIUM_GROUP_OID):
+            return DilithiumPublicKey(public_data=data)  # type: ignore[return-value]
+        if oid.startswith(ML_DSA_GROUP_OID) or oid.startswith(ML_DSA_GROUP_OID_LEGACY):
+            return MLDSAPublicKey(public_data=data)  # type: ignore[return-value]
+        raise PQCError("Unable to determine PQC Public key type (Dilithium/ML-DSA)")
 
     @property
     def key_size(self) -> int:
-        """Key size."""
-        return self.backend.key_info.public_key_size
+        """Key size in bits."""
+        return KEY_INFO[self.algorithm].public_key_size * 8
+
+
+class PQCPrivateKey(PQCKey):
+    """Base class for all supported PQC private keys."""
+
+    ALGORITHMS = DILITHIUM_ALGORITHMS + ML_DSA_ALGORITHMS
+
+    def __init__(
+        self, algorithm: Optional[PQCAlgorithm] = None, data: Optional[bytes] = None
+    ) -> None:
+        """Initialize PQC private key."""
+        if data is None:
+            if algorithm is None:
+                raise PQCError("You must provide either 'data' or 'algorithm'")
+            if isinstance(algorithm, str):
+                algorithm = PQCAlgorithm(algorithm)
+            assert isinstance(algorithm, PQCAlgorithm)
+            with Signature(alg_name=algorithm.value) as sig:
+                super().__init__(algorithm=algorithm)
+                self.public_data = sig.generate_keypair()
+                self.private_data = sig.export_secret_key()
+        else:
+            for alg in self.ALGORITHMS:
+                if len(data) in [KEY_INFO[alg].private_key_size, KEY_INFO[alg].data_size]:
+                    super().__init__(algorithm=alg)
+                    self.private_data = data[: KEY_INFO[alg].private_key_size]
+                    self.public_data = None
+                    if len(data) == KEY_INFO[alg].data_size:
+                        self.public_data = data[KEY_INFO[alg].private_key_size :]
+                    break
+            else:
+                raise PQCError(f"Invalid data size {len(data)} for {self.__class__.__name__}")
+
+    def sign(self, data: bytes) -> bytes:
+        """Sign data."""
+        with Signature(alg_name=self.algorithm.value, secret_key=self.private_data) as sig:
+            signature = sig.sign(data)
+        return signature
+
+    def verify(self, signature: bytes, data: bytes) -> bool:
+        """Verify signature."""
+        with Signature(alg_name=self.algorithm.value) as sig:
+            result = sig.verify(message=data, signature=signature, public_key=self.public_data)
+        return result
+
+    def export(self, pem: bool = True) -> bytes:
+        """Export key in PEM or DER format."""
+        data = self.private_data + self.public_data
+        return pqc_asn.encode_prk(
+            data=data,
+            oid=self.key_info.oid,
+            pem=pem,
+            algorithm_name=self.algorithm.value,
+        )
+
+    def get_public_key(self) -> PQCPublicKey:
+        """Create an instance of public key."""
+        if self.algorithm in DILITHIUM_ALGORITHMS:
+            return DilithiumPublicKey(public_data=self.public_data)
+        if self.algorithm in ML_DSA_ALGORITHMS:
+            return MLDSAPublicKey(public_data=self.public_data)
+        raise PQCError("Unable to determine PQC Private key type (Dilithium/ML-DSA)")
+
+    @classmethod
+    def parse(cls, data: bytes) -> Self:
+        """Create key from raw or PEM/DER encoded data."""
+        try:
+            return cls(data=data)
+        except PQCError:
+            pass
+        # we don't care about the oid, as each private key has different length
+        oid, data = pqc_asn.decode_prk(data=data)
+        if not oid:
+            return cls(data=data)
+        if oid.startswith(DILITHIUM_GROUP_OID):
+            return DilithiumPrivateKey(data=data)  # type: ignore[return-value]
+        if oid.startswith(ML_DSA_GROUP_OID) or oid.startswith(ML_DSA_GROUP_OID_LEGACY):
+            return MLDSAPrivateKey(data=data)  # type: ignore[return-value]
+        raise PQCError("Unable to determine PQC Private key type (Dilithium/ML-DSA)")
 
     @property
-    def level(self) -> int:
-        """Dilithium algorithm level."""
-        return self.backend.key_info.level
+    def key_size(self) -> int:
+        """Key size in bits."""
+        return KEY_INFO[self.algorithm].private_key_size * 8
+
+
+class DilithiumPrivateKey(PQCPrivateKey):
+    """Dilithium Private Key."""
+
+    ALGORITHMS = DILITHIUM_ALGORITHMS
+
+    def __init__(
+        self,
+        level: Optional[int] = None,
+        algorithm: Optional[PQCAlgorithm] = None,
+        data: Optional[bytes] = None,
+    ):
+        """Initialize Dilithium private key."""
+        if not data:
+            if level:
+                algorithm = DILITHIUM_LEVEL.get(level)
+            if not algorithm:
+                raise PQCError("PQC Algorithm must be specified either by 'level' or 'algorithm'")
+        super().__init__(algorithm, data)
+
+
+class DilithiumPublicKey(PQCPublicKey):
+    """Dilithium Public Key."""
+
+    ALGORITHMS = DILITHIUM_ALGORITHMS
+
+
+class MLDSAPrivateKey(PQCPrivateKey):
+    """ML-DSA Private Key."""
+
+    ALGORITHMS = ML_DSA_ALGORITHMS
+
+    def __init__(
+        self,
+        level: Optional[int] = None,
+        algorithm: Optional[PQCAlgorithm] = None,
+        data: Optional[bytes] = None,
+    ):
+        """Initialize ML-DSA private key."""
+        if not data:
+            if level:
+                algorithm = ML_DSA_LEVEL.get(level)
+            if not algorithm:
+                raise PQCError("PQC Algorithm must be specified either by 'level' or 'algorithm'")
+        super().__init__(algorithm, data)
+
+
+class MLDSAPublicKey(PQCPublicKey):
+    """ML-DSA Public Key."""
+
+    ALGORITHMS = ML_DSA_ALGORITHMS

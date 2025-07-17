@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2020-2024 NXP
+# Copyright 2020-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -11,19 +11,32 @@ import argparse
 import logging
 import os
 import re
+import shutil
 import subprocess
 import sys
 from os import path
-from typing import Iterable, Optional, Sequence, Tuple, cast
-from xml.etree import ElementTree as et
+from pathlib import Path
+from typing import TYPE_CHECKING, Iterable, Optional, Sequence, Tuple, cast
 
+import git
 import tomli
+from defusedxml.ElementTree import parse as xml_parse
+
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element, ElementTree  # nosec
+else:
+    Element = ElementTree = object
 
 logger = logging.getLogger()
 # Modify logger to proper format
 LOG_HANDLER = logging.StreamHandler()
 LOG_HANDLER.setFormatter(logging.Formatter("%(message)s"))
 logger.addHandler(LOG_HANDLER)
+
+GIT_PATH = shutil.which("git")
+if not GIT_PATH:
+    raise FileNotFoundError("git not found in PATH")
+
 
 DEFAULT_CONFIG = {
     "skip-files": "",
@@ -158,9 +171,10 @@ def parse_input(input_args: Optional[Sequence[str]] = None) -> argparse.Namespac
     return args
 
 
+# pylint: disable=too-many-locals
 def get_changed_files(
     repo_path: str,
-    include_merges: bool,
+    include_merges: bool = True,  # pylint: disable=unused-argument # backward compatibility
     parent_branch: str = "origin/master",
     file_extensions: Optional[Iterable[str]] = None,
 ) -> Sequence[str]:
@@ -172,44 +186,52 @@ def get_changed_files(
     :param file_extensions: File extensions to be searched
     :return: List of changed files
     """
-    if file_extensions is None:
-        file_extensions = [".*"]
-    file_extension_regex = "(" + "|".join(file_extensions) + ")"
-    file_regex_str = rf"^(?P<op>[AM])\s+(?P<path>[a-zA-Z0-9_/\\]+\.{file_extension_regex})$"
-    file_regex = re.compile(file_regex_str)
+    # root of project may not be the root of the git repository
+    git_top_level = subprocess.check_output(
+        f"{GIT_PATH} rev-parse --show-toplevel".split(), text=True
+    ).strip()
 
-    # fetch changed files from previous commits
-    logger.info("Fetching files from previous commits\n")
-    cmd = f"git log {'--first-parent' if include_merges else '--no-merges'} --name-status {parent_branch}..HEAD"
-    logger.debug(f"Executing: {cmd}")
-    all_files = subprocess.check_output(cmd.split(), cwd=repo_path).decode("utf-8")
-    logger.debug(f"Result:\n{all_files}")
+    repo = git.Repo(git_top_level)
 
-    # fetch changed files that are potentially not committed yet
-    logger.info("Fetching uncommitted files\n")
-    cmd = "git diff --name-status"
-    logger.debug(f"Executing: {cmd}")
-    uncommitted = subprocess.check_output(cmd.split(), cwd=repo_path).decode("utf-8")
-    logger.debug(f"Result:\n{uncommitted}")
-    all_files += uncommitted
+    changed_files: list[str] = []
+    untracked = repo.untracked_files
+    logger.debug(f"Untracked: {untracked}")
+    changed_files.extend(untracked)
 
-    # fetch staged new files
-    logger.info("Fetching new files... those need to be staged\n")
-    cmd = "git diff --name-status --cached"
-    logger.debug(f"Executing: {cmd}")
-    staged = subprocess.check_output(cmd.split(), cwd=repo_path).decode("utf-8")
-    logger.debug(f"Result:\n{staged}")
-    all_files += staged
+    unstaged = [i.a_path for i in repo.index.diff(None)]
+    logger.debug(f"Unstaged: {unstaged}")
+    changed_files.extend(filter(None, unstaged))
 
-    filtered = []
-    for item in all_files.split("\n"):
-        match = file_regex.match(item)
-        if match:
-            filtered.append(match.group("path"))
+    modified = [i.a_path for i in repo.index.diff("HEAD")]
+    logger.debug(f"Modified: {modified}")
+    changed_files.extend(filter(None, modified))
+
+    common_commit = repo.merge_base(parent_branch, "HEAD")[0]
+    previously_changed = [i.a_path for i in repo.index.diff(common_commit)]
+    logger.debug(f"Previously changed: {previously_changed}")
+    changed_files.extend(filter(None, previously_changed))
+
     # remove duplicates
-    filtered = list(set(filtered))
-    logger.debug(f"Files to consider: {len(filtered)}: {filtered}")
-    return list(set(filtered))
+    changed_files = list(set(changed_files))
+
+    # filter files based on extensions
+    if file_extensions:
+        logger.debug(f"File extension filter: {file_extensions}")
+        changed_files = list(filter(lambda x: x.endswith(tuple(file_extensions)), changed_files))
+        logger.debug(f"After filter: {changed_files}")
+
+    # root of project may not be the root of the git repository
+    # so we need to adjust the paths
+    prefix = Path(repo_path).absolute().relative_to(git_top_level)
+    logger.debug(f"Project prefix (from repo root): {prefix}")
+    project_scope = []
+    for f in changed_files:
+        try:
+            project_scope.append(Path(f).relative_to(prefix).as_posix())
+        except ValueError:
+            logger.debug(f"File {f} is not in the project scope")
+    logger.debug(f"Files after scope check: {len(project_scope)}: {project_scope}")
+    return project_scope
 
 
 def extract_linenumber(base_dir: str, file_path: str, parent_branch: str) -> Sequence[int]:
@@ -223,7 +245,7 @@ def extract_linenumber(base_dir: str, file_path: str, parent_branch: str) -> Seq
     line_regex_str = r"^@@ -\d{1,3}[0-9,]*\s\+(?P<start>\d{1,3}),?(?P<count>\d*)"
     line_regex = re.compile(line_regex_str)
 
-    cmd = f"git diff {parent_branch} --unified=0 -- {file_path}"
+    cmd = f"{GIT_PATH} diff {parent_branch} --unified=0 -- {file_path}"
     logger.debug(f"Executing: {cmd}")
     git_diff = subprocess.check_output(cmd.split(), cwd=base_dir).decode("utf-8")
     line_numbers = []
@@ -237,13 +259,13 @@ def extract_linenumber(base_dir: str, file_path: str, parent_branch: str) -> Seq
     return line_numbers
 
 
-def _cov_statement_category(line: et.Element) -> str:
+def _cov_statement_category(line: Element) -> str:
     """Get the coverage category for one record of statement coverage."""
     hit = int(line.attrib["hits"])
     return "hit" if hit else "miss"
 
 
-def _cov_branch_category(line: et.Element) -> str:
+def _cov_branch_category(line: Element) -> str:
     """Get the coverage category for one record of branch coverage."""
     category = _cov_statement_category(line)
     if "missing-branches" in line.attrib:
@@ -252,7 +274,7 @@ def _cov_branch_category(line: et.Element) -> str:
 
 
 def extract_coverage(
-    cov_report: et.ElementTree, file_path: str, line_numbers: Optional[Sequence[int]] = None
+    cov_report: ElementTree, file_path: str, line_numbers: Optional[Sequence[int]] = None
 ) -> dict:
     """Extract coverage data for a given file.
 
@@ -313,7 +335,7 @@ def did_pass(number: float, cutoff: float) -> bool:
 
 
 def stringify_pass(number: float, cutoff: float) -> str:
-    """Stringify treshold result to human-friendly format."""
+    """Stringify threshold result to human-friendly format."""
     msg = "OK" if did_pass(number, cutoff) else "FAILED"
     msg += f" ({number*100:2.2f}%)" if number != -1 else " (Not Used)"
     return msg
@@ -350,7 +372,7 @@ def get_parent_commit() -> str:
     # iterate is_crossroad:
     #   2. get all branches the commit is part of: $ git branch -a --contains {SHA}
     #   3. check whether returned branches contain other branches except the one
-    #   we are on (crossrad)
+    #   we are on (crossroad)
     #   4. we haven't found a crossroad, get next sha: $ git rev-parse {SHA}^
     #
     # Example:
@@ -364,32 +386,26 @@ def get_parent_commit() -> str:
     # Check all branches D is part of
     # D is part of B1 and B2 branches
     # We are on a crossroad -> return D sha
-    current_sha = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("utf-8")
+    cmd = f"{GIT_PATH} rev-parse HEAD"
+    current_sha = subprocess.check_output(cmd.split(), text=True).strip()
     logging.debug(f"Initial sha: {current_sha}")
-    merge_commits = (
-        subprocess.check_output(["git", "rev-list", "--merges", current_sha])
-        .strip()
-        .decode("utf-8")
-        .split("\n")
-    )
+
+    cmd = f"{GIT_PATH} rev-list --merges {current_sha}"
+    merge_commits = subprocess.check_output(cmd.split(), text=True).strip().split("\n")
 
     while 1:
         # first check if we're not on a merge commit
         if current_sha in merge_commits:
             break
 
-        current_branches = subprocess.check_output(
-            ["git", "branch", "-a", "--contains", current_sha]
-        ).decode("utf-8")
+        cmd = f"{GIT_PATH} branch -a --contains {current_sha}"
+        current_branches = subprocess.check_output(cmd.split(), text=True)
 
         branches = list(filter(None, current_branches.split("\n")))
         logging.debug(f"All branches containing sha {current_sha}: {branches}")
 
-        current_branch = (
-            subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-            .strip()
-            .decode("utf-8")
-        )
+        cmd = f"{GIT_PATH} rev-parse --abbrev-ref HEAD"
+        current_branch = subprocess.check_output(cmd.split(), text=True).strip()
         logging.debug(f"We are on branch: {current_branch}")
 
         on_crossroad = False
@@ -401,9 +417,8 @@ def get_parent_commit() -> str:
         if on_crossroad is True:
             break
 
-        current_sha = (
-            subprocess.check_output(["git", "rev-parse", current_sha + "^"]).strip().decode("utf-8")
-        )
+        cmd = f"{GIT_PATH} rev-parse {current_sha}^"
+        current_sha = subprocess.check_output(cmd.split(), text=True).strip()
         logging.debug(f"Parent sha: {current_sha}")
 
     return current_sha
@@ -426,7 +441,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:  # pylint:disable=too-man
     )
     files = [f for f in files if f.startswith(args.module)]
     logger.debug(f"files to process: {len(files)}: {files}\n")
-    cov_report = et.parse(args.coverage_report)
+    cov_report = xml_parse(args.coverage_report)
     error_counter = 0
 
     for f in files:

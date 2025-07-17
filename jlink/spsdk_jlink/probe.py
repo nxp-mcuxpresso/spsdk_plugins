@@ -30,20 +30,14 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
     NAME = "jlink"
 
-    @staticmethod
-    def get_options_help() -> Dict[str, str]:
+    @classmethod
+    def get_options_help(cls) -> Dict[str, str]:
         """Get full list of options of debug probe.
 
         :return: Dictionary with individual options. Key is parameter name and value the help text.
         """
-        options_help = {}
-        options_help.update(
-            {
-                "frequency": "Set the communication frequency in KHz, default is 100KHz",
-            }
-        )
-        options_help.update(DebugProbeCoreSightOnly.get_options_help())
-
+        options_help = super().get_options_help()
+        options_help["frequency"] = "Set the communication frequency in KHz, default is 100KHz"
         return options_help
 
     @classmethod
@@ -242,7 +236,9 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
     def _reinit_jlink_target(self) -> None:
         """Re-initialize the Jlink connection."""
+        if self.pylink is None:
+            raise SPSDKDebugProbeNotOpenError("The PyLink debug probe is not opened yet")
+
         if not self.disable_reinit:
-            assert self.pylink
             self.pylink.coresight_configure()
             self._reinit_target()

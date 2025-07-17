@@ -1,0 +1,141 @@
+name: Publish To PyPi
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  get-packages:
+    name: Get Package List
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.get-packages.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install TOML parser
+        run: pip install toml
+          
+      - id: get-packages
+        run: |
+          python -c "import toml; print('packages=' + str(toml.load('pyproject.toml')['tool']['release-tools']['sub_projects']))" >> $GITHUB_OUTPUT
+
+  build_sdist:
+    name: Build Packages
+    needs: [get-packages]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
+    strategy:
+      matrix:
+        package: ${{fromJson(needs.get-packages.outputs.packages)}}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build and Check Package
+        uses: hynek/build-and-inspect-python-package@v2.12.0
+        with:
+          path: ${{ matrix.package }}
+          attest-build-provenance-github: 'true'
+          upload-name-suffix: -${{ matrix.package }}
+          skip-wheel: 'true'
+
+  deploy_sdist:
+    name: Upload Releases To PyPI
+    needs: [get-packages, build_sdist]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/
+    permissions:
+      id-token: write
+    strategy:
+      matrix:
+        package: ${{fromJson(needs.get-packages.outputs.packages)}}
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Download Package
+        uses: actions/download-artifact@v4.3.0
+        with:
+          name: Packages-${{ matrix.package }}
+          path: dist
+
+      - name: Publish packages to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.12.4
+        with:
+          skip-existing: true
+
+  build_wheels:
+    name: Wheel ${{ matrix.package}} on ${{ matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-13, macos-14, ubuntu-latest, windows-latest]
+        package: ["pqc"]
+    environment:
+      name: pypi
+      url: https://pypi.org/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: actions/setup-python@v5.6.0
+        name: Install Python
+        with:
+          python-version: '3.x'
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.23.3
+        with:
+          package-dir: ${{ matrix.package }}
+          output-dir: dist
+        env:
+          CIBW_SKIP: "pp*"
+
+      - name: Publish packages to GH
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: wheels-${{ matrix.package }}-${{ matrix.os }} # this is a "artifact already exists" workaround
+          path: dist/*.whl
+          overwrite: true
+
+
+  deploy_wheels:
+    name: Deploy Wheels to PyPI
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create dist directory
+        run: mkdir -p dist
+      
+      - name: Download all wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish wheels to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.12.4 # v1.12.4 is needed to support metadata v2.4 including PEP 639
+        with:
+          skip-existing: true
+          packages-dir: dist

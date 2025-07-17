@@ -1,0 +1,13 @@
+[project]
+version = "3.1.0"
+name = "spsdk_plugins"
+
+[tool.release-tools]
+disabled = ['docs']
+sub_projects = [ "codecheck", "keyfactor", "jlink", "mcu_link", "lauterbach", "pemicro", "pkcs11", "pqc", "pylint_plugins", "pyocd", "offline_signature_provider"]
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_SPSDK_plugins.txt"
+
+[tool.release-tools.github]
+full_name = "nxp-mcuxpresso/spsdk_plugins"

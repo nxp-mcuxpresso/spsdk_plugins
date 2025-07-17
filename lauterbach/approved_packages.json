@@ -155,7 +155,7 @@
       "name": "deepmerge",
       "package": {
         "name": "deepmerge",
-        "license": "MIT License"
+        "license": "MIT Licence"
       }
     },
     {
@@ -164,6 +164,18 @@
       "package": {
         "name": "fastjsonschema",
         "license": "BSD"
+      }
+    },
+    {
+      "home_page": "https://github.com/tox-dev/filelock",
+      "name": "filelock",
+      "package": {
+        "name": "filelock",
+        "license": "The Unlicense"
+      },
+      "github": {
+        "project_name": "tox-dev/filelock",
+        "license": "The Unlicense"
       }
     },
     {
@@ -259,7 +271,10 @@
       "name": "lauterbach-trace32-rcl",
       "package": {
         "name": "lauterbach-trace32-rcl",
-        "license": "MIT License"
+        "license": ""
+      },
+      "manual": {
+        "license": "MIT"
       }
     },
     {
@@ -276,6 +291,18 @@
       "package": {
         "name": "libusbsio",
         "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/nxp-imx/mfgtools/wrapper",
+      "name": "libuuu",
+      "package": {
+        "name": "libuuu",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "nxp-imx/mfgtools/wrapper",
+        "license": ""
       }
     },
     {
@@ -324,6 +351,18 @@
       "package": {
         "name": "psutil",
         "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyasn1/pyasn1",
+      "name": "pyasn1",
+      "package": {
+        "name": "pyasn1",
+        "license": "BSD-2-Clause"
+      },
+      "github": {
+        "project_name": "pyasn1/pyasn1",
+        "license": "BSD-2-Clause"
       }
     },
     {
@@ -415,7 +454,7 @@
       "name": "requests",
       "package": {
         "name": "requests",
-        "license": "Apache 2.0"
+        "license": "Apache-2.0"
       }
     },
     {

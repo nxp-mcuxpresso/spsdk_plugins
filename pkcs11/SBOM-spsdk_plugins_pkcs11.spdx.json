@@ -1,0 +1,35 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-05-22T10:26:00Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "spsdk_plugins_pkcs11-0.3.2",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/a7683146-a9ac-4ec0-982d-c568ed1d7eb9",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-a7683146-a9ac-4ec0-982d-c568ed1d7eb9",
+      "name": "spsdk_plugins_pkcs11",
+      "versionInfo": "0.3.2",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/pkcs11",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-a7683146-a9ac-4ec0-982d-c568ed1d7eb9"
+    }
+  ]
+}

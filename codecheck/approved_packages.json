@@ -33,22 +33,6 @@
       }
     },
     {
-      "home_page": "https://github.com/gristlabs/asttokens",
-      "name": "asttokens",
-      "package": {
-        "name": "asttokens",
-        "license": "Apache 2.0"
-      }
-    },
-    {
-      "home_page": "https://github.com/hhatto/autopep8",
-      "name": "autopep8",
-      "package": {
-        "name": "autopep8",
-        "license": "MIT License"
-      }
-    },
-    {
       "home_page": "https://github.com/takluyver/backcall",
       "name": "backcall",
       "package": {
@@ -58,6 +42,14 @@
       "github": {
         "project_name": "takluyver/backcall",
         "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://bandit.readthedocs.io/",
+      "name": "bandit",
+      "package": {
+        "name": "bandit",
+        "license": "Apache-2.0 license"
       }
     },
     {
@@ -97,7 +89,7 @@
       "name": "click",
       "package": {
         "name": "click",
-        "license": "BSD-3-Clause"
+        "license": "BSD License"
       }
     },
     {
@@ -106,6 +98,18 @@
       "package": {
         "name": "colorama",
         "license": "BSD License"
+      }
+    },
+    {
+      "home_page": "https://github.com/rtfd/commonmark.py",
+      "name": "commonmark",
+      "package": {
+        "name": "commonmark",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "rtfd/commonmark.py",
+        "license": ""
       }
     },
     {
@@ -144,15 +148,15 @@
       }
     },
     {
-      "home_page": "https://github.com/micheles/decorator",
-      "name": "decorator",
+      "home_page": "https://github.com/tiran/defusedxml",
+      "name": "defusedxml",
       "package": {
-        "name": "decorator",
-        "license": "new BSD License"
+        "name": "defusedxml",
+        "license": "PSFL"
       },
       "github": {
-        "project_name": "micheles/decorator",
-        "license": "BSD-2-Clause"
+        "project_name": "tiran/defusedxml",
+        "license": ""
       }
     },
     {
@@ -180,26 +184,10 @@
       }
     },
     {
-      "home_page": "https://github.com/agronholm/exceptiongroup",
-      "name": "exceptiongroup",
-      "package": {
-        "name": "exceptiongroup",
-        "license": "MIT License"
-      }
-    },
-    {
       "home_page": "https://execnet.readthedocs.io/en/latest/",
       "name": "execnet",
       "package": {
         "name": "execnet",
-        "license": "MIT License"
-      }
-    },
-    {
-      "home_page": "https://github.com/alexmojaki/executing",
-      "name": "executing",
-      "package": {
-        "name": "executing",
         "license": "MIT"
       }
     },
@@ -209,6 +197,42 @@
       "package": {
         "name": "executing",
         "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/tox-dev/filelock",
+      "name": "filelock",
+      "package": {
+        "name": "filelock",
+        "license": "The Unlicense"
+      },
+      "github": {
+        "project_name": "tox-dev/filelock",
+        "license": "The Unlicense"
+      }
+    },
+    {
+      "home_page": "https://github.com/gitpython-developers/gitdb",
+      "name": "gitdb",
+      "package": {
+        "name": "gitdb",
+        "license": "BSD License"
+      },
+      "github": {
+        "project_name": "gitpython-developers/gitdb",
+        "license": ""
+      }
+    },
+    {
+      "home_page": "https://github.com/gitpython-developers/GitPython",
+      "name": "GitPython",
+      "package": {
+        "name": "GitPython",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "gitpython-developers/GitPython",
+        "license": "BSD-3-Clause"
       }
     },
     {
@@ -224,7 +248,7 @@
       "name": "iniconfig",
       "package": {
         "name": "iniconfig",
-        "license": "MIT License"
+        "license": "MIT"
       }
     },
     {
@@ -236,10 +260,14 @@
       }
     },
     {
-      "home_page": "https://ipython.org",
-      "name": "ipython",
+      "home_page": "https://github.com/ipython/ipython-pygments-lexers",
+      "name": "ipython_pygments_lexers",
       "package": {
-        "name": "ipython",
+        "name": "ipython_pygments_lexers",
+        "license": "BSD License"
+      },
+      "github": {
+        "project_name": "ipython/ipython-pygments-lexers",
         "license": "BSD-3-Clause"
       }
     },
@@ -260,11 +288,15 @@
       }
     },
     {
-      "home_page": "https://github.com/davidhalter/jedi",
-      "name": "jedi",
+      "home_page": "https://github.com/pallets/jinja/",
+      "name": "Jinja2",
       "package": {
-        "name": "jedi",
-        "license": "MIT"
+        "name": "Jinja2",
+        "license": "BSD License"
+      },
+      "github": {
+        "project_name": "pallets/jinja",
+        "license": "BSD-3-Clause"
       }
     },
     {
@@ -276,11 +308,27 @@
       }
     },
     {
-      "home_page": "https://github.com/ipython/matplotlib-inline",
-      "name": "matplotlib-inline",
+      "home_page": "https://github.com/executablebooks/markdown-it-py",
+      "name": "markdown-it-py",
       "package": {
-        "name": "matplotlib-inline",
-        "license": "BSD 3-Clause License"
+        "name": "markdown-it-py",
+        "license": "MIT License"
+      },
+      "github": {
+        "project_name": "executablebooks/markdown-it-py",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/pallets/markupsafe/",
+      "name": "MarkupSafe",
+      "package": {
+        "name": "MarkupSafe",
+        "license": "Copyright 2010 Pallets"
+      },
+      "github": {
+        "project_name": "pallets/markupsafe",
+        "license": "BSD-3-Clause"
       }
     },
     {
@@ -302,12 +350,20 @@
         "project_name": "pycqa/mccabe",
         "license": ""
       },
-      "github": {
-        "project_name": "pycqa/mccabe",
-        "license": ""
-      },
       "manual": {
         "license": "MIT license"
+      }
+    },
+    {
+      "home_page": "https://github.com/executablebooks/mdurl",
+      "name": "mdurl",
+      "package": {
+        "name": "mdurl",
+        "license": "MIT License"
+      },
+      "github": {
+        "project_name": "executablebooks/mdurl",
+        "license": ""
       }
     },
     {
@@ -327,11 +383,15 @@
       }
     },
     {
-      "home_page": "https://github.com/nbQA-dev/nbQA",
-      "name": "nbqa",
+      "home_page": "https://github.com/python/mypy_extensions",
+      "name": "mypy_extensions",
       "package": {
-        "name": "nbqa",
+        "name": "mypy_extensions",
         "license": "MIT"
+      },
+      "github": {
+        "project_name": "python/mypy_extensions",
+        "license": ""
       }
     },
     {
@@ -375,19 +435,22 @@
       }
     },
     {
-      "home_page": "https://github.com/davidhalter/parso",
-      "name": "parso",
-      "package": {
-        "name": "parso",
-        "license": "MIT"
-      }
-    },
-    {
       "home_page": "https://python-path-specification.readthedocs.io/en/latest/index.html",
       "name": "pathspec",
       "package": {
         "name": "pathspec",
         "license": "Mozilla Public License 2.0 (MPL 2.0)"
+      }
+    },
+    {
+      "home_page": "https://docs.openstack.org/pbr/latest/",
+      "name": "pbr",
+      "package": {
+        "name": "pbr",
+        "license": "UNKNOWN"
+      },
+      "manual": {
+        "license": "Apache-2.0 License"
       }
     },
     {
@@ -415,7 +478,7 @@
       "name": "platformdirs",
       "package": {
         "name": "platformdirs",
-        "license": "MIT License"
+        "license": "MIT"
       }
     },
     {
@@ -431,7 +494,19 @@
       "name": "prettytable",
       "package": {
         "name": "prettytable",
-        "license": "BSD (3 clause)"
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/prompt-toolkit/python-prompt-toolkit",
+      "name": "prompt-toolkit",
+      "package": {
+        "name": "prompt-toolkit",
+        "license": "BSD License"
+      },
+      "github": {
+        "project_name": "prompt-toolkit/python-prompt-toolkit",
+        "license": "BSD-3-Clause"
       }
     },
     {
@@ -458,6 +533,18 @@
       "name": "pure-eval",
       "package": {
         "name": "pure-eval",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "http://github.com/alexmojaki/pure_eval",
+      "name": "pure_eval",
+      "package": {
+        "name": "pure_eval",
+        "license": "MIT"
+      },
+      "github": {
+        "project_name": "alexmojaki/pure_eval",
         "license": "MIT"
       }
     },
@@ -495,14 +582,6 @@
       "github": {
         "project_name": "pygithub/pygithub",
         "license": "LGPL-3.0"
-      }
-    },
-    {
-      "home_page": "https://pygments.org",
-      "name": "Pygments",
-      "package": {
-        "name": "Pygments",
-        "license": "BSD-2-Clause"
       }
     },
     {
@@ -582,7 +661,27 @@
       "name": "requests",
       "package": {
         "name": "requests",
-        "license": "Apache 2.0"
+        "license": "Apache-2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/Textualize/rich",
+      "name": "rich",
+      "package": {
+        "name": "rich",
+        "license": "MIT"
+      },
+      "github": {
+        "project_name": "Textualize/rich",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://docs.astral.sh/ruff",
+      "name": "ruff",
+      "package": {
+        "name": "ruff",
+        "license": "MIT"
       }
     },
     {
@@ -604,10 +703,6 @@
         "project_name": "pypa/setuptools_scm",
         "license": "MIT"
       },
-      "github": {
-        "project_name": "pypa/setuptools_scm",
-        "license": "MIT"
-      },
       "manual": {
         "license": "MIT License"
       }
@@ -618,6 +713,18 @@
       "package": {
         "name": "six",
         "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/gitpython-developers/smmap",
+      "name": "smmap",
+      "package": {
+        "name": "smmap",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "gitpython-developers/smmap",
+        "license": "BSD-3-Clause"
       }
     },
     {
@@ -645,6 +752,17 @@
       }
     },
     {
+      "home_page": "https://opendev.org/openstack/stevedore",
+      "name": "stevedore",
+      "package": {
+        "name": "stevedore",
+        "license": "UNKNOWN"
+      },
+      "manual": {
+        "license": "Apache-2.0 License"
+      }
+    },
+    {
       "home_page": "https://github.com/asottile/tokenize-rt",
       "name": "tokenize-rt",
       "package": {
@@ -653,26 +771,14 @@
       }
     },
     {
-      "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/pylint_plugins",
-      "name": "spsdk-pylint-plugins",
-      "package": {
-        "name": "spsdk-pylint-plugins",
-        "license": "BSD-3-Clause"
-      }
-    },
-    {
-      "home_page": "http://github.com/alexmojaki/stack_data",
-      "name": "stack-data",
-      "package": {
-        "name": "stack-data",
-        "license": "MIT"
-      }
-    },
-    {
       "home_page": "https://github.com/asottile/tokenize-rt",
-      "name": "tokenize-rt",
+      "name": "tokenize_rt",
       "package": {
-        "name": "tokenize-rt",
+        "name": "tokenize_rt",
+        "license": "MIT"
+      },
+      "github": {
+        "project_name": "asottile/tokenize-rt",
         "license": "MIT"
       }
     },
@@ -701,11 +807,30 @@
       }
     },
     {
-      "home_page": "https://github.com/ipython/traitlets",
-      "name": "traitlets",
+      "home_page": "https://github.com/python/typeshed",
+      "name": "types-PyYAML",
       "package": {
-        "name": "traitlets",
-        "license": "BSD 3-Clause License"
+        "name": "types-PyYAML",
+        "license": "Apache-2.0"
+      },
+      "github": {
+        "project_name": "python/typeshed",
+        "license": ""
+      },
+      "manual": {
+        "license": "Apache-2.0 License"
+      }
+    },
+    {
+      "home_page": "https://github.com/python/typeshed",
+      "name": "types-requests",
+      "package": {
+        "name": "types-requests",
+        "license": "Apache-2.0"
+      },
+      "github": {
+        "project_name": "python/typeshed",
+        "license": ""
       }
     },
     {

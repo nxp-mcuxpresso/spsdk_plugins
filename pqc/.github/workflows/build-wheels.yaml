@@ -1,0 +1,43 @@
+name: Build wheels
+
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-13
+          - macos-14
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        name: Install Python
+        with:
+          python-version: '3.9'
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.22.0
+        with:
+          output-dir: dist
+        env:
+          CIBW_SKIP: "pp*"
+
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }} # this is a "artifact already exists" workaround
+          path: dist/*.whl
+          overwrite: true

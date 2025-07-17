@@ -1,0 +1,87 @@
+@Library('shared-lib') _
+
+pipeline {
+    agent none
+
+    options {
+        timeout(time: 2, unit: 'HOURS', activity: true)   // timeout on whole pipeline job
+    }
+
+    stages {
+        stage ("Quick check") {
+            agent {
+                label 'linux-spsdk'
+            }
+            steps {
+                script {
+                    checkoutRepo()
+                    checkoutRepo("spsdk", "master", "spsdk_repo")
+                    withVenv(
+                        'uv pip install nox tomli',
+                        'nox -P 3.9 --session codecheck -- --spsdk spsdk_repo -s -o quick-reports'
+                    )
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "*/quick-reports*/*.txt"
+                    emailext(
+                        body: '${DEFAULT_CONTENT}', mimeType: 'text/html',
+                        replyTo: '$DEFAULT_REPLYTO', subject: '${DEFAULT_SUBJECT}',
+                        to: emailextrecipients([
+                            [$class: 'CulpritsRecipientProvider'],
+                            [$class: 'RequesterRecipientProvider']
+                        ])
+                    )
+                }
+            }
+        }
+
+        stage ("Full check") {
+            matrix {
+                agent {
+                    label "${AGENT_LABEL}"
+                }
+                axes {
+                    axis {
+                        name "AGENT_LABEL"
+                        values "linux-spsdk", "mac", "windows-spsdk"
+                    }
+                }
+                stages {
+                    stage ("Checkout") {
+                        steps {
+                            script {
+                                checkoutRepo()
+                                checkoutRepo("spsdk", "master", "spsdk_repo")
+                            }
+                        }
+                    }
+                    stage ("Codecheck") {
+                        steps {
+                            script {
+                                withVenv(
+                                    'uv pip install nox tomli',
+                                    'nox -P 3.9 3.12 --session codecheck -- --spsdk spsdk_repo -s'
+                                )
+                            }
+                        }
+                        post {
+                            always {
+                                archiveArtifacts artifacts: "*/reports*/*.txt"
+                                emailext(
+                                    body: '${DEFAULT_CONTENT}', mimeType: 'text/html',
+                                    replyTo: '$DEFAULT_REPLYTO', subject: '${DEFAULT_SUBJECT}',
+                                    to: emailextrecipients([
+                                        [$class: 'CulpritsRecipientProvider'],
+                                        [$class: 'RequesterRecipientProvider']
+                                    ])
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

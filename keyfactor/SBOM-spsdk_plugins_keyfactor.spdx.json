@@ -1,0 +1,64 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-05-22T09:23:47Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "spsdk_plugins_keyfactor-0.4.0",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/fde4f0d0-04d2-41ab-a9f9-1975ec259ea0",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-fde4f0d0-04d2-41ab-a9f9-1975ec259ea0",
+      "name": "spsdk_plugins_keyfactor",
+      "versionInfo": "0.4.0",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/keyfactor",
+      "externalRefs": [],
+      "filesAnalyzed": false,
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-package-d45edb16-940d-4e80-99d0-42e2180c8402",
+      "name": "python-dotenv",
+      "versionInfo": "1.1.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "http://github.com/theskumar/python-dotenv",
+      "downloadLocation": "https://pypi.org/project/python-dotenv/1.1.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/python-dotenv@1.1.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "79bafb2b-c412-46c2-98bf-356a9e6c31c7",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-fde4f0d0-04d2-41ab-a9f9-1975ec259ea0"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-fde4f0d0-04d2-41ab-a9f9-1975ec259ea0",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-d45edb16-940d-4e80-99d0-42e2180c8402"
+    }
+  ]
+}

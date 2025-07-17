@@ -227,6 +227,18 @@
       }
     },
     {
+      "home_page": "https://github.com/tox-dev/filelock",
+      "name": "filelock",
+      "package": {
+        "name": "filelock",
+        "license": "The Unlicense"
+      },
+      "github": {
+        "project_name": "tox-dev/filelock",
+        "license": "The Unlicense"
+      }
+    },
+    {
       "home_page": "https://bitbucket.org/techtonik/hexdump/",
       "name": "hexdump",
       "package": {
@@ -359,6 +371,18 @@
       }
     },
     {
+      "home_page": "https://github.com/nxp-imx/mfgtools/wrapper",
+      "name": "libuuu",
+      "package": {
+        "name": "libuuu",
+        "license": "BSD-3-Clause"
+      },
+      "github": {
+        "project_name": "nxp-imx/mfgtools/wrapper",
+        "license": ""
+      }
+    },
+    {
       "home_page": "https://github.com/SethMMorton/natsort",
       "name": "natsort",
       "package": {
@@ -428,6 +452,18 @@
       "github": {
         "project_name": "giampaolo/psutil",
         "license": "BSD-3-Clause"
+      }
+    },
+    {
+      "home_page": "https://github.com/pyasn1/pyasn1",
+      "name": "pyasn1",
+      "package": {
+        "name": "pyasn1",
+        "license": "BSD-2-Clause"
+      },
+      "github": {
+        "project_name": "pyasn1/pyasn1",
+        "license": "BSD-2-Clause"
       }
     },
     {
@@ -555,7 +591,7 @@
       "name": "requests",
       "package": {
         "name": "requests",
-        "license": "Apache 2.0"
+        "license": "Apache-2.0"
       }
     },
     {
