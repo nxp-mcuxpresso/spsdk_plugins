@@ -40,7 +40,7 @@ packages = ["spsdk_offline_signature_provider"]
 version = { attr = "spsdk_offline_signature_provider.__version__" }
 
 [tool.bumpversion]
-current_version = "0.2.0"
+current_version = "0.1.0"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_offline_signature_provider/__init__.py"
