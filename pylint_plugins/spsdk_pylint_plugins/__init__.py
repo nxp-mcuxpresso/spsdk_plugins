@@ -8,7 +8,7 @@
 """Top-level package for PyLint extensions for SPSDK coding style."""
 
 __author__ = """NXP"""
-__email__ = "michal.starecek@gmail.com"
+__email__ = "spsdk@gmail.com"
 __version__ = "0.2.2"
 
 from pylint.lint import PyLinter

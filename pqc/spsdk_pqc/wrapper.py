@@ -46,6 +46,7 @@ DILITHIUM_LEVEL = {
     5: PQCAlgorithm.DILITHIUM5,
 }
 
+ML_DSA_GROUP_OID_LEGACY = "1.3.6.1.4.1.2.267.12"
 ML_DSA_GROUP_OID = "2.16.840.1.101.3.4.3"
 ML_DSA_ALGORITHMS = [
     PQCAlgorithm.ML_DSA_44,
@@ -194,7 +195,7 @@ class PQCPublicKey(PQCKey):
         oid, data = pqc_asn.decode_puk(data=data)
         if oid.startswith(DILITHIUM_GROUP_OID):
             return DilithiumPublicKey(public_data=data)  # type: ignore[return-value]
-        if oid.startswith(ML_DSA_GROUP_OID):
+        if oid.startswith(ML_DSA_GROUP_OID) or oid.startswith(ML_DSA_GROUP_OID_LEGACY):
             return MLDSAPublicKey(public_data=data)  # type: ignore[return-value]
         raise PQCError("Unable to determine PQC Public key type (Dilithium/ML-DSA)")
 
@@ -229,6 +230,8 @@ class PQCPrivateKey(PQCKey):
                     super().__init__(algorithm=alg)
                     self.private_data = data[: KEY_INFO[alg].private_key_size]
                     self.public_data = None
+                    if len(data) == KEY_INFO[alg].data_size:
+                        self.public_data = data[KEY_INFO[alg].private_key_size :]
                     break
             else:
                 raise PQCError(f"Invalid data size {len(data)} for {self.__class__.__name__}")
@@ -257,7 +260,11 @@ class PQCPrivateKey(PQCKey):
 
     def get_public_key(self) -> PQCPublicKey:
         """Create an instance of public key."""
-        return PQCPublicKey(public_data=self.public_data)
+        if self.algorithm in DILITHIUM_ALGORITHMS:
+            return DilithiumPublicKey(public_data=self.public_data)
+        if self.algorithm in ML_DSA_ALGORITHMS:
+            return MLDSAPublicKey(public_data=self.public_data)
+        raise PQCError("Unable to determine PQC Private key type (Dilithium/ML-DSA)")
 
     @classmethod
     def parse(cls, data: bytes) -> Self:
@@ -267,8 +274,14 @@ class PQCPrivateKey(PQCKey):
         except PQCError:
             pass
         # we don't care about the oid, as each private key has different length
-        _oid, data = pqc_asn.decode_prk(data=data)
-        return cls(data=data)
+        oid, data = pqc_asn.decode_prk(data=data)
+        if not oid:
+            return cls(data=data)
+        if oid.startswith(DILITHIUM_GROUP_OID):
+            return DilithiumPrivateKey(data=data)  # type: ignore[return-value]
+        if oid.startswith(ML_DSA_GROUP_OID) or oid.startswith(ML_DSA_GROUP_OID_LEGACY):
+            return MLDSAPrivateKey(data=data)  # type: ignore[return-value]
+        raise PQCError("Unable to determine PQC Private key type (Dilithium/ML-DSA)")
 
     @property
     def key_size(self) -> int:

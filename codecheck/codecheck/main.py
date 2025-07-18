@@ -193,8 +193,42 @@ def print_results(tasks: List[TaskInfo]) -> None:
     table.hrules = prettytable.HEADER
     table.vrules = prettytable.NONE
 
+    # Check if running in Jenkins
+    is_jenkins = "JENKINS_URL" in os.environ
+    jenkins_artifact_url = None
+    jenkins_workspace = None
+
+    if is_jenkins:
+        # Get Jenkins environment variables
+        job_name = os.environ.get("JOB_NAME", "")
+        build_number = os.environ.get("BUILD_NUMBER", "")
+        jenkins_url = os.environ.get("JENKINS_URL", "")
+        jenkins_workspace = os.environ.get("WORKSPACE", "")
+
+        if job_name and build_number and jenkins_url:
+            jenkins_artifact_url = f"{jenkins_url}job/{job_name}/{build_number}/artifact"
+
     for i, task in enumerate(tasks, start=1):
         assert task.result
+
+        # Format log path for Jenkins if applicable
+        log_path = task.result.output_log
+        if is_jenkins and jenkins_artifact_url and log_path:
+            # For monorepos, we need to determine the relative path from the workspace
+            if jenkins_workspace:
+                # Get the path relative to the Jenkins workspace
+                try:
+                    rel_path = os.path.relpath(log_path, jenkins_workspace)
+                except ValueError:
+                    # If paths are on different drives (Windows), fall back to basename
+                    rel_path = os.path.basename(log_path)
+            else:
+                # Fallback to current directory if WORKSPACE is not available
+                rel_path = os.path.relpath(log_path, os.getcwd())
+
+            log_display = f"{jenkins_artifact_url}/{rel_path}"
+        else:
+            log_display = log_path
 
         table.add_row(
             [
@@ -203,7 +237,7 @@ def print_results(tasks: List[TaskInfo]) -> None:
                 task.status_str(),
                 colorama.Fore.WHITE + task.get_exec_time(),
                 colorama.Fore.CYAN + str(task.result.error_count),
-                colorama.Fore.BLUE + task.result.output_log,
+                colorama.Fore.BLUE + log_display,
             ]
         )
     click.echo(table)
@@ -801,6 +835,7 @@ def check_cspell(
     **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check the project spelling with cspell."""
+    help_timeout = 10
     output_log = os.path.join(output, "cspell.txt")
     user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
     path_slices = splice_changed_files(changed_files=check_paths)
@@ -816,10 +851,11 @@ def check_cspell(
                 check=False,
                 capture_output=True,
                 shell=True,
-                timeout=5,
+                timeout=help_timeout,
             )  # nosec calling this without shell=True causes [WinError 193] %1 is not a valid Win32 application
         except subprocess.TimeoutExpired:
-            return TaskResult(error_count=1, output_log="TIMED OUT", not_run=True)
+            f.write(f"Timed-out after waiting {help_timeout}s for initial help check.")
+            return TaskResult(error_count=1, output_log=output_log, not_run=True)
         if res.returncode != 0:
             f.write(res.stdout.decode("utf-8"))
             f.write(res.stderr.decode("utf-8"))
@@ -835,7 +871,10 @@ def check_cspell(
                     timeout=timeout,
                 )  # nosec calling this without shell=True causes [WinError 193] %1 is not a valid Win32 application
             except subprocess.TimeoutExpired:
-                return TaskResult(error_count=1, output_log="TIMED OUT", not_run=True)
+                f.write(
+                    f"Timeout waiting for cspell to finish the task.Consider increasing timeout {timeout}s."
+                )
+                return TaskResult(error_count=1, output_log=output_log, not_run=True)
             f.write(res.stdout.decode("utf-8"))
             f.write(res.stderr.decode("utf-8"))
 
@@ -1057,6 +1096,230 @@ def splice_changed_files(changed_files: Sequence[str], max_size: int = 2000) -> 
     return pieces
 
 
+def _get_jenkins_info() -> tuple[bool, Optional[str], Optional[str]]:
+    """Get Jenkins-related information if running in Jenkins.
+
+    Returns:
+        Tuple containing:
+        - is_jenkins: Whether running in Jenkins
+        - jenkins_artifact_url: URL to Jenkins artifacts
+        - jenkins_workspace: Jenkins workspace path
+    """
+    is_jenkins = "JENKINS_URL" in os.environ
+    jenkins_artifact_url = None
+    jenkins_workspace = None
+
+    if is_jenkins:
+        job_name = os.environ.get("JOB_NAME", "")
+        build_number = os.environ.get("BUILD_NUMBER", "")
+        jenkins_url = os.environ.get("JENKINS_URL", "")
+        jenkins_workspace = os.environ.get("WORKSPACE", "")
+
+        if job_name and build_number and jenkins_url:
+            jenkins_artifact_url = f"{jenkins_url}job/{job_name}/{build_number}/artifact"
+
+    return is_jenkins, jenkins_artifact_url, jenkins_workspace
+
+
+def _format_log_path(
+    log_path: str,
+    is_jenkins: bool,
+    jenkins_artifact_url: Optional[str],
+    jenkins_workspace: Optional[str],
+) -> str:
+    """Format a log path for display, possibly as a Jenkins artifact link.
+
+    Args:
+        log_path: Path to the log file
+        is_jenkins: Whether running in Jenkins
+        jenkins_artifact_url: URL to Jenkins artifacts
+        jenkins_workspace: Jenkins workspace path
+
+    Returns:
+        Formatted log path or link
+    """
+    if not log_path or not is_jenkins or not jenkins_artifact_url:
+        return log_path
+
+    if jenkins_workspace:
+        try:
+            rel_path = os.path.relpath(log_path, jenkins_workspace)
+        except ValueError:
+            # If paths are on different drives (Windows), fall back to basename
+            rel_path = os.path.basename(log_path)
+    else:
+        # Fallback to current directory if WORKSPACE is not available
+        rel_path = os.path.relpath(log_path, os.getcwd())
+
+    return f'<a href="{jenkins_artifact_url}/{rel_path}">{rel_path}</a>'
+
+
+def _get_result_class(status_str: str) -> str:
+    """Determine the CSS class for a result based on its status string.
+
+    Args:
+        status_str: Status string
+
+    Returns:
+        CSS class name
+    """
+    if "PASSED" in status_str:
+        return "result-passed"
+    if "FAILED" in status_str:
+        return "result-failed"
+    if "INFO ONLY" in status_str:
+        return "result-info"
+    return ""
+
+
+def _get_status_class(task: TaskInfo) -> str:
+    """Determine the CSS class for a table row based on task status.
+
+    Args:
+        task: Task info
+
+    Returns:
+        CSS class name
+    """
+    if task.info_only:
+        return "status-info"
+    if task.result and task.result.error_count == 0:
+        return "status-success"
+    return "status-failure"
+
+
+def _count_task_results(tasks: List[TaskInfo]) -> tuple[int, int, int]:
+    """Count failures, successes, and info-only tasks.
+
+    Args:
+        tasks: List of tasks
+
+    Returns:
+        Tuple of (failures, successes, info_only)
+    """
+    failures = sum(
+        1
+        for task in tasks
+        if not task.info_only and (task.result is None or task.result.error_count != 0)
+    )
+    successes = sum(
+        1 for task in tasks if not task.info_only and task.result and task.result.error_count == 0
+    )
+    info_only = sum(1 for task in tasks if task.info_only)
+    return failures, successes, info_only
+
+
+def generate_html_report(tasks: List[TaskInfo], output_dir: str, process_time: float) -> str:
+    """Generate an HTML report summarizing the codecheck results.
+
+    Args:
+        tasks: List of completed tasks
+        output_dir: Directory to save the report
+        process_time: Total execution time
+
+    Returns:
+        Path to the generated HTML report
+    """
+    report_path = os.path.join(output_dir, "codecheck_report.html")
+
+    # Get Jenkins information
+    is_jenkins, jenkins_artifact_url, jenkins_workspace = _get_jenkins_info()
+
+    # Count results
+    failures, successes, info_only = _count_task_results(tasks)
+
+    # Generate HTML
+    with open(report_path, "w", encoding="utf-8") as f:
+        # Write HTML header and styles
+        f.write(
+            f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Codecheck Results</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        h1 {{ color: #333; }}
+        .summary {{ margin: 20px 0; padding: 10px; background-color: #f5f5f5; border-radius: 5px; }}
+        .success {{ color: green; }}
+        .failure {{ color: red; }}
+        .info {{ color: blue; }}
+        table {{ border-collapse: collapse; width: 100%; }}
+        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+        th {{ background-color: #f2f2f2; }}
+        tr:nth-child(even) {{ background-color: #f9f9f9; }}
+        .status-success {{ background-color: #dff0d8; }}
+        .status-failure {{ background-color: #f2dede; }}
+        .status-info {{ background-color: #d9edf7; }}
+        .result-passed {{ color: green; font-weight: bold; }}
+        .result-failed {{ color: red; font-weight: bold; }}
+        .result-info {{ color: blue; font-weight: bold; }}
+    </style>
+</head>
+<body>
+    <h1>Codecheck Results</h1>
+    <div class="summary">
+        <p><strong>Overall Result:</strong>
+        <span class="{'success' if failures == 0 else 'failure'}">{'PASS' if failures == 0 else 'FAILED'}</span></p>
+        <p><strong>Total Time:</strong> {process_time:.1f} seconds</p>
+        <p><strong>Tests:</strong>{len(tasks)} total ({successes} passed, {failures} failed, {info_only} info only)</p>
+    </div>
+    <h2>Test Details</h2>
+    <table>
+        <tr>
+            <th>#</th>
+            <th>Test</th>
+            <th>Result</th>
+            <th>Exec Time</th>
+            <th>Error Count</th>
+            <th>Log</th>
+        </tr>
+"""
+        )
+
+        # Write table rows for each task
+        for i, task in enumerate(tasks, start=1):
+            status_class = _get_status_class(task)
+
+            # Clean up status string by removing all ANSI color codes
+            status_str = task.status_str()
+            status_str = re.sub(r"\x1b\[\d+m", "", status_str)
+
+            result_class = _get_result_class(status_str)
+
+            # Format log path
+            log_path = task.result.output_log if task.result else ""
+            log_display = ""
+
+            # Only display log link if status is FAILED or PASSED
+            if "FAILED" in status_str or "PASSED" in status_str:
+                log_display = _format_log_path(
+                    log_path, is_jenkins, jenkins_artifact_url, jenkins_workspace
+                )
+
+            f.write(
+                f"""        <tr class="{status_class}">
+            <td>{i}</td>
+            <td>{task.name}</td>
+            <td class="{result_class}">{status_str}</td>
+            <td>{task.get_exec_time()}</td>
+            <td>{task.result.error_count if task.result else 'N/A'}</td>
+            <td>{log_display}</td>
+        </tr>
+"""
+            )
+
+        # Write HTML footer
+        f.write(
+            """    </table>
+</body>
+</html>
+"""
+        )
+
+    return report_path
+
+
 @click.command(name="codecheck", no_args_is_help=False)
 @click.option(
     "-c",
@@ -1145,6 +1408,13 @@ def splice_changed_files(changed_files: Sequence[str], max_size: int = 2000) -> 
     default=False,
     help="Quick test mode, do not run INFO_ONLY checks.",
 )
+@click.option(
+    "-hr",
+    "--html-report",
+    is_flag=True,
+    default=False,
+    help="Generate HTML report with test results.",
+)
 @click.version_option(codecheck_version)
 def main(  # pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
     check: List[str],
@@ -1158,6 +1428,7 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals,too-many-positio
     disable_merges: bool,
     parent_branch: str,
     quick: bool,
+    html_report: bool,
 ) -> None:
     """Simple tool to check the Python generic development rules.
 
@@ -1206,6 +1477,13 @@ def main(  # pylint: disable=too-many-arguments,too-many-locals,too-many-positio
         runner.run(job_cnt, True)
 
         ret = check_results(checks, output_dir)
+
+        # Generate HTML report if requested or running in Jenkins
+        if html_report or "JENKINS_URL" in os.environ:
+            html_report_path = generate_html_report(checks, output_dir, runner.process_time)
+            if not silence:
+                click.echo(f"HTML report generated: {html_report_path}")
+
         if silence < 2:
             print_results(checks)
             click.echo(f"Overall time: {round(runner.process_time, 1)} second(s).")

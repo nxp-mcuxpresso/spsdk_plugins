@@ -1,0 +1,112 @@
+@Library('shared-lib') _
+
+pipeline {
+    agent none
+
+    options {
+        timeout(time: 2, unit: 'HOURS', activity: true)   // timeout on whole pipeline job
+    }
+    parameters {
+        string(name: 'PYTHON_VERSIONS', defaultValue: '3.9,3.10,3.11,3.12,3.13', description: 'Comma-separated list of Python versions')
+    }
+
+    stages {
+        stage ("Test") {
+            agent {
+                label 'linux-spsdk'
+            }
+            steps {
+                script {
+                    checkoutRepo("spsdk_plugins")
+                    withVenv(
+                        "uv pip install nox tomli",
+                        "nox --session codecheck -- -s",
+                    )
+                }
+            }
+        }
+
+        stage ("Build sdist") {
+            agent {
+                label 'linux-spsdk'
+            }
+            steps {
+                script {
+                    checkoutRepo("spsdk_plugins")
+                    withVenv(
+                        "uv pip install nox build",
+                        "nox --session build",
+                        "nox --session upload -- --repository nexus"
+                    )
+                }
+            }
+        }
+
+        stage('Build Wheels') {
+            parallel {
+                stage('Linux') {
+                    agent { label 'linux-spsdk' }
+                    steps {
+                        script {
+                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }
+                            checkoutRepo("spsdk_plugins")
+                            doBuildWheels(
+                                packageDir: "pqc",
+                                pythonVersions: pythonVersionsList,
+                                artifactDir: 'wheels-linux'
+                            )
+                        }
+                    }
+                }
+
+                stage('macOS') {
+                    agent { label 'mac-spsdk' }
+                    steps {
+                        script {
+                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }
+                            checkoutRepo("spsdk_plugins")
+                            doBuildWheels(
+                                packageDir: "pqc",
+                                pythonVersions: pythonVersionsList,
+                                artifactDir: 'wheels-macos'
+                            )
+                        }
+                    }
+                }
+
+                stage('Windows') {
+                    agent { label 'windows-spsdk' }
+                    steps {
+                        script {
+                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }
+                            checkoutRepo("spsdk_plugins")
+                            doBuildWheels(
+                                packageDir: "pqc",
+                                pythonVersions: pythonVersionsList,
+                                artifactDir: 'wheels-windows'
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Publish Wheels') {
+            agent { label 'linux-spsdk' }
+            steps {
+                // Copy wheels from all platforms to a single directory
+                sh 'mkdir -p all-wheels'
+                copyArtifacts(
+                    projectName: env.JOB_NAME,
+                    selector: specific(env.BUILD_NUMBER),
+                    filter: 'wheels-*/**.whl',
+                    target: 'all-wheels'
+                )
+                withVenv(
+                    "uv pip install build twine",
+                    "twine upload --verbose --repository nexus all-wheels/**/*.whl"
+                )
+            }
+        }
+    }
+}

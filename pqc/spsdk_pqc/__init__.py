@@ -8,8 +8,8 @@
 """Wrapper for Dilithium library."""
 
 __author__ = """NXP"""
-__email__ = "michal.starecek@nxp.com"
-__version__ = "0.6.1"
+__email__ = "spsdk@nxp.com"
+__version__ = "0.6.6"
 
 from .errors import PQCError
 from .wrapper import (

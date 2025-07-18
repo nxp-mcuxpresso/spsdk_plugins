@@ -41,6 +41,8 @@ pkcs
 pqcrystals
 pqctool
 psfl
+pyasn
+pycryptodome
 pydocstyle
 pyinstaller
 pylink

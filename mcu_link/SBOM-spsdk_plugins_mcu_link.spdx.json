@@ -2,13 +2,13 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-05-22T10:25:18Z",
+    "created": "2025-07-18T10:39:18Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_mcu_link-0.6.4",
+  "name": "spsdk_plugins_mcu_link-0.6.5",
   "dataLicense": "CC0-1.0",
   "hasExtractedLicensingInfos": [
     {
@@ -17,19 +17,20 @@
       "name": "Apache License 2.0 with Exceptions"
     }
   ],
-  "documentNamespace": "https://nxp.com/spdx/e37bbac2-6580-41f2-a6aa-f3bcf6806e01",
+  "documentNamespace": "https://nxp.com/spdx/469ada50-a560-422f-b006-d19b35853966",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-e37bbac2-6580-41f2-a6aa-f3bcf6806e01",
+      "SPDXID": "SPDXRef-package-469ada50-a560-422f-b006-d19b35853966",
       "name": "spsdk_plugins_mcu_link",
-      "versionInfo": "0.6.4",
+      "versionInfo": "0.6.5",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
       "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/mcu_link",
-      "externalRefs": [],
-      "filesAnalyzed": false,
       "originator": "Organization: NXP",
-      "supplier": "NOASSERTION"
+      "supplier": "NOASSERTION",
+      "comment": "SPSDK MCU-Link. A debugger probe plugin for SPSDK supporting LPC-Link/MCU-Link from NXP.",
+      "externalRefs": [],
+      "filesAnalyzed": false
     },
     {
       "SPDXID": "SPDXRef-package-0ea8e5e8-6b1a-410c-b88e-21789ebf5a2f",
@@ -56,23 +57,23 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-9deb658a-af5d-4562-96de-7f89ef37e30a",
+      "SPDXID": "SPDXRef-package-f562c3db-0830-4d98-955e-37a6586e8ba8",
       "name": "spsdk-mcu-link",
-      "versionInfo": "0.6.0",
+      "versionInfo": "0.6.4",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
-      "downloadLocation": "https://pypi.org/project/spsdk-mcu-link/0.6.0",
+      "downloadLocation": "https://pypi.org/project/spsdk-mcu-link/0.6.4",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/spsdk-mcu-link@0.6.0",
+          "referenceLocator": "pkg:pypi/spsdk-mcu-link@0.6.4",
           "referenceType": "purl"
         },
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "9ce45e9f-02b1-4f5a-aa29-fcc2fb381c9f",
+          "referenceLocator": "bbd48bbf-1824-4dfc-a8e6-5dd974999457",
           "referenceType": "BlackDuck-ComponentOrigin"
         }
       ],
@@ -83,17 +84,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-e37bbac2-6580-41f2-a6aa-f3bcf6806e01"
+      "relatedSpdxElement": "SPDXRef-package-469ada50-a560-422f-b006-d19b35853966"
     },
     {
-      "spdxElementId": "SPDXRef-package-e37bbac2-6580-41f2-a6aa-f3bcf6806e01",
+      "spdxElementId": "SPDXRef-package-469ada50-a560-422f-b006-d19b35853966",
       "relationshipType": "DYNAMIC_LINK",
       "relatedSpdxElement": "SPDXRef-package-0ea8e5e8-6b1a-410c-b88e-21789ebf5a2f"
     },
     {
-      "spdxElementId": "SPDXRef-package-e37bbac2-6580-41f2-a6aa-f3bcf6806e01",
+      "spdxElementId": "SPDXRef-package-469ada50-a560-422f-b006-d19b35853966",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-9deb658a-af5d-4562-96de-7f89ef37e30a"
+      "relatedSpdxElement": "SPDXRef-package-f562c3db-0830-4d98-955e-37a6586e8ba8"
     }
   ]
 }
