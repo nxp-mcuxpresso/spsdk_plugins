@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
-
 from typing import Optional
 from unittest.mock import patch
 

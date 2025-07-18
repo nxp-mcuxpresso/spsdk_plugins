@@ -7,8 +7,8 @@
 """Top-level package for PKCS#11 Signature Provider."""
 
 __author__ = """NXP"""
-__email__ = "michal.starecek@nxp.com"
-__version__ = "0.3.2"
+__email__ = "spsdk@nxp.com"
+__version__ = "0.3.3"
 
 try:
     from spsdk.__version__ import version, version_tuple

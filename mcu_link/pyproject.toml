@@ -60,7 +60,7 @@ include-package-data = true
 version = { attr = "spsdk_mcu_link.__version__" }
 
 [tool.bumpversion]
-current_version = "0.6.4"
+current_version = "0.6.5"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_mcu_link/__init__.py"
@@ -178,3 +178,6 @@ sbom_location = "SBOM-spsdk_plugins_mcu_link.spdx.json"
 
 [tool.release-tools.scr]
 scr_file = "SW_Content_Register_spsdk_mcu_link.txt"
+
+[tool.ruff.lint.per-file-ignores]
+"spsdk_mcu_link/dapper/__init__.py" = ["F401"]

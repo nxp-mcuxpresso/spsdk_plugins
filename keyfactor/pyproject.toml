@@ -17,7 +17,7 @@ description = "SPSDK Signature Provider plugin using Keyfactor's API"
 requires-python = ">= 3.9"
 dependencies = ["requests-pkcs12", "python-dotenv"]
 authors = [{ name = "NXP" }]
-maintainers = [{ name = "NXP", email = "michal.starecek@nxp.com" }]
+maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { text = "BSD-3-Clause" }
 

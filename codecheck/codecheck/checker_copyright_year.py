@@ -631,6 +631,51 @@ class TypeScriptSourceFile(SourceFile):
             f.write("".join(content_lines))
 
 
+class RustSourceFile(SourceFile):
+    """Represent single Rust source file with copyright header."""
+
+    FILE_EXTENSIONS = ["rs"]
+
+    @classmethod
+    def comment_text(cls, text: str) -> str:
+        """Create commented text from input string."""
+        lines = text.splitlines(keepends=False)
+        for i, s in enumerate(lines):
+            lines[i] = "//" if not s else f"// {s}"
+        return "\n".join(lines)
+
+    def calc_copyright_position(self) -> int:
+        """Calculate expected position of copyright header to be places in a file."""
+        text = self._load_file()
+        lines = text.splitlines(keepends=True)
+        index = 0
+        for i, s in enumerate(lines):
+            # Skip empty lines
+            if re.match(string=s, pattern=r"^ *?\n"):
+                continue
+            # Skip shebang line if present
+            if i == 0 and s.startswith("#!"):
+                continue
+            # No more skipping, insert here
+            index = i
+            break
+        return index
+
+    def add_copyright(self, year_ranges: YearRanges) -> None:
+        """Add new copyright to the file."""
+        copyright_lines = self.render_copyright_text(str(year_ranges)).splitlines(keepends=True)
+        with open(self.file_path, encoding="utf-8") as f:
+            content_lines = f.read().splitlines(keepends=True)
+        index = self.calc_copyright_position()
+        for i, c in enumerate(copyright_lines):
+            content_lines.insert(index + i, c)
+        # add newline if enabled and not there already
+        if self.trailing_newline and content_lines[index + len(copyright_lines)] != "\n":
+            content_lines.insert(index + len(copyright_lines), "\n")
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            f.write("".join(content_lines))
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """Main function."""
     parser = argparse.ArgumentParser(

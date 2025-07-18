@@ -23,6 +23,15 @@ from .interfaces import Interface
 from .webix_dapper import DapperFactory, DapperProbeInfo, WebixDapper
 from .webix_dapper_wasm import WebixDapperWasm
 
+if False:  # pylint: disable=using-constant-test,unused-import
+    # help PyInstaller to find modules not imported directly, but dynamically
+    from .interfaces import (  # pylint: disable=unused-import
+        hid_interface,
+        usb_v1_interface,
+        usb_v2_interface,
+    )
+
+
 __all__ = [
     "DapperFactory",
     "DapperProbeInfo",

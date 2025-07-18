@@ -7,7 +7,7 @@
 """Top-level package for J-Link Debug probe."""
 
 __author__ = """NXP"""
-__email__ = "michal.starecek@nxp.com"
+__email__ = "spsdk@nxp.com"
 __version__ = "0.3.2"
 
 try:

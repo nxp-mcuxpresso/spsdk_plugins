@@ -26,7 +26,7 @@ jobs:
         run: |
           python -c "import toml; print('packages=' + str(toml.load('pyproject.toml')['tool']['release-tools']['sub_projects']))" >> $GITHUB_OUTPUT
 
-  package:
+  build_sdist:
     name: Build Packages
     needs: [get-packages]
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
 
   deploy_sdist:
     name: Upload Releases To PyPI
-    needs: [get-packages, package]
+    needs: [get-packages, build_sdist]
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -75,7 +75,7 @@ jobs:
         with:
           skip-existing: true
 
-  build_deploy_wheels:
+  build_wheels:
     name: Wheel ${{ matrix.package}} on ${{ matrix.os}}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -110,3 +110,32 @@ jobs:
           name: wheels-${{ matrix.package }}-${{ matrix.os }} # this is a "artifact already exists" workaround
           path: dist/*.whl
           overwrite: true
+
+
+  deploy_wheels:
+    name: Deploy Wheels to PyPI
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create dist directory
+        run: mkdir -p dist
+      
+      - name: Download all wheel artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish wheels to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.12.4 # v1.12.4 is needed to support metadata v2.4 including PEP 639
+        with:
+          skip-existing: true
+          packages-dir: dist

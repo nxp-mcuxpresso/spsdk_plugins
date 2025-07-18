@@ -1,13 +1,13 @@
 [project]
 name = "spsdk-pqc"
-description = "Post-Quatum Crypto support for SPSDK"
+description = "Post-Quantum Crypto support for SPSDK"
 dynamic = ["version"]
 
 requires-python = ">= 3.9"
-dependencies = ["pyasn1", "typing_extensions", "click"]
+dependencies = ["pyasn1", "typing_extensions", "click", "pycryptodome"]
 
 authors = [{ name = "NXP" }]
-maintainers = [{ name = "NXP", email = "michal.starecek@nxp.com" }]
+maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
 license = "BSD-3-Clause"
 
@@ -46,7 +46,7 @@ packages = ["spsdk_pqc", "spsdk_pqc.__pyinstaller"]
 version = { attr = "spsdk_pqc.__version__" }
 
 [tool.bumpversion]
-current_version = "0.6.1"
+current_version = "0.6.6"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pqc/__init__.py"
@@ -95,6 +95,9 @@ ignore_errors = true
 convention = "google"
 add_ignore = "D105,D301"
 match = '(?!test_|__version__|liboqs_oqs).*\.py'
+
+[tool.bandit]
+skips = ["B413"] # we need pycryptodome as a temporary measure
 
 [tool.copyright]
 excluded_files = ["spsdk_pqc/liboqs_oqs.py"]

@@ -7,7 +7,7 @@
 """Top-level package for Keyfactor Signature Provider."""
 
 __author__ = """NXP"""
-__email__ = "michal.starecek@nxp.com"
+__email__ = "spsdk@nxp.com"
 __version__ = "0.4.0"
 
 try:

@@ -12,12 +12,15 @@ from pathlib import Path
 from typing import Union
 
 import click
+from spsdk.crypto.keys import PrivateKeyEcc
 from typing_extensions import Literal
 
+from spsdk_pqc.pqc_asn import der_2_pem
+from spsdk_pqc.utils import combine_hybrid_key, split_hybrid_key
 from spsdk_pqc.wrapper import (
-    DILITHIUM_ALGORITHMS,
     KEY_INFO,
-    ML_DSA_ALGORITHMS,
+    DilithiumPublicKey,
+    MLDSAPublicKey,
     PQCAlgorithm,
     PQCError,
     PQCPrivateKey,
@@ -34,7 +37,7 @@ def main() -> None:
 @click.option(
     "-a",
     "--algorithm",
-    type=click.Choice(PQCAlgorithm, case_sensitive=False),  # type: ignore[arg-type]
+    type=click.Choice([alg.value for alg in PQCAlgorithm], case_sensitive=False),
     required=True,
     help="Select PQC algorithm.",
 )
@@ -124,6 +127,7 @@ def verify(key: str, data: str, signature: str) -> int:
     except PQCError:
         puk = PQCPrivateKey.parse(key_data).get_public_key()
 
+    assert isinstance(puk, PQCPublicKey)
     sign_data = Path(signature).expanduser().read_bytes()
     tbs_data = Path(data).expanduser().read_bytes()
     result = puk.verify(signature=sign_data, data=tbs_data)
@@ -163,6 +167,7 @@ def encode(key: str, encoding: Literal["PEM", "DER"], output: str) -> int:
     try:
         key_obj = PQCPrivateKey.parse(key_data)
         save_key(key=key_obj, encoding=encoding, output=output)
+        return 0
     except PQCError:
         pass
 
@@ -174,18 +179,99 @@ def encode(key: str, encoding: Literal["PEM", "DER"], output: str) -> int:
             "Currently there's no way to distinguish between ML-DSA and Dilithium Public keys"
         )
         answer = click.confirm("Is it a ML-DSA key? (no means Dilithium)", default=True)
-        PQCPublicKey.ALGORITHMS = ML_DSA_ALGORITHMS if answer else DILITHIUM_ALGORITHMS
-        puk = PQCPublicKey(public_data=key_data)
+        if answer:
+            puk = MLDSAPublicKey(public_data=key_data)
+        else:
+            puk = DilithiumPublicKey(public_data=key_data)  # type: ignore
         save_key(key=puk, encoding=encoding, output=output)
+        return 0
 
     try:
-        puk = PQCPublicKey.parse(data=key_data)
+        puk = PQCPublicKey.parse(data=key_data)  # type: ignore
         save_key(key=puk, encoding=encoding, output=output)
+        return 0
     except PQCError:
         pass
 
     click.secho("Unable to determine PQC Key type", fg="red")
     return 1
+
+
+@main.command(name="split", no_args_is_help=True)
+@click.option(
+    "-h",
+    "--hybrid",
+    type=click.Path(exists=True, dir_okay=False),
+    required=True,
+    help="Path to PEM-encoded Hybrid PQC key.",
+)
+@click.option(
+    "-p",
+    "--password",
+    help="Password to Hybrid key (if needed and not provided, you'll prompted later)",
+)
+@click.option("-kp", "--keep-password", is_flag=True, help="Keep the partial keys encrypted.")
+@click.option(
+    "-c",
+    "--classic",
+    required=True,
+    type=click.Path(dir_okay=False),
+    help="Path where to store the DER-encoded Classic portion of hybrid key.",
+)
+@click.option(
+    "-q",
+    "--pqc",
+    required=True,
+    type=click.Path(dir_okay=False),
+    help="Path where to store the DER-encoded PQC portion of hybrid key.",
+)
+def split(hybrid: str, password: str, keep_password: bool, classic: str, pqc: str) -> None:
+    """Split Hybrid PQC key into classic and PQC keys."""
+    data = Path(hybrid).read_bytes()
+    prk1, prk2, password = split_hybrid_key(data, password=password)
+    click.echo(f"Saving DER-encoded Classic key to: {classic}")
+    prk1.save(classic, password=password if keep_password else None)
+    click.echo(f"Saving DER-encoded PQC key to: {pqc}")
+    save_key(prk2, encoding="DER", output=pqc)
+
+
+@main.command(name="combine", no_args_is_help=True)
+@click.option(
+    "-c",
+    "--classic",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False),
+    help="Path to the classic key.",
+)
+@click.option(
+    "-q",
+    "--pqc",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False),
+    help="Path to the PQC key.",
+)
+@click.option(
+    "-p",
+    "--password",
+    # required=True,
+    help="Password to Hybrid key",
+)
+@click.option(
+    "-h",
+    "--hybrid",
+    type=click.Path(dir_okay=False),
+    required=True,
+    help="Path where to store the PEM-encoded Hybrid PQC key.",
+)
+def combine(classic: str, pqc: str, password: str, hybrid: str) -> None:
+    """Combine classic and PQC keys into Hybrid PQC key."""
+    prk1 = PrivateKeyEcc.parse(Path(classic).read_bytes())
+    prk2 = PQCPrivateKey.parse(Path(pqc).read_bytes())
+    hybrid_data = combine_hybrid_key(classic_prk=prk1, pqc_prk=prk2, password=password)
+    click.echo(f"Saving PEM-encoded Hybrid key to: {hybrid}")
+    Path(hybrid).write_bytes(
+        der_2_pem(hybrid_data, private=True, algorithm="ENCRYPTED" if password else "")
+    )
 
 
 def save_key(
@@ -196,7 +282,6 @@ def save_key(
     output_path = Path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_bytes(key_data)
-    click.echo(f"{encoding}-encoded key saved to {output_path}")
     click.get_current_context().exit()
 
 

@@ -7,7 +7,7 @@ requires-python = ">= 3.9"
 dependencies = ["lauterbach-trace32-rcl"]
 
 authors = [{ name = "NXP" }]
-maintainers = [{ name = "Michal Starecek", email = "michal.starecek@nxp.com" }]
+maintainers = [{ name = "Michal Starecek", email = "spsdk@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { text = "BSD-3-Clause" }
 

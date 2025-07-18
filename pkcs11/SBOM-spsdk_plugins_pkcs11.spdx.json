@@ -2,34 +2,64 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-05-22T10:26:00Z",
+    "created": "2025-07-18T10:41:50Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_pkcs11-0.3.2",
+  "name": "spsdk_plugins_pkcs11-0.3.3",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/a7683146-a9ac-4ec0-982d-c568ed1d7eb9",
+  "documentNamespace": "https://nxp.com/spdx/9ff5e011-8693-4968-8f0d-03fb7dbc7932",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-a7683146-a9ac-4ec0-982d-c568ed1d7eb9",
+      "SPDXID": "SPDXRef-package-9ff5e011-8693-4968-8f0d-03fb7dbc7932",
       "name": "spsdk_plugins_pkcs11",
-      "versionInfo": "0.3.2",
+      "versionInfo": "0.3.3",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
       "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/pkcs11",
-      "externalRefs": [],
-      "filesAnalyzed": false,
       "originator": "Organization: NXP",
-      "supplier": "NOASSERTION"
+      "supplier": "NOASSERTION",
+      "comment": "Signature Provider plugin for SPSDK using PKCS#11 interface",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-9fd73854-e21b-4188-a7c5-5c7a4027b6c4",
+      "name": "python-pkcs11",
+      "versionInfo": "0.8.1",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "NOASSERTION",
+      "homepage": "https://github.com/danni/python-pkcs11",
+      "downloadLocation": "https://pypi.org/project/python-pkcs11/0.8.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/python-pkcs11@0.8.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b6208577-1e91-4bb3-ba13-2fb42f29751c",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
     }
   ],
   "relationships": [
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-a7683146-a9ac-4ec0-982d-c568ed1d7eb9"
+      "relatedSpdxElement": "SPDXRef-package-9ff5e011-8693-4968-8f0d-03fb7dbc7932"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-9ff5e011-8693-4968-8f0d-03fb7dbc7932",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-9fd73854-e21b-4188-a7c5-5c7a4027b6c4"
     }
   ]
 }
