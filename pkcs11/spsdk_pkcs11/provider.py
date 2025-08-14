@@ -47,7 +47,7 @@ class PKCS11SP(SignatureProvider):
         :param token_label: PKCS#11 Token label, defaults to None
         :param token_serial: PKCS#11 Token serial number, defaults to None
         :param key_label: Key Label, defaults to None
-        :param key_id: Key ID, defaults to None
+        :param key_id: Key ID in hexadecimal format, defaults to None
         :raises SPSDKError: PKCS#11 library was not found
         :raises SPSDKError: TOKEN_LABEL or TOKEN_ID is not specified
         :raises SPSDKError: KEY_LABEL or KEY_ID is not specified
@@ -60,7 +60,8 @@ class PKCS11SP(SignatureProvider):
         if not key_label and not key_id:
             raise SPSDKError("Missing 'key_label' or 'key_id', or both")
         self.key_label = key_label
-        self.key_id = key_id
+        self.key_id: Optional[bytes] = int(key_id, base=16).to_bytes() if key_id else None
+
         self.pss_padding = pss_padding
         lib = pkcs11.lib(self._get_so_path(so_path))
         self.token: pkcs11.Token = lib.get_token(
@@ -75,7 +76,7 @@ class PKCS11SP(SignatureProvider):
             with self.token.open(user_pin=self.user_pin) as session:
                 session: pkcs11.Session  # type: ignore[no-redef]  # this is just for intellisense
                 key: pkcs11.PrivateKey = session.get_key(
-                    object_class=pkcs11.ObjectClass.PRIVATE_KEY, label=self.key_label
+                    object_class=pkcs11.ObjectClass.PRIVATE_KEY, label=self.key_label, id=self.key_id
                 )
             if not key:
                 raise SPSDKError(
