@@ -9,6 +9,7 @@
 
 import os
 from functools import cached_property
+from math import ceil
 from typing import Any, Optional, Tuple
 
 from asn1crypto.keys import ECDomainParameters
@@ -47,7 +48,7 @@ class PKCS11SP(SignatureProvider):
         :param token_label: PKCS#11 Token label, defaults to None
         :param token_serial: PKCS#11 Token serial number, defaults to None
         :param key_label: Key Label, defaults to None
-        :param key_id: Key ID, defaults to None
+        :param key_id: Key ID in hexadecimal format, defaults to None
         :raises SPSDKError: PKCS#11 library was not found
         :raises SPSDKError: TOKEN_LABEL or TOKEN_ID is not specified
         :raises SPSDKError: KEY_LABEL or KEY_ID is not specified
@@ -60,7 +61,13 @@ class PKCS11SP(SignatureProvider):
         if not key_label and not key_id:
             raise SPSDKError("Missing 'key_label' or 'key_id', or both")
         self.key_label = key_label
-        self.key_id = key_id
+        if key_id:
+            key_id_int = int(key_id, base=16)
+            key_id_bytes = key_id_int.to_bytes(
+                length=ceil(key_id_int.bit_length() / 8), byteorder="big"
+            )
+        self.key_id: Optional[bytes] = key_id_bytes if key_id else None
+
         self.pss_padding = pss_padding
         lib = pkcs11.lib(self._get_so_path(so_path))
         self.token: pkcs11.Token = lib.get_token(
@@ -75,11 +82,13 @@ class PKCS11SP(SignatureProvider):
             with self.token.open(user_pin=self.user_pin) as session:
                 session: pkcs11.Session  # type: ignore[no-redef]  # this is just for intellisense
                 key: pkcs11.PrivateKey = session.get_key(
-                    object_class=pkcs11.ObjectClass.PRIVATE_KEY, label=self.key_label
+                    object_class=pkcs11.ObjectClass.PRIVATE_KEY,
+                    label=self.key_label,
+                    id=self.key_id,
                 )
             if not key:
                 raise SPSDKError(
-                    f"Could not find Private key with label={self.key_label}, id={self.key_id}"
+                    f"Could not find Private key with label={self.key_label}, id={self.key_id!r}"
                 )
         except (pkcs11.PKCS11Error, RuntimeError) as e:
             raise SPSDKError(f"Problem opening a session: {e.__class__.__name__} {e}") from e
@@ -136,7 +145,7 @@ class PKCS11SP(SignatureProvider):
             )
             if not key:
                 raise SPSDKError(
-                    f"Could not find Private key with label={self.key_label}, id={self.key_id}"
+                    f"Could not find Private key with label={self.key_label}, id={self.key_id!r}"
                 )
 
             # some HSMs don't offer signing with hashing in one go, thus we pre-hash the data
@@ -171,7 +180,7 @@ class PKCS11SP(SignatureProvider):
             )
             if not key:
                 raise SPSDKError(
-                    f"Could not found Private key with label={self.key_label}, id={self.key_id}"
+                    f"Could not found Private key with label={self.key_label}, id={self.key_id!r}"
                 )
             if key.key_type == pkcs11.KeyType.RSA:
                 return self._get_key_length(key=key)
