@@ -4,7 +4,7 @@ description = "PyOCD SW Debugger. A debugger probe plugin for SPSDK."
 dynamic = ["version"]
 
 requires-python = ">= 3.9"
-dependencies = ["pyocd<0.37,>=0.35.1"]
+dependencies = ["pyocd<0.38,>=0.35.1"]
 
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
@@ -47,7 +47,7 @@ packages = ["spsdk_pyocd", "spsdk_pyocd.__pyinstaller"]
 version = { attr = "spsdk_pyocd.__version__" }
 
 [tool.bumpversion]
-current_version = "0.3.2"
+current_version = "0.3.3"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pyocd/__init__.py"

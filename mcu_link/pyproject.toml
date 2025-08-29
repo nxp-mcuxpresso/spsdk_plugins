@@ -60,7 +60,7 @@ include-package-data = true
 version = { attr = "spsdk_mcu_link.__version__" }
 
 [tool.bumpversion]
-current_version = "0.6.5"
+current_version = "0.6.6"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_mcu_link/__init__.py"

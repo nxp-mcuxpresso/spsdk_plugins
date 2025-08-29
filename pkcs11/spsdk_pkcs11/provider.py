@@ -8,8 +8,8 @@
 """Main module for PKCS11SP."""
 
 import os
+import warnings
 from functools import cached_property
-from math import ceil
 from typing import Any, Optional, Tuple
 
 from asn1crypto.keys import ECDomainParameters
@@ -48,7 +48,7 @@ class PKCS11SP(SignatureProvider):
         :param token_label: PKCS#11 Token label, defaults to None
         :param token_serial: PKCS#11 Token serial number, defaults to None
         :param key_label: Key Label, defaults to None
-        :param key_id: Key ID in hexadecimal format, defaults to None
+        :param key_id: Key ID, defaults to None
         :raises SPSDKError: PKCS#11 library was not found
         :raises SPSDKError: TOKEN_LABEL or TOKEN_ID is not specified
         :raises SPSDKError: KEY_LABEL or KEY_ID is not specified
@@ -57,25 +57,30 @@ class PKCS11SP(SignatureProvider):
         if not token_label and not token_serial:
             raise SPSDKError("Missing 'token_label' or 'token_serial', or both")
         self.token_label = token_label
-        self.token_serial = token_serial
+        self.token_serial = token_serial.encode("utf-8") if token_serial else None
         if not key_label and not key_id:
             raise SPSDKError("Missing 'key_label' or 'key_id', or both")
         self.key_label = key_label
+        self.key_id: Optional[bytes] = None
         if key_id:
-            key_id_int = int(key_id, base=16)
-            key_id_bytes = key_id_int.to_bytes(
-                length=ceil(key_id_int.bit_length() / 8), byteorder="big"
-            )
-        self.key_id: Optional[bytes] = key_id_bytes if key_id else None
-
+            if len(key_id) > 2:
+                warnings.warn(
+                    "This plugin was tested only on HSMs with single-byte IDs. "
+                    f"Usability is not guarantied for IDs such as '{key_id}'.",
+                    UserWarning,
+                )
+            key_id_len = len(key_id)
+            key_id_len += 1 if key_id_len % 2 else 0
+            self.key_id = bytes.fromhex(key_id.zfill(key_id_len))
         self.pss_padding = pss_padding
+
         lib = pkcs11.lib(self._get_so_path(so_path))
         self.token: pkcs11.Token = lib.get_token(
-            token_label=self.token_label, token_serial=token_serial
+            token_label=self.token_label, token_serial=self.token_serial
         )
         if not self.token:
             raise SPSDKError(
-                f"Could not find Token with token_label={self.token}, token_serial={self.token_serial}"
+                f"Could not find Token with token_label={self.token}, token_serial={self.token_serial!r}"
             )
         self.user_pin = load_secret(user_pin)
         try:
@@ -103,9 +108,9 @@ class PKCS11SP(SignatureProvider):
         path = os.path.expanduser(os.path.expandvars(path))
         if os.path.isfile(path):
             return path
-        for env_path in os.environ["PATH"]:
+        for env_path in os.environ["PATH"].split(os.pathsep):
             candidate = os.path.join(env_path, path)
-            if os.path.isabs(candidate):
+            if os.path.isfile(candidate):
                 return candidate
         raise SPSDKError(f"Could not find PKCS11 library {path}")
 

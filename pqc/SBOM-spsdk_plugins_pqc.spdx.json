@@ -2,13 +2,13 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-07-18T10:43:09Z",
+    "created": "2025-08-28T10:43:11Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_pqc-0.6.6",
+  "name": "spsdk_plugins_pqc-0.6.7",
   "dataLicense": "CC0-1.0",
   "hasExtractedLicensingInfos": [
     {
@@ -17,18 +17,17 @@
       "name": "Public Domain"
     }
   ],
-  "documentNamespace": "https://nxp.com/spdx/426dff24-2676-4bcb-acff-dbef7bee9d28",
+  "documentNamespace": "https://nxp.com/spdx/57d9370f-9534-4c58-b201-d9799a1ec768",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-426dff24-2676-4bcb-acff-dbef7bee9d28",
+      "SPDXID": "SPDXRef-package-57d9370f-9534-4c58-b201-d9799a1ec768",
       "name": "spsdk_plugins_pqc",
-      "versionInfo": "0.6.6",
+      "versionInfo": "0.6.7",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/pqc",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
-      "comment": "Post-Quantum Crypto support for SPSDK",
       "externalRefs": [],
       "filesAnalyzed": false
     },
@@ -38,7 +37,6 @@
       "versionInfo": "1.0.0",
       "licenseConcluded": "MIT",
       "licenseDeclared": "NOASSERTION",
-      "homepage": "https://maven.wso2.org/nexus/content/repositories/public/org/ballerinalang/error/",
       "downloadLocation": "NOASSERTION",
       "originator": "Organization: error",
       "supplier": "NOASSERTION",
@@ -65,6 +63,16 @@
           "referenceCategory": "OTHER",
           "referenceLocator": "539fa5e1-8bb4-4abe-bb08-7df40a499bbd",
           "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:open_quantum_safe:liboqs:0.12.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:redhat_package:liboqs-devel:0.12.0:2.el10:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
         }
       ],
       "filesAnalyzed": false
@@ -81,14 +89,14 @@
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "3d753839-2455-4f99-8fa5-2e0411c428d1",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        },
-        {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceLocator": "pkg:pypi/pyasn1@0.6.1",
           "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "3d753839-2455-4f99-8fa5-2e0411c428d1",
+          "referenceType": "BlackDuck-ComponentOrigin"
         }
       ],
       "filesAnalyzed": false
@@ -105,6 +113,16 @@
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:pycryptodome:3.23.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pycryptodome:pycryptodome:3.23.0:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
           "referenceCategory": "OTHER",
           "referenceLocator": "787d8fe0-ef4f-4c37-8a2d-e3e148df42e4",
           "referenceType": "BlackDuck-ComponentOrigin"
@@ -118,79 +136,98 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceLocator": "pkg:pypi/pycryptodome@3.23.0",
           "referenceType": "purl"
-        },
-        {
-          "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:pypi_package:pycryptodome:3.23.0:*:*:*:*:*:*:*",
-          "referenceType": "cpe23Type"
-        },
-        {
-          "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:pycryptodome:pycryptodome:3.23.0:*:*:*:*:*:*:*",
-          "referenceType": "cpe23Type"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-da846aad-4fca-406a-bbb0-5f9f935a0fa5",
+      "SPDXID": "SPDXRef-package-ca6780ed-0b2a-4e99-8f2f-f84f404f0a88",
       "name": "python-typing-extensions",
-      "versionInfo": "4.14.1",
+      "versionInfo": "4.15.0",
       "licenseConcluded": "PSF-2.0",
       "licenseDeclared": "PSF-2.0",
-      "downloadLocation": "https://pypi.org/project/typing-extensions/4.14.1",
+      "downloadLocation": "https://pypi.org/project/typing-extensions/4.15.0",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/typing-extensions@4.14.1",
+          "referenceLocator": "pkg:pypi/typing-extensions@4.15.0",
           "referenceType": "purl"
         },
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "47550aaf-483c-4779-934a-770264b3ad1e",
+          "referenceLocator": "415549d4-ec3d-4cdf-8f78-9d6073840a58",
           "referenceType": "BlackDuck-ComponentOrigin"
         }
       ],
       "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-96ce7bbc-287e-48f3-a8b5-b956fac337a8",
+      "name": "spsdk-pqc",
+      "versionInfo": "0.6.6",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "NOASSERTION",
+      "downloadLocation": "https://pypi.org/project/spsdk-pqc/0.6.6",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk-pqc@0.6.6",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "d65b807a-7d98-4c30-97ab-cbbe06545d5e",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false,
+      "licenseComments": "https://github.com/nxp-mcuxpresso/spsdk_plugins/blob/main/LICENSE"
     }
   ],
   "relationships": [
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-426dff24-2676-4bcb-acff-dbef7bee9d28"
+      "relatedSpdxElement": "SPDXRef-package-57d9370f-9534-4c58-b201-d9799a1ec768"
     },
     {
-      "spdxElementId": "SPDXRef-package-426dff24-2676-4bcb-acff-dbef7bee9d28",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-21bec061-98f7-46f0-8809-21cdf54ad336"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-426dff24-2676-4bcb-acff-dbef7bee9d28",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-7c0a523e-b706-49df-92e3-f9a7ea573852"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-426dff24-2676-4bcb-acff-dbef7bee9d28",
+      "spdxElementId": "SPDXRef-package-57d9370f-9534-4c58-b201-d9799a1ec768",
       "relationshipType": "DYNAMIC_LINK",
       "relatedSpdxElement": "SPDXRef-package-acacdb7f-c5f7-4849-8524-9ab53fa32dbf"
     },
     {
-      "spdxElementId": "SPDXRef-package-426dff24-2676-4bcb-acff-dbef7bee9d28",
+      "spdxElementId": "SPDXRef-package-57d9370f-9534-4c58-b201-d9799a1ec768",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-7c0a523e-b706-49df-92e3-f9a7ea573852"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-57d9370f-9534-4c58-b201-d9799a1ec768",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-package-7c0a523e-b706-49df-92e3-f9a7ea573852"
     },
     {
-      "spdxElementId": "SPDXRef-package-426dff24-2676-4bcb-acff-dbef7bee9d28",
+      "spdxElementId": "SPDXRef-package-57d9370f-9534-4c58-b201-d9799a1ec768",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-3f843603-1645-45c2-8df1-f23f4e424fff"
+      "relatedSpdxElement": "SPDXRef-package-21bec061-98f7-46f0-8809-21cdf54ad336"
     },
     {
-      "spdxElementId": "SPDXRef-package-426dff24-2676-4bcb-acff-dbef7bee9d28",
+      "spdxElementId": "SPDXRef-package-57d9370f-9534-4c58-b201-d9799a1ec768",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-da846aad-4fca-406a-bbb0-5f9f935a0fa5"
+      "relatedSpdxElement": "SPDXRef-package-96ce7bbc-287e-48f3-a8b5-b956fac337a8"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-57d9370f-9534-4c58-b201-d9799a1ec768",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-ca6780ed-0b2a-4e99-8f2f-f84f404f0a88"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-57d9370f-9534-4c58-b201-d9799a1ec768",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-3f843603-1645-45c2-8df1-f23f4e424fff"
     }
   ]
 }

@@ -11,7 +11,7 @@
 
 __author__ = """NXP"""
 __email__ = "spsdk@nxp.com"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from .offline_signature_provider import OfflineSP
 

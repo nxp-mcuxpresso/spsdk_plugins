@@ -7,8 +7,8 @@
 """Top-level package for P&E Micro debugger probe plugin."""
 
 __author__ = """NXP"""
-__email__ = "starecek.michal@nxp.com"
-__version__ = "0.3.2"
+__email__ = "spsdk@nxp.com"
+__version__ = "0.3.3"
 
 try:
     from spsdk.__version__ import version, version_tuple

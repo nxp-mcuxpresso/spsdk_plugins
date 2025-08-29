@@ -10,7 +10,7 @@
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import Any, Optional
 
 from typing_extensions import Self
 
@@ -177,6 +177,11 @@ class PQCPublicKey(PQCKey):
             algorithm_name=self.algorithm.value,
         )
 
+    # pylint: disable=unused-argument
+    def public_bytes(self, *args: Any, **kwargs: Any) -> bytes:
+        """Hook method for integration with cryptography.io library."""
+        return self.export(pem=False)
+
     @classmethod
     def parse(cls, data: bytes) -> Self:
         """Create key from raw or PEM/DER encoded data."""
@@ -250,7 +255,7 @@ class PQCPrivateKey(PQCKey):
 
     def export(self, pem: bool = True) -> bytes:
         """Export key in PEM or DER format."""
-        data = self.private_data + self.public_data
+        data = self.private_data + (self.public_data or bytes())
         return pqc_asn.encode_prk(
             data=data,
             oid=self.key_info.oid,
