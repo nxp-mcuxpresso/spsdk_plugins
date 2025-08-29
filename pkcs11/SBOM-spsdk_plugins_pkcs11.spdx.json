@@ -2,49 +2,71 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-07-18T10:41:50Z",
+    "created": "2025-08-28T10:43:00Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_pkcs11-0.3.3",
+  "name": "spsdk_plugins_pkcs11-0.3.5",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/9ff5e011-8693-4968-8f0d-03fb7dbc7932",
+  "documentNamespace": "https://nxp.com/spdx/e62841a8-cac5-4691-82d8-6ef699bae4a3",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-9ff5e011-8693-4968-8f0d-03fb7dbc7932",
+      "SPDXID": "SPDXRef-package-e62841a8-cac5-4691-82d8-6ef699bae4a3",
       "name": "spsdk_plugins_pkcs11",
-      "versionInfo": "0.3.3",
+      "versionInfo": "0.3.5",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/pkcs11",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/pkcs11",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
-      "comment": "Signature Provider plugin for SPSDK using PKCS#11 interface",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-9fd73854-e21b-4188-a7c5-5c7a4027b6c4",
+      "SPDXID": "SPDXRef-package-eb2a907c-5db9-4351-b631-fa4e5b7b6b6e",
       "name": "python-pkcs11",
-      "versionInfo": "0.8.1",
+      "versionInfo": "0.9.0",
       "licenseConcluded": "MIT",
-      "licenseDeclared": "NOASSERTION",
+      "licenseDeclared": "MIT",
       "homepage": "https://github.com/danni/python-pkcs11",
-      "downloadLocation": "https://pypi.org/project/python-pkcs11/0.8.1",
+      "downloadLocation": "https://pypi.org/project/python-pkcs11/0.9.0",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/python-pkcs11@0.8.1",
+          "referenceLocator": "pkg:pypi/python-pkcs11@0.9.0",
           "referenceType": "purl"
         },
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "b6208577-1e91-4bb3-ba13-2fb42f29751c",
+          "referenceLocator": "01155d3a-f950-46dc-b8e8-995bca573f91",
           "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-b040313e-e51e-4139-bba0-ce840550b0ea",
+      "name": "spsdk-pkcs11",
+      "versionInfo": "0.3.3",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/spsdk-pkcs11/0.3.3",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "98830b2d-8d0b-40b2-9921-9411bad99731",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk-pkcs11@0.3.3",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -54,12 +76,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-9ff5e011-8693-4968-8f0d-03fb7dbc7932"
+      "relatedSpdxElement": "SPDXRef-package-e62841a8-cac5-4691-82d8-6ef699bae4a3"
     },
     {
-      "spdxElementId": "SPDXRef-package-9ff5e011-8693-4968-8f0d-03fb7dbc7932",
+      "spdxElementId": "SPDXRef-package-e62841a8-cac5-4691-82d8-6ef699bae4a3",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-9fd73854-e21b-4188-a7c5-5c7a4027b6c4"
+      "relatedSpdxElement": "SPDXRef-package-b040313e-e51e-4139-bba0-ce840550b0ea"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-e62841a8-cac5-4691-82d8-6ef699bae4a3",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-eb2a907c-5db9-4351-b631-fa4e5b7b6b6e"
     }
   ]
 }

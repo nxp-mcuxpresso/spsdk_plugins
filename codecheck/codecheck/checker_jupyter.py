@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 """Script to check Jupyter Notebook consistency."""
 
 import argparse
@@ -66,10 +67,23 @@ def check_jupyter_output(  # pylint: disable=too-many-locals,too-many-branches
     file_was_modified = False
     rel_dir = full_path.relative_to(REPO_ROOT).parent.as_posix()
     rel_path = full_path.relative_to(REPO_ROOT).as_posix()
+    exec_counter = 1
 
     for cell_id, cell in enumerate(data["cells"]):
         if cell["cell_type"] != "code":
             continue
+
+        exec_count = cell.get("execution_count", None)
+        if exec_count is not None:
+            if exec_count != exec_counter:
+                print(
+                    f"{full_path}: Execution count mismatch in cell {cell_id}. "
+                    f"Expected {exec_counter}, got {exec_count}"
+                )
+                data["cells"][cell_id]["execution_count"] = exec_counter
+                file_was_modified = True
+                error_count += 1
+        exec_counter += 1
 
         if len(cell["outputs"]) == 0:
             # if there's an exception record for this file
@@ -107,7 +121,7 @@ def check_jupyter_output(  # pylint: disable=too-many-locals,too-many-branches
     if file_was_modified:
         print(f"Rewriting {full_path}")
         with open(full_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
+            json.dump(data, f, indent=1)
     return error_count
 
 

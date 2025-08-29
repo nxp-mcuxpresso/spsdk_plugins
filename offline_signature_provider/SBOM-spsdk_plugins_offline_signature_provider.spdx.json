@@ -2,13 +2,13 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-07-18T10:45:37Z",
+    "created": "2025-08-28T10:42:18Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_offline_signature_provider-0.1.0",
+  "name": "spsdk_offline_signature_provider-0.2.0",
   "dataLicense": "CC0-1.0",
   "hasExtractedLicensingInfos": [
     {
@@ -22,131 +22,90 @@
       "name": "Public Domain"
     }
   ],
-  "documentNamespace": "https://nxp.com/spdx/2c4f9938-9df6-483b-b5d2-0611fa48fbe9",
+  "documentNamespace": "https://nxp.com/spdx/ba47c977-9794-46ce-b900-32f0ceda7239",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-2c4f9938-9df6-483b-b5d2-0611fa48fbe9",
+      "SPDXID": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
       "name": "spsdk_offline_signature_provider",
-      "versionInfo": "0.1.0",
+      "versionInfo": "0.2.0",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/offline_signature_provider",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-469ada50-a560-422f-b006-d19b35853966",
+      "SPDXID": "SPDXRef-package-a1b6071a-8dc1-41e2-a940-c884b8c76ce5",
       "name": "spsdk_plugins_mcu_link",
-      "versionInfo": "0.6.5",
+      "versionInfo": "0.6.6",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
       "homepage": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/mcu_link",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/mcu_link",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/mcu_link",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
-      "comment": "SPSDK MCU-Link. A debugger probe plugin for SPSDK supporting LPC-Link/MCU-Link from NXP.",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-85e64f81-3d8c-4586-b87f-38564bb48690",
-      "name": "hidapi",
-      "versionInfo": "0.14.0.post4",
-      "licenseConcluded": "BSD-3-Clause",
-      "licenseDeclared": "(GPL-3.0-or-later OR BSD-3-Clause)",
-      "homepage": "http://www.signal11.us/oss/hidapi/",
-      "downloadLocation": "https://pypi.org/project/hidapi/0.14.0.post4",
-      "originator": "Organization: pypi",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "6d683713-eedc-42f6-a210-183bcbcee4a7",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        },
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/hidapi@0.14.0.post4",
-          "referenceType": "purl"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-0ea8e5e8-6b1a-410c-b88e-21789ebf5a2f",
-      "name": "PyUSB",
-      "versionInfo": "1.2.1",
+      "SPDXID": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d",
+      "name": "spsdk_plugins_pyocd",
+      "versionInfo": "0.3.3",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
-      "homepage": "http://sourceforge.net/projects/pyusb",
-      "downloadLocation": "https://pypi.org/project/pyusb/1.2.1",
+      "homepage": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/pyocd",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/pyocd",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-7c74ba60-582f-4f9a-83f7-2f7bfc96d08b",
+      "name": "pyOCD",
+      "versionInfo": "0.37.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/mbedmicro/pyOCD",
+      "downloadLocation": "https://pypi.org/project/pyocd/0.37.0",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/pyusb@1.2.1",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "85a9694a-2465-437a-a0aa-9f29382f9bad",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "ba912008-9540-4d42-9fab-aaf5ac04070e",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pyocd@0.37.0",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-d46f3a35-4ccb-41d4-a751-5c8cb1fb9868",
+      "SPDXID": "SPDXRef-package-31e4abc9-c080-4b8c-ae2e-56975b031be9",
       "name": "spsdk",
-      "versionInfo": "2.6.0",
+      "versionInfo": "3.1.0",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
       "homepage": "https://github.com/NXPmicro/spsdk",
-      "downloadLocation": "https://pypi.org/project/spsdk/2.6.0",
+      "downloadLocation": "https://pypi.org/project/spsdk/3.1.0",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/spsdk@2.6.0",
+          "referenceLocator": "pkg:pypi/spsdk@3.1.0",
           "referenceType": "purl"
         },
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "66faccc9-24d3-48c4-96b7-bf69b0543ea0",
+          "referenceLocator": "19a89479-dcad-4e0c-a669-45839126b0e7",
           "referenceType": "BlackDuck-ComponentOrigin"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-a38f0668-44bd-4a89-b4fa-9fbaab920bad",
-      "name": "wasmtime",
-      "versionInfo": "24.0.0",
-      "licenseConcluded": "LicenseRef-c9bdcbe3-de95-46a0-9fd9-9be02f4ef8c4",
-      "licenseDeclared": "LicenseRef-c9bdcbe3-de95-46a0-9fd9-9be02f4ef8c4",
-      "homepage": "https://github.com/bytecodealliance/wasmtime-py",
-      "downloadLocation": "https://pypi.org/project/wasmtime/24.0.0",
-      "originator": "Organization: pypi",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "66326790-833b-40cf-bede-469953246345",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        },
-        {
-          "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:pypi_package:wasmtime:24.0.0:*:*:*:*:*:*:*",
-          "referenceType": "cpe23Type"
-        },
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/wasmtime@24.0.0",
-          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -156,32 +115,27 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-2c4f9938-9df6-483b-b5d2-0611fa48fbe9"
+      "relatedSpdxElement": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239"
     },
     {
-      "spdxElementId": "SPDXRef-package-2c4f9938-9df6-483b-b5d2-0611fa48fbe9",
+      "spdxElementId": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-d46f3a35-4ccb-41d4-a751-5c8cb1fb9868"
+      "relatedSpdxElement": "SPDXRef-package-31e4abc9-c080-4b8c-ae2e-56975b031be9"
     },
     {
-      "spdxElementId": "SPDXRef-package-2c4f9938-9df6-483b-b5d2-0611fa48fbe9",
+      "spdxElementId": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-a38f0668-44bd-4a89-b4fa-9fbaab920bad"
+      "relatedSpdxElement": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d"
     },
     {
-      "spdxElementId": "SPDXRef-package-2c4f9938-9df6-483b-b5d2-0611fa48fbe9",
+      "spdxElementId": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-0ea8e5e8-6b1a-410c-b88e-21789ebf5a2f"
+      "relatedSpdxElement": "SPDXRef-package-a1b6071a-8dc1-41e2-a940-c884b8c76ce5"
     },
     {
-      "spdxElementId": "SPDXRef-package-2c4f9938-9df6-483b-b5d2-0611fa48fbe9",
+      "spdxElementId": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-469ada50-a560-422f-b006-d19b35853966"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-2c4f9938-9df6-483b-b5d2-0611fa48fbe9",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-85e64f81-3d8c-4586-b87f-38564bb48690"
+      "relatedSpdxElement": "SPDXRef-package-7c74ba60-582f-4f9a-83f7-2f7bfc96d08b"
     }
   ]
 }

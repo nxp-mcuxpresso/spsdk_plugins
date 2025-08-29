@@ -3,7 +3,7 @@ name = "spsdk-offline-signature-provider"
 description = "Offline Signature Provider for SPSDK."
 dynamic = ["version"]
 requires-python = ">=3.9"
-dependencies = ["spsdk>=2,<4"]
+dependencies = ["spsdk>=3,<4"]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -40,7 +40,7 @@ packages = ["spsdk_offline_signature_provider"]
 version = { attr = "spsdk_offline_signature_provider.__version__" }
 
 [tool.bumpversion]
-current_version = "0.1.0"
+current_version = "0.2.0"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_offline_signature_provider/__init__.py"
