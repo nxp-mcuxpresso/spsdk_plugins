@@ -15,7 +15,7 @@ name = "spsdk_keyfactor"
 description = "SPSDK Signature Provider plugin using Keyfactor's API"
 
 requires-python = ">= 3.9"
-dependencies = ["requests-pkcs12", "python-dotenv"]
+dependencies = ["requests-pkcs12", "python-dotenv", "click"]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -34,6 +34,9 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
+[project.scripts]
+"nxp-keyfactor" = "spsdk_keyfactor.cli:main"
+
 [project.entry-points]
 "spsdk.sp" = { keyfactor = "spsdk_keyfactor.provider" }
 pyinstaller40 = { hook-dirs = "spsdk_keyfactor.__pyinstaller:get_hook_dirs" }
@@ -43,7 +46,7 @@ Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/keyfacto
 Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
 
 [tool.bumpversion]
-current_version = "0.4.0"
+current_version = "0.4.1"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_keyfactor/__init__.py"
@@ -125,4 +128,3 @@ sbom_location = "SBOM-spsdk_plugins_keyfactor.spdx.json"
 
 [tool.release-tools.scr]
 scr_file = "SW_Content_Register_spsdk_keyfactor.txt"
-
