@@ -170,12 +170,7 @@ class PQCPublicKey(PQCKey):
 
     def export(self, pem: bool = True) -> bytes:
         """Export key in PEM or DER format."""
-        return pqc_asn.encode_puk(
-            data=self.public_data,
-            oid=self.key_info.oid,
-            pem=pem,
-            algorithm_name=self.algorithm.value,
-        )
+        return pqc_asn.encode_puk(data=self.public_data, oid=self.key_info.oid, pem=pem)
 
     # pylint: disable=unused-argument
     def public_bytes(self, *args: Any, **kwargs: Any) -> bytes:
@@ -256,12 +251,7 @@ class PQCPrivateKey(PQCKey):
     def export(self, pem: bool = True) -> bytes:
         """Export key in PEM or DER format."""
         data = self.private_data + (self.public_data or bytes())
-        return pqc_asn.encode_prk(
-            data=data,
-            oid=self.key_info.oid,
-            pem=pem,
-            algorithm_name=self.algorithm.value,
-        )
+        return pqc_asn.encode_prk(data=data, oid=self.key_info.oid, pem=pem)
 
     def get_public_key(self) -> PQCPublicKey:
         """Create an instance of public key."""

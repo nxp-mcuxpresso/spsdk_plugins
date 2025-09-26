@@ -23,6 +23,7 @@ The SPSDK plugins repository contains various extension modules that enhance SPS
 | **PQC** | Post-Quantum Cryptography support | `pip install spsdk-pqc` | BSD-3-Clause |
 | **Keyfactor** | Keyfactor integration | `pip install spsdk-keyfactor` | BSD-3-Clause |
 | **PyLint Plugins** | SPSDK-specific coding rules for PyLint | `pip install spsdk-pylint-plugins` | BSD-3-Clause |
+| **Offline Signature Provider** | Offline signature provider| `pip install spsdk-offline-signature-provider` | BSD-3-Clause |
 
 ## Quick Start
 

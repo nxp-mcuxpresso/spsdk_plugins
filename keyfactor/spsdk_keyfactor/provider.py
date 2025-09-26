@@ -11,7 +11,7 @@ import json
 import logging
 import os
 from enum import Enum
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import requests
 import requests.adapters
@@ -75,7 +75,7 @@ class KeyfactorSP(SignatureProvider):
         self.session = requests.Session()
         self._setup_session_auth()
 
-        self.signer_certificate: Certificate
+        self.signer_certificate: Optional[Certificate] = None
         self.prehash = self._get_prehash()
         # simply get the signature length from the environment
         # actual signature length will be self-corrected by the signer certificate
@@ -162,9 +162,13 @@ class KeyfactorSP(SignatureProvider):
         try:
             self.sign(bytes(32))
             return self.prehash
-        except KeyfactorPluginError:
+        except KeyfactorPluginError as exc:
             # signature check failed with no prehash
             # get the recommended hash from the signer certificate
+            if not self.signer_certificate:
+                raise KeyfactorPluginError(
+                    "No signer certificate available to determine default hash algorithm"
+                ) from exc
             return self.signer_certificate.get_public_key().default_hash_algorithm
 
     def sign(self, data: bytes) -> bytes:
@@ -203,13 +207,21 @@ class KeyfactorSP(SignatureProvider):
         puk = self.signer_certificate.get_public_key()
         is_rsa = isinstance(puk, PublicKeyRsa)
 
-        if not puk.verify_signature(signature, data):
+        verification_params: dict[str, Any] = {
+            "signature": signature,
+            "data": data_out,
+        }
+        if self.prehash and self.prehash != EnumHashAlgorithm.NONE:
+            verification_params["prehashed"] = True
+            verification_params["algorithm"] = self.prehash
+
+        if not puk.verify_signature(**verification_params):
             if not is_rsa:
                 raise KeyfactorPluginError(
                     "Signature verification failed. "
                     "Please check your KEYFACTOR_PREHASH and/or SIGNATUREALGORITHM settings."
                 )
-            if not puk.verify_signature(signature, data, pss_padding=True):
+            if not puk.verify_signature(**verification_params, pss_padding=True):
                 raise KeyfactorPluginError(
                     "Signature verification failed. "
                     "Please check your KEYFACTOR_PREHASH and/or SIGNATUREALGORITHM settings."
@@ -227,7 +239,8 @@ class KeyfactorSP(SignatureProvider):
         if self.signer_certificate is None:
             # sign some data to get the signer certificate
             self.sign(bytes(32))
-
+        if self.signer_certificate is None:
+            raise KeyfactorPluginError("Unable to retrieve signer certificate")
         self._signature_length = self.signer_certificate.get_public_key().signature_size
         return self._signature_length
 
@@ -236,7 +249,8 @@ class KeyfactorSP(SignatureProvider):
         if self.signer_certificate is None:
             # sign some data to get the signer certificate
             self.sign(bytes(32))
-
+        if self.signer_certificate is None:
+            raise KeyfactorPluginError("Unable to retrieve signer certificate")
         return self.signer_certificate.get_public_key() == public_key
 
     def info(self) -> str:

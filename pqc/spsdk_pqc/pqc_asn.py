@@ -9,6 +9,7 @@
 
 
 import base64
+from typing import Optional
 
 from pyasn1.codec.der.decoder import decode
 from pyasn1.codec.der.encoder import encode
@@ -121,7 +122,9 @@ def decode_puk(data: bytes) -> tuple[str, bytes]:
         raise PQCError(str(exc)) from exc
 
 
-def encode_puk(data: bytes, oid: str, pem: bool = True, algorithm_name: str = "PQC") -> bytes:
+def encode_puk(
+    data: bytes, oid: str, pem: bool = True, algorithm_name: Optional[str] = None
+) -> bytes:
     """Encode public key to PEM/DER format."""
     try:
         key_data = {
@@ -157,7 +160,9 @@ def decode_prk(data: bytes) -> tuple[str, bytes]:
         raise PQCError(str(exc)) from exc
 
 
-def encode_prk(data: bytes, oid: str, pem: bool = True, algorithm_name: str = "PQC") -> bytes:
+def encode_prk(
+    data: bytes, oid: str, pem: bool = True, algorithm_name: Optional[str] = None
+) -> bytes:
     """Encode private key to PEM/DER format."""
     try:
         key_data = {
@@ -187,10 +192,11 @@ def pem_2_der(data: bytes) -> bytes:
     return data
 
 
-def der_2_pem(data: bytes, private: bool, algorithm: str) -> bytes:
+def der_2_pem(data: bytes, private: bool, algorithm: Optional[str] = None) -> bytes:
     """Transform DER encoding to PEM."""
     b64_data = base64.b64encode(data)
-    inner_text = f"{algorithm.upper()} {'PRIVATE' if private else 'PUBLIC'}"
+    inner_text = f"{algorithm.upper()} " if algorithm else ""
+    inner_text += "PRIVATE" if private else "PUBLIC"
     lines = []
     lines.append(f"-----BEGIN {inner_text} KEY-----".encode("utf-8"))
     lines.extend([b64_data[i : i + 64] for i in range(0, len(b64_data), 64)])

@@ -614,6 +614,18 @@
         "license": "ISC"
       },
       "github": {
+        "project_name": "m-click/requests-pkcs12",
+        "license": "ISC"
+      }
+    },
+    {
+      "home_page": "https://github.com/m-click/requests_pkcs12",
+      "name": "requests_pkcs12",
+      "package": {
+        "name": "requests_pkcs12",
+        "license": "ISC"
+      },
+      "github": {
         "project_name": "m-click/requests_pkcs12",
         "license": "ISC"
       }
@@ -751,7 +763,7 @@
       "name": "urllib3",
       "package": {
         "name": "urllib3",
-        "license": "MIT License"
+        "license": "MIT"
       }
     },
     {
