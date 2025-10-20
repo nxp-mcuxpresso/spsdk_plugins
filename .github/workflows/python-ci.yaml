@@ -1,0 +1,80 @@
+name: Python Continuous Integration
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+permissions:
+  contents: read
+
+jobs:
+  get-packages:
+    name: Get Package List
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.get-packages.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+      
+      - name: Set up Python
+        run: uv python install 3.x
+          
+      - name: Install TOML parser
+        run: uv pip install toml
+          
+      - id: get-packages
+        run: |
+          python -c "import toml; print('packages=' + str(toml.load('pyproject.toml')['tool']['release-tools']['sub_projects']))" >> $GITHUB_OUTPUT
+
+  codecheck:
+    needs: [get-packages]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.9", "3.13"]
+        package: ${{fromJson(needs.get-packages.outputs.packages)}}
+    name: ${{ matrix.package }} - Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+          
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+          
+      - name: Install Package
+        run: |
+          cd ${{ matrix.package }}
+          uv pip install --upgrade .[all]
+          
+      - name: Install Development Dependencies
+        run: |
+          if [ -f "${{ matrix.package }}/requirements_dev.txt" ]; then
+            uv pip install -r ${{ matrix.package }}/requirements-develop.txt
+          fi
+        shell: bash
+        
+      - name: Run Codecheck
+        run: |
+          cd ${{ matrix.package }}
+          # Ignoring the 'copyright' check as the year of merge to Github may differ from the actual year when the file was updated
+          # Ignoring the 'cspell' check as cspell may not be installed on gh actions runner
+          codecheck -s --output reports_codecheck --info-check copyright --info-check cspell
+        
+         
+      - name: Archive Results
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: Results-${{ matrix.package }}-${{ matrix.python-version }}-${{ matrix.os }}
+          path: ${{ matrix.package }}/reports_codecheck
+        if: always() && job.status == 'failure'
