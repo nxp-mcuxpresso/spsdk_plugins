@@ -18,11 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
-      
-      - name: Set up Python
-        run: uv python install 3.12
+      - name: Install uv and set up Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          activate-environment: "true"
           
       - name: Install TOML parser
         run: uv pip install toml
@@ -46,21 +46,21 @@ jobs:
         with:
           fetch-depth: 0
           
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
+      - name: Install uv and set up Python ${{ matrix.python-version }}
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
           
-      - name: Set up Python ${{ matrix.python-version }}
-        run: uv python install ${{ matrix.python-version }}
-          
+        
       - name: Install Package
         run: |
           cd ${{ matrix.package }}
-          uv pip install --upgrade .[all]
-          
+          uv pip install --upgrade .
+
       - name: Install Development Dependencies
         run: |
           if [ -f "${{ matrix.package }}/requirements_dev.txt" ]; then
-            uv pip install -r ${{ matrix.package }}/requirements-develop.txt
+            uv pip install -r ${{ matrix.package }}/requirements_dev.txt
           fi
         shell: bash
         
@@ -69,9 +69,8 @@ jobs:
           cd ${{ matrix.package }}
           # Ignoring the 'copyright' check as the year of merge to Github may differ from the actual year when the file was updated
           # Ignoring the 'cspell' check as cspell may not be installed on gh actions runner
-          codecheck -s --output reports_codecheck --info-check copyright --info-check cspell
-        
-         
+          uv run codecheck -s --output reports_codecheck --info-check copyright --info-check cspell
+          
       - name: Archive Results
         uses: actions/upload-artifact@v4.6.2
         with:
