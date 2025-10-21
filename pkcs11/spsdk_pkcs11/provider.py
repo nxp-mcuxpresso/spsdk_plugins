@@ -1,11 +1,14 @@
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 """Main module for PKCS11SP."""
 
 import os
+import warnings
 from functools import cached_property
 from typing import Any, Optional, Tuple
 
@@ -19,7 +22,7 @@ from spsdk.utils.misc import load_secret
 import pkcs11
 
 
-# pylint: disable=too-many-arguments,too-many-instance-attributes
+# pylint: disable=too-many-arguments,too-many-instance-attributes,too-many-positional-arguments
 class PKCS11SP(SignatureProvider):
     """Signature Provider using a PKCS#11 interface."""
 
@@ -52,32 +55,45 @@ class PKCS11SP(SignatureProvider):
         :raises SPSDKError: TOKEN or KEY was not found in the HSM
         """
         if not token_label and not token_serial:
-            raise SPSDKError("Missing 'token_label' or 'token_sertial', or both")
+            raise SPSDKError("Missing 'token_label' or 'token_serial', or both")
         self.token_label = token_label
-        self.token_serial = token_serial
+        self.token_serial = token_serial.encode("utf-8") if token_serial else None
         if not key_label and not key_id:
             raise SPSDKError("Missing 'key_label' or 'key_id', or both")
         self.key_label = key_label
-        self.key_id = key_id
+        self.key_id: Optional[bytes] = None
+        if key_id:
+            if len(key_id) > 2:
+                warnings.warn(
+                    "This plugin was tested only on HSMs with single-byte IDs. "
+                    f"Usability is not guarantied for IDs such as '{key_id}'.",
+                    UserWarning,
+                )
+            key_id_len = len(key_id)
+            key_id_len += 1 if key_id_len % 2 else 0
+            self.key_id = bytes.fromhex(key_id.zfill(key_id_len))
         self.pss_padding = pss_padding
+
         lib = pkcs11.lib(self._get_so_path(so_path))
         self.token: pkcs11.Token = lib.get_token(
-            token_label=self.token_label, token_serial=token_serial
+            token_label=self.token_label, token_serial=self.token_serial
         )
         if not self.token:
             raise SPSDKError(
-                f"Could not find Token with token_label={self.token}, token_serial={self.token_serial}"
+                f"Could not find Token with token_label={self.token}, token_serial={self.token_serial!r}"
             )
         self.user_pin = load_secret(user_pin)
         try:
             with self.token.open(user_pin=self.user_pin) as session:
                 session: pkcs11.Session  # type: ignore[no-redef]  # this is just for intellisense
                 key: pkcs11.PrivateKey = session.get_key(
-                    object_class=pkcs11.ObjectClass.PRIVATE_KEY, label=self.key_label
+                    object_class=pkcs11.ObjectClass.PRIVATE_KEY,
+                    label=self.key_label,
+                    id=self.key_id,
                 )
             if not key:
                 raise SPSDKError(
-                    f"Could not find Private key with label={self.key_label}, id={self.key_id}"
+                    f"Could not find Private key with label={self.key_label}, id={self.key_id!r}"
                 )
         except (pkcs11.PKCS11Error, RuntimeError) as e:
             raise SPSDKError(f"Problem opening a session: {e.__class__.__name__} {e}") from e
@@ -92,9 +108,9 @@ class PKCS11SP(SignatureProvider):
         path = os.path.expanduser(os.path.expandvars(path))
         if os.path.isfile(path):
             return path
-        for env_path in os.environ["PATH"]:
+        for env_path in os.environ["PATH"].split(os.pathsep):
             candidate = os.path.join(env_path, path)
-            if os.path.isabs(candidate):
+            if os.path.isfile(candidate):
                 return candidate
         raise SPSDKError(f"Could not find PKCS11 library {path}")
 
@@ -122,7 +138,7 @@ class PKCS11SP(SignatureProvider):
     def _get_pkcs1_1_5_padding(cls, digest: bytes, key_length: int) -> bytes:
         hash_id = b"\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20"
         padding_len = key_length - len(hash_id) - len(digest) - 3
-        padding = b"\xFF" * padding_len
+        padding = b"\xff" * padding_len
         return b"\x00\x01" + padding + b"\x00" + hash_id + digest
 
     def sign(self, data: bytes) -> bytes:
@@ -134,7 +150,7 @@ class PKCS11SP(SignatureProvider):
             )
             if not key:
                 raise SPSDKError(
-                    f"Could not find Private key with label={self.key_label}, id={self.key_id}"
+                    f"Could not find Private key with label={self.key_label}, id={self.key_id!r}"
                 )
 
             # some HSMs don't offer signing with hashing in one go, thus we pre-hash the data
@@ -169,7 +185,7 @@ class PKCS11SP(SignatureProvider):
             )
             if not key:
                 raise SPSDKError(
-                    f"Could not found Private key with label={self.key_label}, id={self.key_id}"
+                    f"Could not found Private key with label={self.key_label}, id={self.key_id!r}"
                 )
             if key.key_type == pkcs11.KeyType.RSA:
                 return self._get_key_length(key=key)

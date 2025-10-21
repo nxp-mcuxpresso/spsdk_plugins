@@ -1,0 +1,93 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-09-24T13:49:04Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "spsdk_plugins_keyfactor-0.4.1",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/6d9af837-a1b6-4487-990d-a0ce01251f39",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-6d9af837-a1b6-4487-990d-a0ce01251f39",
+      "name": "spsdk_plugins_keyfactor",
+      "versionInfo": "0.4.1",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.3.0",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-90534279-6299-4665-ac9f-a4dfb68d0421",
+      "name": "Click - Python Command Line Utility",
+      "versionInfo": "8.1.8",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "http://click.pocoo.org/",
+      "downloadLocation": "https://pypi.org/project/click/8.1.8",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/click@8.1.8",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "bb4a9a94-30b1-4fb5-a5c4-768cd2778787",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-0fd49c23-e202-438c-b575-d3bc11c9b4bd",
+      "name": "python-dotenv",
+      "versionInfo": "1.1.1",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "http://github.com/theskumar/python-dotenv",
+      "downloadLocation": "https://pypi.org/project/python-dotenv/1.1.1",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/python-dotenv@1.1.1",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "6de4e783-f5a8-4ec2-a584-f11a8f6f3c0e",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-6d9af837-a1b6-4487-990d-a0ce01251f39"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-6d9af837-a1b6-4487-990d-a0ce01251f39",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-0fd49c23-e202-438c-b575-d3bc11c9b4bd"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-6d9af837-a1b6-4487-990d-a0ce01251f39",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-90534279-6299-4665-ac9f-a4dfb68d0421"
+    }
+  ]
+}

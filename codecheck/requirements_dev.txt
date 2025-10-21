@@ -5,3 +5,4 @@ twine
 
 # testing
 tox
+tomli-w

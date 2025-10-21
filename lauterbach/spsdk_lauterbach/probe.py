@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 """Main module for Lauterbach debug probe plugin."""
+
+# cspell: ignore NETTCP, EDBG
 
 import functools
 import logging
@@ -12,7 +15,7 @@ import time
 from typing import Any, Callable, Dict, Optional, Tuple
 
 from spsdk.debuggers.debug_probe import (
-    DebugProbeLocal,
+    DebugProbeCoreSightOnly,
     DebugProbes,
     ProbeDescription,
     SPSDKDebugProbeError,
@@ -54,7 +57,7 @@ def ensure_mode(mode: Optional[T32Mode]) -> Callable:
     return decorator
 
 
-class DebugProbeLauterbach(DebugProbeLocal):
+class DebugProbeLauterbach(DebugProbeCoreSightOnly):
     """SPSDK Debug Probe Lauterbach debug probe plugin class."""
 
     NAME = "lauterbach"
@@ -118,16 +121,20 @@ class DebugProbeLauterbach(DebugProbeLocal):
 
         return probes
 
-    @staticmethod
-    def get_options_help() -> Dict[str, str]:
+    @classmethod
+    def get_options_help(cls) -> Dict[str, str]:
         """Get full list of options of debug probe.
 
         :return: Dictionary with individual options. Key is parameter name and value the help text.
         """
-        return {
-            "ip": "[HOST][:PORT] of the Lauterbach T32. Default HOST: localhost, default PORT: 20_000",
-            "note": "Your config.t32 file shall contain the following settings: RCL=NETTCP PORT=20000",
-        }
+        options_help = super().get_options_help()
+        options_help["ip"] = (
+            "[HOST][:PORT] of the Lauterbach T32. Default HOST: localhost, default PORT: 20_000"
+        )
+        options_help["note"] = (
+            "Your config.t32 file shall contain the following settings: RCL=NETTCP PORT=20000"
+        )
+        return options_help
 
     def open(self) -> None:
         """Debug probe open.

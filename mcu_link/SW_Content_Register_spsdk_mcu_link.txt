@@ -1,0 +1,10 @@
+NXP Software Content Register
+
+Package:                   spsdk-mcu-link
+Version:                   0.6.6
+Outgoing License:          BSD-3-Clause
+License Files:             LICENSE
+Type of content:           Source code
+Description and comments:  NXP Secure Provisioning SDK Team - Debug Probe plugin for CMSIS-DAP probes
+Origin:                    NXP (BSD-3-Clause)
+URL:                       https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/mcu_link

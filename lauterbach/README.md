@@ -16,7 +16,7 @@ Installation
 ------------
 
 * Activate virtual env, where you have SPSDK
-    - if SPSDK is not installed, the latest one will be installed automatically from [PyPI](https://pypi.org/project/spsdk/)
+    - to install spsdk run: `pip install spsdk`
 * `pip install spsdk-lauterbach`
 * Verify installation by running `nxpdebugmbox --help`
     - you should see `lauterbach` amongst available interfaces (--interface)

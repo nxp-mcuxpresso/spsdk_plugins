@@ -1,65 +1,104 @@
-# Plugins
+# SPSDK Plugins
 
-SPSDK allows user to install additional plugins and integrate them with SPSDK functionality. They allow to extend the normal SPSDK functionality with additional features.
+SPSDK allows users to install additional plugins that integrate with and extend SPSDK's core functionality. These plugins enable specialized features while keeping the core codebase clean and focused.
 
-## SPSDK 2.2 changes
+## Overview
 
-Due to increasingly complex codebase it was decided to move some functionality into plugins. This allows to keep the core SPSDK codebase clean and focused on the main functionality. 
-The repository containing the plugins is located at: https://github.com/nxp-mcuxpresso/spsdk_plugins
-Plugins are also released on PyPi.
+The SPSDK plugins repository contains various extension modules that enhance SPSDK capabilities through a modular architecture. Each plugin follows standardized interfaces and provides specific functionality like debug probe support, cryptographic operations.
 
-Affected functionality is the following:
-- J-Link debug probe support (using the PyLink library), installable via `pip install spsdk-jlink`
-- PE Micro debug probe support, installable via `pip install spsdk-pemicro`
-- Added support for Lauterbach debug probe, installable via `pip install spsdk-lauterbach`
+**Repository:** https://github.com/nxp-mcuxpresso/spsdk_plugins  
+**PyPI Packages:** All plugins are available on PyPI
+**License:** BSD-3-Clause
 
-J-Link and PE Micro over PyOCD is kept in the base SPSDK installation.
+## Available Plugins
 
-## Supported plugin types
+| Plugin | Description | Installation | License |
+|--------|-------------|--------------|---------|
+| **PyOCD** | Debug probe support via PyOCD | `pip install spsdk-pyocd` | BSD-3-Clause |
+| **J-Link** | Debug probe support using PyLink library | `pip install spsdk-jlink` | BSD-3-Clause |
+| **MCU-Link** | Support for NXP MCU-Link debug probes | Included with SPSDK by default | BSD-3-Clause |
+| **PE Micro** | PE Micro debugger probe integration | `pip install spsdk-pemicro` | BSD-3-Clause |
+| **Lauterbach** | Lauterbach debug probe support | `pip install spsdk-lauterbach` | BSD-3-Clause |
+| **PKCS11** | PKCS#11 signature provider | `pip install spsdk-pkcs11` | BSD-3-Clause |
+| **PQC** | Post-Quantum Cryptography support | `pip install spsdk-pqc` | BSD-3-Clause |
+| **Keyfactor** | Keyfactor integration | `pip install spsdk-keyfactor` | BSD-3-Clause |
+| **PyLint Plugins** | SPSDK-specific coding rules for PyLint | `pip install spsdk-pylint-plugins` | BSD-3-Clause |
+| **Offline Signature Provider** | Offline signature provider| `pip install spsdk-offline-signature-provider` | BSD-3-Clause |
 
-The table bellow shows the list of support plugin types with associated package entrypoints, cookiecutter templates and base class they are derived from.
+## Quick Start
 
-| Plugin                 | Entrypoint             | Template name                                  | Base class                                    |
-|:-----------------------|:-----------------------|:-----------------------------------------------|-----------------------------------------------|
-| Signature Provider     | spsdk.sp               | cookiecutter-spsdk-sp-plugin.zip               | spsdk.crypto.signature_provider.SignatureProvider                |
-| Mboot Device Interface | spsdk.device.interface | cookiecutter-spsdk-device-interface-plugin.zip | spsdk.mboot.protocol.base.MbootProtocolBase   |
-| SDP Device Interface   | spsdk.device.interface | cookiecutter-spsdk-device-interface-plugin.zip | spsdk.sdp.protocol.base.SDPProtocolBase       |
-| WPC Service            | spsdk.wpc.service      | cookiecutter-spsdk-wpc-service-plugin.zip      | spsdk.wpc.utils.WPCCertificateService         |
-| Debug probe            | spsdk.debug_probe      | cookiecutter-spsdk-debug-probe-plugin.zip      | spsdk.debuggers.debug_probe.DebugProbeCoreSightOnly      |      
+1. Install SPSDK if not already installed:
+```bash
+pip install spsdk
+```
+
+2. Install desired plugin:
+```bash
+pip install spsdk-<plugin-name>
+```
+
+3. Verify installation:
+```bash
+nxpdebugmbox --help  # For debug probes
+```
+
+## Installation Verification
+
+After installing a plugin, you can verify it's properly integrated:
+
+- For debug probes: `nxpdebugmbox --help` (check available interfaces)
+- For signature providers: Use `SignatureProvider.get_all_signature_providers()` method in your code
+- For PyLint plugins: ensure they appear in your PyLint configuration
+
+## New Plugin Implementation
+
+Plugins installed in the Python environment are automatically discovered through entry points. SPSDK uses Python's entry points mechanism to detect and load plugins at runtime. The recommended approach is to use cookiecutter templates which provide a standardized structure and boilerplate code for new plugins.
+
+### Supported Plugin Types
+
+| Plugin Type | Entrypoint | Template Name | Base Class |
+|-------------|------------|--------------|------------|
+| Signature Provider | spsdk.sp | cookiecutter-spsdk-sp-plugin.zip | spsdk.crypto.signature_provider.SignatureProvider |
+| Mboot Device Interface | spsdk.device.interface | cookiecutter-spsdk-device-interface-plugin.zip | spsdk.mboot.protocol.base.MbootProtocolBase |
+| SDP Device Interface | spsdk.device.interface | cookiecutter-spsdk-device-interface-plugin.zip | spsdk.sdp.protocol.base.SDPProtocolBase |
+| WPC Service | spsdk.wpc.service | cookiecutter-spsdk-wpc-service-plugin.zip | spsdk.wpc.utils.WPCCertificateService |
+| Debug Probe | spsdk.debug_probe | cookiecutter-spsdk-debug-probe-plugin.zip | spsdk.debuggers.debug_probe.DebugProbeCoreSightOnly |
 
 
-## Plugin implementation
+### Development Setup
 
-There are basically two ways how a plugin can be implemented.
+1. Install development tools:
+```bash
+pip install cookiecutter
+```
 
-- A Python package installed in the environment (preferred)
-- A single Python module with the plugin implementation in it
+2. Choose the appropriate template based on your plugin type from the table above:
+```bash
+cookiecutter <spsdk_root>/examples/plugins/templates/<plugin_template>.zip
+```
 
-The actual implementation depends on actual plugin type. 
-In general every plugin must be derived from the plugin base class and implement it's methods.
+3. Follow the interactive prompts to configure your plugin such as:
+   - Package name
+   - Author information
+   - Plugin description
+   - Dependencies
+   - Python version support
 
-### Plugin as a Python package
-All the plugins installed in the Python environment will be discovered automatically.
-The only requirement for package is to add specific entrypoint metadata into the package.
+4. Implement your plugin functionality:
+   - Modify the generated code skeleton
+   - Add your custom implementation
+   - Override required methods from the base class
+   - Add any additional features needed
 
-You can find the list of plugin entrypoints based on the plugin type in the table above.
+5. Install your plugin:
+```bash
+pip install -e <my_project_path>
+```
 
-In order to make the implementation of the plugins easier, a cookiecutter template can be used.
-You can find all the cookiecutter templates in the `/templates` folder.
+### Best Practices
+- Follow the base class interface for your plugin type
+- Follow SPSDK coding standards
 
-The instructions for generating plugin package from cookiecutter template:
-- Install cookiecutter: `pip install cookiecutter`
-- Create plugin: `cookiecutter <spsdk_root>/examples/plugins/templates/<plugin_template>.zip`
-- Follow the instructions in the command prompt
-- A new plugin package is created in current folder
-- Install plugin: `pip install <my_project_path>` (for development use `-e/--editable` flag)
+## Codecheck
 
-### Plugin as a single Python module
-In some situations the installation into the Python environment is not possible.
-For such scenarios a plugin as a single Python module can be implemented.
-In this case the plugin is not loaded automatically. 
-The plugin will be loaded if the `--plugin <path_to_py_file>` option is used in SPSDK application command.
-
-# Codecheck
-
-Part of this repository is also *codecheck* tool. It is a simple set of checking tools for accepting code quality for NXP python projects. It is a standalone tool that can be used to check the code quality of any python project. It is also used in the CI/CD pipeline of the SPSDK project.
+This repository also includes the *codecheck* tool - a collection of quality checking tools for NXP Python projects. This standalone tool can verify code quality for any Python project and is used in SPSDK's CI/CD pipeline.

@@ -1,0 +1,8 @@
+include LICENSE
+include README.md
+include SW_Content_Register_spsdk_keyfactor.txt
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude .github *

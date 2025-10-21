@@ -1,0 +1,130 @@
+[build-system]
+requires = ["setuptools >= 61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["spsdk_keyfactor", "spsdk_keyfactor.__pyinstaller"]
+
+[tool.setuptools.dynamic]
+version = { attr = "spsdk_keyfactor.__version__" }
+
+
+[project]
+dynamic = ["version"]
+name = "spsdk_keyfactor"
+description = "SPSDK Signature Provider plugin using Keyfactor's API"
+
+requires-python = ">= 3.9"
+dependencies = ["requests-pkcs12", "python-dotenv", "click"]
+authors = [{ name = "NXP" }]
+maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { text = "BSD-3-Clause" }
+
+keywords = ["NXP", "SPSDK", "Keyfactor", "Signature Provider"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.scripts]
+"nxp-keyfactor" = "spsdk_keyfactor.cli:main"
+
+[project.entry-points]
+"spsdk.sp" = { keyfactor = "spsdk_keyfactor.provider" }
+pyinstaller40 = { hook-dirs = "spsdk_keyfactor.__pyinstaller:get_hook_dirs" }
+
+[project.urls]
+Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/keyfactor"
+Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
+
+[tool.bumpversion]
+current_version = "0.4.1"
+
+[[tool.bumpversion.files]]
+filename = "spsdk_keyfactor/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "SW_Content_Register_spsdk_keyfactor.txt"
+search = "{current_version}"
+replace = "{new_version}"
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+junit_family = "xunit1"
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "safe_main()", "sys.exit(main())"]
+
+[tool.coverage.run]
+relative_files = true
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 100
+
+[tool.mypy]
+disallow_untyped_defs = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+
+[tool.pydocstyle]
+convention = "google"
+add_ignore = "D105,D301"
+match = '(?!test_|__version__).*\.py'
+
+[tool.pylint]
+format = { max-line-length = 120 }
+"messages control" = { disable = ["logging-fstring-interpolation"] }
+
+[tool.bandit]
+skips = ["B101"]
+
+[tool.nxp_codecheck]
+git_parent_branch = "origin/master"
+output_directory = "reports"
+default_check_paths = ["spsdk_keyfactor"]
+checkers = [
+    { "pytest" = { kwargs = { disable_xdist = true } } },
+    { "gitcov" = { info_only = true } },
+    "pylint",
+    "mypy",
+    "dependencies",
+    "pydocstyle",
+    "ruff",
+    { "radon_c" = { info_only = true } },
+    "radon_d",
+    "black",
+    "isort",
+    "copyright",
+    "py_headers",
+    { "bandit" = { info_only = true } },
+]
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_plugins_keyfactor"
+include_detector_types = ["setuptools"]
+sbom_location = "SBOM-spsdk_plugins_keyfactor.spdx.json"
+
+[tool.release-tools.scr]
+scr_file = "SW_Content_Register_spsdk_keyfactor.txt"

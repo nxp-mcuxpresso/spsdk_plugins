@@ -1,7 +1,7 @@
 NXP Software Content Register
 
 Package:                   spsdk-pqc
-Version:                   0.3.1
+Version:                   0.6.8
 Outgoing License:          BSD-3-Clause
 License Files:             LICENSE
 Type of content:           Source code
@@ -10,10 +10,18 @@ Origin:                    NXP (BSD-3-Clause)
 URL:                       https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/pqc
 
 
-Dilithium Reference code
-Name:       Dilithium
-Version:    3e9b9f1
-License:    Public Domain or Apache-2
+Dilithium and ML-DSA Reference code
+Name:       Open Quantum Safe
+Version:    0.12.0 (dd1706b)
+License:    MIT
 Location:   ref
 Type:       Source
-URL:        https://github.com/pq-crystals/dilithium
+URL:        https://github.com/open-quantum-safe/liboqs/tree/main/src
+
+Python wrapper for OQS library
+Name:       liboqs-python
+Version:    0.10.0 (7a1c2f6)
+License:    MIT
+Location:   spsdk_pqc/liboqs_oqs.py
+Type:       Source
+URL:        https://github.com/open-quantum-safe/liboqs-python/tree/main/oqs

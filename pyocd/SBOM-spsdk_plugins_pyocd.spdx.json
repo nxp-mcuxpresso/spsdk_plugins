@@ -1,0 +1,71 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-08-28T10:43:38Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "spsdk_plugins_pyocd-0.3.3",
+  "dataLicense": "CC0-1.0",
+  "hasExtractedLicensingInfos": [
+    {
+      "licenseId": "LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4",
+      "extractedText": "Public domain code is not subject to any license.",
+      "name": "Public Domain"
+    }
+  ],
+  "documentNamespace": "https://nxp.com/spdx/4e3dd733-2689-4140-852d-4c9ea213639d",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d",
+      "name": "spsdk_plugins_pyocd",
+      "versionInfo": "0.3.3",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/pyocd",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-7c74ba60-582f-4f9a-83f7-2f7bfc96d08b",
+      "name": "pyOCD",
+      "versionInfo": "0.37.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/mbedmicro/pyOCD",
+      "downloadLocation": "https://pypi.org/project/pyocd/0.37.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pyocd@0.37.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "85a9694a-2465-437a-a0aa-9f29382f9bad",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-7c74ba60-582f-4f9a-83f7-2f7bfc96d08b"
+    }
+  ]
+}

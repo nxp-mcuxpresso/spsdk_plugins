@@ -5,8 +5,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 """Unit test package for Dilithium wrapper."""
-import sys
 import site
+import sys
 
 # TODO Find better solution for this "dirty" workaround
 
@@ -19,4 +19,4 @@ sys.path = [p for p in sys.path if not p.endswith("pqc")]
 # recalculate site package path
 site.main()
 # re-import
-import spsdk_pqc
+import spsdk_pqc  # noqa: E402, F401

@@ -1,4 +1,0 @@
-NXP Software Content Register
-
-Version: 0.1.0
-This repository is container of various kind plugins and supporting tools of SPSDK project (https://github.com/nxp-mcuxpresso/spsdk). Under individual folder are placed the SCR file for each package.

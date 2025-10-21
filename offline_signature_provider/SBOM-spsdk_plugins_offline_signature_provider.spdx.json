@@ -1,0 +1,141 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2025-08-28T10:42:18Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.20"
+  },
+  "name": "spsdk_offline_signature_provider-0.2.0",
+  "dataLicense": "CC0-1.0",
+  "hasExtractedLicensingInfos": [
+    {
+      "licenseId": "LicenseRef-c9bdcbe3-de95-46a0-9fd9-9be02f4ef8c4",
+      "extractedText": "This license may contain an exception relative to the applicability of certain\nprovisions of the license and this exception may alter your specific obligations\nwhen using it. The exact nature of the exception was not specified at the time of\ndiscovery. You are advised to examine the project's license directly in order to\ndetermine if it applies to your usage.\n\n\n\nApache License\nVersion 2.0, January 2004\n=========================\n\n\nhttp://www.apache.org/licenses/\n\nTERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n1. Definitions.\n\n\"License\" shall mean the terms and conditions for use, reproduction, and\ndistribution as defined by Sections 1 through 9 of this document.\n\n\"Licensor\" shall mean the copyright owner or entity authorized by the copyright\nowner that is granting the License.\n\n\"Legal Entity\" shall mean the union of the acting entity and all other entities\nthat control, are controlled by, or are under common control with that entity.\nFor the purposes of this definition, \"control\" means (i) the power, direct or\nindirect, to cause the direction or management of such entity, whether by\ncontract or otherwise, or (ii) ownership of fifty percent (50%) or more of the\noutstanding shares, or (iii) beneficial ownership of such entity.\n\n\"You\" (or \"Your\") shall mean an individual or Legal Entity exercising permissions\ngranted by this License.\n\n\"Source\" form shall mean the preferred form for making modifications, including\nbut not limited to software source code, documentation source, and configuration\nfiles.\n\n\"Object\" form shall mean any form resulting from mechanical transformation or\ntranslation of a Source form, including but not limited to compiled object code,\ngenerated documentation, and conversions to other media types.\n\n\"Work\" shall mean the work of authorship, whether in Source or Object form, made\navailable under the License, as indicated by a copyright notice that is included\nin or attached to the work (an example is provided in the Appendix below).\n\n\"Derivative Works\" shall mean any work, whether in Source or Object form, that is\nbased on (or derived from) the Work and for which the editorial revisions,\nannotations, elaborations, or other modifications represent, as a whole, an\noriginal work of authorship. For the purposes of this License, Derivative Works\nshall not include works that remain separable from, or merely link (or bind by\nname) to the interfaces of, the Work and Derivative Works thereof.\n\n\"Contribution\" shall mean any work of authorship, including the original version\nof the Work and any modifications or additions to that Work or Derivative Works\nthereof, that is intentionally submitted to Licensor for inclusion in the Work by\nthe copyright owner or by an individual or Legal Entity authorized to submit on\nbehalf of the copyright owner. For the purposes of this definition, \"submitted\"\nmeans any form of electronic, verbal, or written communication sent to the\nLicensor or its representatives, including but not limited to communication on\nelectronic mailing lists, source code control systems, and issue tracking systems\nthat are managed by, or on behalf of, the Licensor for the purpose of discussing\nand improving the Work, but excluding communication that is conspicuously marked\nor otherwise designated in writing by the copyright owner as \"Not a\nContribution.\"\n\n\"Contributor\" shall mean Licensor and any individual or Legal Entity on behalf of\nwhom a Contribution has been received by Licensor and subsequently incorporated\nwithin the Work.\n\n2. Grant of Copyright License. Subject to the terms and conditions of this\nLicense, each Contributor hereby grants to You a perpetual, worldwide,\nnon-exclusive, no-charge, royalty-free, irrevocable copyright license to\nreproduce, prepare Derivative Works of, publicly display, publicly perform,\nsublicense, and distribute the Work and such Derivative Works in Source or Object\nform.\n\n3. Grant of Patent License. Subject to the terms and conditions of this License,\neach Contributor hereby grants to You a perpetual, worldwide, non-exclusive,\nno-charge, royalty-free, irrevocable (except as stated in this section) patent\nlicense to make, have made, use, offer to sell, sell, import, and otherwise\ntransfer the Work, where such license applies only to those patent claims\nlicensable by such Contributor that are necessarily infringed by their\nContribution(s) alone or by combination of their Contribution(s) with the Work to\nwhich such Contribution(s) was submitted. If You institute patent litigation\nagainst any entity (including a cross-claim or counterclaim in a lawsuit)\nalleging that the Work or a Contribution incorporated within the Work constitutes\ndirect or contributory patent infringement, then any patent licenses granted to\nYou under this License for that Work shall terminate as of the date such\nlitigation is filed.\n\n4. Redistribution. You may reproduce and distribute copies of the Work or\nDerivative Works thereof in any medium, with or without modifications, and in\nSource or Object form, provided that You meet the following conditions:\n\n  a. You must give any other recipients of the Work or Derivative Works a copy of\n    this License; and\n\n  b. You must cause any modified files to carry prominent notices stating that\n    You changed the files; and\n\n  c. You must retain, in the Source form of any Derivative Works that You\n    distribute, all copyright, patent, trademark, and attribution notices from\n    the Source form of the Work, excluding those notices that do not pertain to\n    any part of the Derivative Works; and\n\n  d. If the Work includes a \"NOTICE\" text file as part of its distribution, then\n    any Derivative Works that You distribute must include a readable copy of the\n    attribution notices contained within such NOTICE file, excluding those\n    notices that do not pertain to any part of the Derivative Works, in at least\n    one of the following places: within a NOTICE text file distributed as part of\n    the Derivative Works; within the Source form or documentation, if provided\n    along with the Derivative Works; or, within a display generated by the\n    Derivative Works, if and wherever such third-party notices normally appear.\n    The contents of the NOTICE file are for informational purposes only and do\n    not modify the License. You may add Your own attribution notices within\n    Derivative Works that You distribute, alongside or as an addendum to the\n    NOTICE text from the Work, provided that such additional attribution notices\n    cannot be construed as modifying the License.\n\nYou may add Your own copyright statement to Your modifications and may provide\nadditional or different license terms and conditions for use, reproduction, or\ndistribution of Your modifications, or for any such Derivative Works as a whole,\nprovided Your use, reproduction, and distribution of the Work otherwise complies\nwith the conditions stated in this License.\n\n5. Submission of Contributions. Unless You explicitly state otherwise, any\nContribution intentionally submitted for inclusion in the Work by You to the\nLicensor shall be under the terms and conditions of this License, without any\nadditional terms or conditions. Notwithstanding the above, nothing herein shall\nsupersede or modify the terms of any separate license agreement you may have\nexecuted with Licensor regarding such Contributions.\n\n6. Trademarks. This License does not grant permission to use the trade names,\ntrademarks, service marks, or product names of the Licensor, except as required\nfor reasonable and customary use in describing the origin of the Work and\nreproducing the content of the NOTICE file.\n\n7. Disclaimer of Warranty. Unless required by applicable law or agreed to in\nwriting, Licensor provides the Work (and each Contributor provides its\nContributions) on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,\neither express or implied, including, without limitation, any warranties or\nconditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A\nPARTICULAR PURPOSE. You are solely responsible for determining the\nappropriateness of using or redistributing the Work and assume any risks\nassociated with Your exercise of permissions under this License.\n\n8. Limitation of Liability. In no event and under no legal theory, whether in\ntort (including negligence), contract, or otherwise, unless required by\napplicable law (such as deliberate and grossly negligent acts) or agreed to in\nwriting, shall any Contributor be liable to You for damages, including any\ndirect, indirect, special, incidental, or consequential damages of any character\narising as a result of this License or out of the use or inability to use the\nWork (including but not limited to damages for loss of goodwill, work stoppage,\ncomputer failure or malfunction, or any and all other commercial damages or\nlosses), even if such Contributor has been advised of the possibility of such\ndamages.\n\n9. Accepting Warranty or Additional Liability. While redistributing the Work or\nDerivative Works thereof, You may choose to offer, and charge a fee for,\nacceptance of support, warranty, indemnity, or other liability obligations and/or\nrights consistent with this License. However, in accepting such obligations, You\nmay act only on Your own behalf and on Your sole responsibility, not on behalf of\nany other Contributor, and only if You agree to indemnify, defend, and hold each\nContributor harmless for any liability incurred by, or claims asserted against,\nsuch Contributor by reason of your accepting any such warranty or additional\nliability.\n\nEND OF TERMS AND CONDITIONS\n\nAPPENDIX: How to apply the Apache License to your work\n\nTo apply the Apache License to your work, attach the following boilerplate\nnotice, with the fields enclosed by brackets \"[]\" replaced with your own\nidentifying information. (Don't include the brackets!) The text should be\nenclosed in the appropriate comment syntax for the file format. We also recommend\nthat a file or class name and description of purpose be included on the same\n\"printed page\" as the copyright notice for easier identification within\nthird-party archives.\n\n  Copyright [yyyy] [name of copyright owner] Licensed under the Apache License,\n  Version 2.0 (the \"License\"); you may not use this file except in compliance\n  with the License. You may obtain a copy of the License at\n  http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law\n  or agreed to in writing, software distributed under the License is\n  distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n  KIND, either express or implied. See the License for the specific language\n  governing permissions and limitations under the License.",
+      "name": "Apache License 2.0 with Exceptions"
+    },
+    {
+      "licenseId": "LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4",
+      "extractedText": "Public domain code is not subject to any license.",
+      "name": "Public Domain"
+    }
+  ],
+  "documentNamespace": "https://nxp.com/spdx/ba47c977-9794-46ce-b900-32f0ceda7239",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
+      "name": "spsdk_offline_signature_provider",
+      "versionInfo": "0.2.0",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/offline_signature_provider",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a1b6071a-8dc1-41e2-a940-c884b8c76ce5",
+      "name": "spsdk_plugins_mcu_link",
+      "versionInfo": "0.6.6",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/mcu_link",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/mcu_link",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d",
+      "name": "spsdk_plugins_pyocd",
+      "versionInfo": "0.3.3",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/pyocd",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/pyocd",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-7c74ba60-582f-4f9a-83f7-2f7bfc96d08b",
+      "name": "pyOCD",
+      "versionInfo": "0.37.0",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "homepage": "https://github.com/mbedmicro/pyOCD",
+      "downloadLocation": "https://pypi.org/project/pyocd/0.37.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "85a9694a-2465-437a-a0aa-9f29382f9bad",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pyocd@0.37.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-31e4abc9-c080-4b8c-ae2e-56975b031be9",
+      "name": "spsdk",
+      "versionInfo": "3.1.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/NXPmicro/spsdk",
+      "downloadLocation": "https://pypi.org/project/spsdk/3.1.0",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk@3.1.0",
+          "referenceType": "purl"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "19a89479-dcad-4e0c-a669-45839126b0e7",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        }
+      ],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-31e4abc9-c080-4b8c-ae2e-56975b031be9"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-a1b6071a-8dc1-41e2-a940-c884b8c76ce5"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-ba47c977-9794-46ce-b900-32f0ceda7239",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-7c74ba60-582f-4f9a-83f7-2f7bfc96d08b"
+    }
+  ]
+}

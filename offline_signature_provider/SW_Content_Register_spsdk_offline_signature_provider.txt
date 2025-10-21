@@ -1,0 +1,10 @@
+NXP Software Content Register
+
+Package:                   spsdk-offline-signature-provider
+Version:                   0.2.0
+Outgoing License:          BSD-3-Clause
+License Files:             LICENSE
+Type of content:           Source code
+Description and comments:  NXP Secure Provisioning SDK Team - Offline Signature Provider for SPSDK
+Origin:                    NXP (BSD-3-Clause)
+URL:                       "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/offline_signature_provider"

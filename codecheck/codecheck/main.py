@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2021-2024 NXP
+# Copyright 2021-2025 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -10,11 +10,12 @@
 import logging
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, cast
+from typing import Any, Dict, List, Optional, Sequence, Union, cast
 
 import click
 import colorama
@@ -23,12 +24,13 @@ import tomli
 from typing_extensions import Self
 from yaml import safe_load
 
+from codecheck import __version__ as codecheck_version
 from codecheck import gitcov
-from codecheck.checker_copyright_year import fix_copyright_in_files
+from codecheck.checker_copyright_year import CopyrightChecker
 from codecheck.checker_py_headers import fix_py_headers_in_files
 from codecheck.task_scheduler import PrettyProcessRunner, TaskInfo, TaskList, TaskResult
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument,too-many-lines
 
 log = logging.getLogger(__name__)
 colorama.init()
@@ -36,6 +38,31 @@ colorama.init()
 
 CPU_CNT = os.cpu_count() or 1
 CODECHECK_FOLDER = os.path.dirname(os.path.abspath(__file__))
+
+
+def load_defaults() -> Dict[str, Dict]:
+    """Load codecheck configuration.
+
+    The configuration should be store in project TOML file, or is loaded defaults.
+
+    :return: Codecheck configuration.
+    """
+    default_config_path = os.path.join(os.path.dirname(__file__), "default_cfg.yaml")
+    with open(default_config_path, "r", encoding="utf-8") as f:
+        cfg_content = f.read()
+    return cast(Dict[str, Dict], safe_load(cfg_content))
+
+
+def check_list() -> List[str]:
+    """Get current configured checks.
+
+    :return: List of checker names
+    """
+    cfg = load_defaults()
+    return list(cfg["checkers"].keys())
+
+
+CHECK_LIST = check_list()
 
 
 @dataclass
@@ -49,6 +76,24 @@ class CodeCheckConfig:
     checkers: TaskList = field(default_factory=TaskList)
 
     @classmethod
+    def _get_checker_name(cls, checker: Union[str, dict]) -> str:
+        if isinstance(checker, str):
+            name = checker.upper()
+        if isinstance(checker, dict):
+            name = checker.get("name")  # type: ignore[assignment]
+            if name is None:
+                # new format
+                if len(checker.keys()) != 1:
+                    raise ValueError(
+                        "When checker is configured via a dictionary, checker's name must be the single key"
+                    )
+                name = (list(checker.keys())[0]).upper()
+        if name not in CHECK_LIST:
+            raise ValueError(f"Invalid checker name: '{name}'")
+        return name
+
+    # pylint: disable=too-many-locals
+    @classmethod
     def load_from_config(cls, cfg: Dict[str, Any]) -> Self:
         """Load the CodeCheck Configuration from stored dictionary.
 
@@ -60,31 +105,59 @@ class CodeCheckConfig:
         default_check_paths = cfg.get("default_check_paths", ["."])
         jupyter_check_paths = cfg.get("jupyter_check_paths", [])
         checkers = TaskList()
+        defaults = load_defaults()["checkers"]
 
         # Load checkers as a TaskInfo List
-        for checker in cast(List[Dict[str, Any]], cfg.get("checkers", [])):
+        for checker in cast(List[Union[str, Dict[str, Any]]], cfg.get("checkers", [])):
 
-            method = globals()[checker["method"]]
-            fixer_name = checker.get("fixer")
+            checker_name = cls._get_checker_name(checker=checker)
+            checker_defaults: dict = defaults[checker_name]
+            _, checker_config = checker.popitem() if isinstance(checker, dict) else ("", {})
+            assert isinstance(checker_defaults, dict)
+
+            method = globals()[checker_defaults["method"]]
+            fixer_name = checker_defaults.get("fixer")
             fixer = globals()[fixer_name] if fixer_name else None
-            kwargs = {"output": output_directory}
-            jyputer_notebook_checker = checker.get("jyputer_notebook_checker", False)
-            check_paths = checker.get(
-                "check_paths",
-                jupyter_check_paths if jyputer_notebook_checker else default_check_paths,
-            )
+            jupyter_notebook_checker = checker_defaults.get("jupyter_notebook_checker", False)
+
+            check_paths = jupyter_check_paths if jupyter_notebook_checker else default_check_paths
+            if isinstance(checker, dict):
+                check_paths = checker.get("check_paths", check_paths)
+            if isinstance(checker_config, dict):
+                check_paths = checker_config.get("check_paths", check_paths)
             if not check_paths:
                 continue
-            kwargs["check_paths"] = check_paths
-            kwargs.update(checker.get("kwargs", {}))
+
+            user_args = checker_defaults.get("args", [])
+            if isinstance(checker_config, dict):
+                user_args = checker_config.get("args", user_args)
+
+            user_kwargs = checker_defaults.get("kwargs", {})
+            if isinstance(checker_config, dict):
+                user_kwargs = checker_config.get("kwargs", user_kwargs)
+
+            kwargs = {"output": output_directory, "check_paths": check_paths}
+
+            info_only = checker_defaults.get("info_only", False)
+            if isinstance(checker_config, dict):
+                info_only = checker_config.pop("info_only", info_only)
+
+            timeout = checker_defaults.get("timeout", 100)
+            if isinstance(checker_config, dict):
+                timeout = checker_config.pop("timeout", timeout)
+
             checkers.append(
                 TaskInfo(
-                    name=checker["name"],
+                    name=checker_name,
                     method=method,
-                    dependencies=checker.get("dependencies", []),
-                    inherit_failure=checker.get("inherit_failure", True),
-                    info_only=checker.get("info_only", False),
+                    dependencies=checker_defaults.get("dependencies", []),
+                    conflicts=checker_defaults.get("conflicts", []),
+                    inherit_failure=checker_defaults.get("inherit_failure", True),
+                    info_only=info_only,
                     fixer=fixer,
+                    user_args=user_args,
+                    user_kwargs=user_kwargs,
+                    timeout=timeout,
                     **kwargs,
                 )
             )
@@ -111,32 +184,6 @@ class CodeCheckConfig:
         return cls()
 
 
-def load_configuration() -> Dict[str, Any]:
-    """Load codecheck configuration.
-
-    The configuration should be store in project TOML file, or is loaded defaults.
-
-    :return: Codecheck configuration.
-    """
-    default_config_path = os.path.join(os.path.dirname(__file__), "default_cfg.yaml")
-    with open(default_config_path, "r", encoding="utf-8") as f:
-        cfg_content = f.read()
-    return cast(Dict[str, Any], safe_load(cfg_content))
-
-
-def check_list() -> List[str]:
-    """Get current configured checks.
-
-    :return: List of checker names
-    """
-    cfg = load_configuration()
-    checkers = cfg.get("checkers", [])
-    return [x["name"].upper() for x in checkers]
-
-
-CHECK_LIST = check_list()
-
-
 def print_results(tasks: List[TaskInfo]) -> None:
     """Print Code Check results in table."""
     table = prettytable.PrettyTable(["#", "Test", "Result", "Exec Time", "Error count", "Log"])
@@ -146,8 +193,42 @@ def print_results(tasks: List[TaskInfo]) -> None:
     table.hrules = prettytable.HEADER
     table.vrules = prettytable.NONE
 
+    # Check if running in Jenkins
+    is_jenkins = "JENKINS_URL" in os.environ
+    jenkins_artifact_url = None
+    jenkins_workspace = None
+
+    if is_jenkins:
+        # Get Jenkins environment variables
+        job_name = os.environ.get("JOB_NAME", "")
+        build_number = os.environ.get("BUILD_NUMBER", "")
+        jenkins_url = os.environ.get("JENKINS_URL", "")
+        jenkins_workspace = os.environ.get("WORKSPACE", "")
+
+        if job_name and build_number and jenkins_url:
+            jenkins_artifact_url = f"{jenkins_url}job/{job_name}/{build_number}/artifact"
+
     for i, task in enumerate(tasks, start=1):
         assert task.result
+
+        # Format log path for Jenkins if applicable
+        log_path = task.result.output_log
+        if is_jenkins and jenkins_artifact_url and log_path:
+            # For monorepos, we need to determine the relative path from the workspace
+            if jenkins_workspace:
+                # Get the path relative to the Jenkins workspace
+                try:
+                    rel_path = os.path.relpath(log_path, jenkins_workspace)
+                except ValueError:
+                    # If paths are on different drives (Windows), fall back to basename
+                    rel_path = os.path.basename(log_path)
+            else:
+                # Fallback to current directory if WORKSPACE is not available
+                rel_path = os.path.relpath(log_path, os.getcwd())
+
+            log_display = f"{jenkins_artifact_url}/{rel_path}"
+        else:
+            log_display = log_path
 
         table.add_row(
             [
@@ -156,7 +237,7 @@ def print_results(tasks: List[TaskInfo]) -> None:
                 task.status_str(),
                 colorama.Fore.WHITE + task.get_exec_time(),
                 colorama.Fore.CYAN + str(task.result.error_count),
-                colorama.Fore.BLUE + task.result.output_log,
+                colorama.Fore.BLUE + log_display,
             ]
         )
     click.echo(table)
@@ -177,7 +258,8 @@ def check_results(tasks: List[TaskInfo], output: str = "reports") -> int:
                 f.write(str(task.exception))
             output_log.append(exc_log)
 
-        if not task.result or (err_cnt != 0 and not task.info_only):
+        # The info only tasks are not counted to overall results
+        if not task.info_only and (task.result is None or err_cnt != 0):
             ret = 1
 
         if task.result:
@@ -190,8 +272,31 @@ def check_results(tasks: List[TaskInfo], output: str = "reports") -> int:
     return ret
 
 
+def _serialize_args_kwargs(
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    kw_separator: str = "=",
+    kw_prefix: str = "--",
+) -> str:
+    """Serialize arguments and keyword arguments."""
+    args_s = " ".join(user_args) if user_args else ""
+    kwargs_s = (
+        " ".join([f"{kw_prefix}{key}{kw_separator}{value}" for key, value in user_kwargs.items()])
+        if user_kwargs
+        else ""
+    )
+    return f"{args_s} {kwargs_s}"
+
+
+# pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-positional-arguments
 def check_pytest(
-    output: str, check_paths: List[str], disable_xdist: bool = False, **kwargs: Dict[str, Any]
+    output: str,
+    check_paths: List[str],
+    disable_xdist: bool = False,
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Get the code coverage."""
     output_folder = os.path.join(output, "htmlcov")
@@ -203,68 +308,113 @@ def check_pytest(
     if os.path.isdir(output_folder):
         shutil.rmtree(output_folder, ignore_errors=True)
 
+    if kwargs:
+        disable_xdist |= bool(kwargs.get("disable_xdist", False))
+    if user_kwargs:
+        disable_xdist |= bool(user_kwargs.pop("disable_xdist", False))
+
     parallel = "" if disable_xdist else f"-n {CPU_CNT//2 or 1}"
     cov_path = check_paths[0]
-    if len(check_paths) > 1:
-        log.warning(f"Only first path ({cov_path}) has been used to code coverage")
-    args = (
-        f"pytest {parallel} tests --cov {cov_path} --cov-branch --junit-xml {junit_report}"
-        f" --cov-report term --cov-report html:{output_folder} --cov-report xml:{output_xml}"
+
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+
+    cmd = (
+        f'pytest {parallel} {user_args_s} --cov "{cov_path}" --cov-branch --junit-xml "{junit_report}"'
+        f' --cov-report term --cov-report html:"{output_folder}" --cov-report xml:"{output_xml}"'
     )
     with open(output_log, "w", encoding="utf-8") as f:
+        if len(check_paths) > 1:
+            f.write(f"Only first path ({cov_path}) has been used to code coverage")
+            f.flush()
         res = subprocess.call(
-            args.split(),
+            shlex.split(cmd),
             stdout=f,
             stderr=f,
             env=dict(os.environ, COVERAGE_FILE=coverage_file),
+            timeout=timeout,
         )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def check_gitcov(output: str, **kwargs: Dict[str, Any]) -> TaskResult:
+def check_gitcov(
+    output: str,
+    timeout: int = 100,
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Get the code coverage."""
     output_log = os.path.join(output, "gitcov.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
     with open(output_log, "w", encoding="utf-8") as f:
         res = subprocess.call(
-            (
-                f"{sys.executable} {CODECHECK_FOLDER}/gitcov.py "
-                f"--coverage-report {os.path.join(output, 'coverage.xml')}"
-            ).split(),
+            shlex.split(
+                f"'{sys.executable}' '{CODECHECK_FOLDER}/gitcov.py' {user_args_s} "
+                f"--coverage-report '{os.path.join(output, 'coverage.xml')}'"
+            ),
             stdout=f,
             stderr=f,
+            timeout=timeout,
         )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def check_dependencies(output: str, **kwargs: Dict[str, Any]) -> TaskResult:
+def check_dependencies(
+    output: str,
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the dependencies and their licenses."""
     output_log = os.path.join(output, "dependencies.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
     with open(output_log, "w", encoding="utf-8") as f:
         res = subprocess.call(
-            f"{sys.executable} {CODECHECK_FOLDER}/checker_dependencies.py check".split(),
+            shlex.split(
+                f"'{sys.executable}' '{CODECHECK_FOLDER}/checker_dependencies.py' {user_args_s}"
+            ),
             stdout=f,
             stderr=f,
+            timeout=timeout,
         )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_dependencies(**kwargs: Dict[str, Any]) -> None:
+def fix_dependencies(timeout: int = 100, **kwargs: Dict[str, Any]) -> None:
     """Check the dependencies and their licenses."""
     subprocess.call(
-        f"{sys.executable} {CODECHECK_FOLDER}/checker_dependencies.py fix".split(),
+        shlex.split(f"'{sys.executable}' '{CODECHECK_FOLDER}/checker_dependencies.py' fix"),
         stdout=None,
         stderr=None,
+        timeout=timeout,
     )
 
 
-def check_pydocstyle(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_pydocstyle(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the dependencies and their licenses."""
     output_log = os.path.join(output, "pydocstyle.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(f"pydocstyle {' '.join(check_paths)}".split(), stdout=f, stderr=f)
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"pydocstyle {user_args_s} {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     with open(output_log, "r", encoding="utf-8") as f:
         err_cnt = re.findall(r":\d+ in", f.read())
@@ -274,25 +424,50 @@ def check_pydocstyle(output: str, check_paths: List[str], **kwargs: Dict[str, An
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def check_mypy(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_mypy(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project against mypy tool."""
     output_log = os.path.join(output, "mypy.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(["mypy"] + check_paths, stdout=f, stderr=f)
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"mypy {user_args_s} {path_slice}"), stdout=f, stderr=f, timeout=timeout
+            )
 
     with open(output_log, "r", encoding="utf-8") as f:
-        err_cnt = re.findall(r"Found \d+ error", f.read())
+        err_cnt: list[str] = re.findall(r"Found \d+ error", f.read())
         if err_cnt:
             res = int(err_cnt[0].replace("Found ", "").replace(" error", ""))
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def check_pylint_all(output: str, args: str, **kwargs: Dict[str, Any]) -> TaskResult:
+def check_pylint_all(
+    output: str,
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Call pylint with given configuration and output log."""
     output_log = os.path.join(output, "pylint_docs.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
     with open(output_log, "w", encoding="utf-8") as f:
-        subprocess.call(f"pylint {args} -j {CPU_CNT//2 or 1}".split(), stdout=f, stderr=f)
+        subprocess.call(
+            shlex.split(f"pylint {user_args_s} -j {CPU_CNT//2 or 1}"),
+            stdout=f,
+            stderr=f,
+            timeout=timeout,
+        )
 
     with open(output_log, "r", encoding="utf-8") as f:
         err_cnt = re.findall(r": [IRCWEF]\d{4}:", f.read())
@@ -303,13 +478,24 @@ def check_pylint_all(output: str, args: str, **kwargs: Dict[str, Any]) -> TaskRe
 def check_pylint(
     output: str,
     check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
     **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check Pylint log for errors."""
     output_log = os.path.join(output, "pylint.txt")
-    cmd = f"pylint {' '.join(check_paths)} -j {CPU_CNT//2 or 1}"
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+
     with open(output_log, "w", encoding="utf-8") as f:
-        subprocess.call(cmd.split(), stdout=f, stderr=f)
+        for path_slice in path_slices:
+            subprocess.call(
+                shlex.split(f"pylint {user_args_s} {path_slice} -j {CPU_CNT//2 or 1}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     with open(output_log, "r", encoding="utf-8") as f:
         err_cnt = re.findall(r": [IRCWEF]\d{4}:", f.read())
@@ -320,24 +506,24 @@ def check_pylint(
 def check_radon(
     output: str,
     check_paths: List[str],
-    min_rank: Optional[str] = None,
-    max_rank: Optional[str] = None,
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
     **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check the project against radon rules."""
-    cmd = "radon cc --show-complexity"
-
-    rank = ""
-    if min_rank:
-        cmd += f" --min {min_rank}"
-        rank = f"_{min_rank}"
-    if max_rank:
-        cmd += f" --max {max_rank}"
-        rank = f"_{max_rank}"
-    output_log = os.path.join(output, f"radon{rank}.txt")
-    cmd += f" {' '.join(check_paths)}"
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    file_suffix = user_args_s.replace(" ", "-").replace("---", "-")
+    output_log = os.path.join(output, f"radon-{file_suffix}.txt")
+    path_slices = splice_changed_files(changed_files=check_paths)
     with open(output_log, "w", encoding="utf-8") as f:
-        subprocess.call(cmd.split(), stdout=f, stderr=f)
+        for path_slice in path_slices:
+            subprocess.call(
+                shlex.split(f"radon {user_args_s} {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     with open(output_log, "r", encoding="utf-8") as f:
         err_cnt = re.findall(r"[ABCDEF] \(\d{1,3}\)", f.read())
@@ -345,46 +531,95 @@ def check_radon(
     return TaskResult(error_count=len(err_cnt), output_log=output_log)
 
 
-def check_black(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_black(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project against black formatter rules."""
     output_log = os.path.join(output, "black.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(
-            f"black --check --diff {' '.join(check_paths)}".split(), stdout=f, stderr=f
-        )
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"black {user_args_s} {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_black(check_paths: List[str], **kwargs: Dict[str, Any]) -> None:
+def fix_black(check_paths: List[str], timeout: int = 100, **kwargs: Dict[str, Any]) -> None:
     """Check the project against black formatter rules."""
-    subprocess.call(f"black {' '.join(check_paths)}".split(), stdout=None, stderr=None)
+    path_slices = splice_changed_files(changed_files=check_paths)
+    for path_slice in path_slices:
+        subprocess.call(
+            shlex.split(f"black {path_slice}"), stdout=None, stderr=None, timeout=timeout
+        )
 
 
-def check_black_nb(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_black_nb(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project against black formatter rules."""
     output_log = os.path.join(output, "black_nb.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(
-            f"nbqa black --nbqa-diff {' '.join(check_paths)}".split(),
-            stdout=f,
-            stderr=f,
-        )
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"nbqa black --nbqa-diff {path_slice} {user_args_s}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
 
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_black_nb(check_paths: List[str], **kwargs: Dict[str, Any]) -> None:
+def fix_black_nb(check_paths: List[str], timeout: int = 100, **kwargs: Dict[str, Any]) -> None:
     """Check the project against black formatter rules."""
-    subprocess.call(f"nbqa black {' '.join(check_paths)}".split(), stdout=None, stderr=None)
+    path_slices = splice_changed_files(changed_files=check_paths)
+    for path_slice in path_slices:
+        subprocess.call(
+            shlex.split(f"nbqa black {path_slice}"), stdout=None, stderr=None, timeout=timeout
+        )
 
 
-def check_isort(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
+def check_isort(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
     """Check the project against isort imports formatter rules."""
     output_log = os.path.join(output, "isort.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(f"isort -c {' '.join(check_paths)}".split(), stdout=f, stderr=f)
-
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"isort {user_args_s} -c {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
     if res:
         with open(output_log, "r", encoding="utf-8") as f:
             res = len(f.read().splitlines())
@@ -392,21 +627,37 @@ def check_isort(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_isort(check_paths: List[str], **kwargs: Dict[str, Any]) -> None:
+def fix_isort(check_paths: List[str], timeout: int = 100, **kwargs: Dict[str, Any]) -> None:
     """Check the project against isort imports formatter rules."""
-    subprocess.call(f"isort {' '.join(check_paths)}".split(), stdout=None, stderr=None)
-
-
-def check_isort_nb(output: str, check_paths: List[str], **kwargs: Dict[str, Any]) -> TaskResult:
-    """Check the project against isort imports formatter rules."""
-    output_log = os.path.join(output, "isort_nb.txt")
-    with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(
-            f"nbqa isort --nbqa-diff {' '.join(check_paths)}".split(),
-            stdout=f,
-            stderr=f,
+    path_slices = splice_changed_files(changed_files=check_paths)
+    for path_slice in path_slices:
+        subprocess.call(
+            shlex.split(f"isort {path_slice}"), stdout=None, stderr=None, timeout=timeout
         )
 
+
+def check_isort_nb(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
+    """Check the project against isort imports formatter rules."""
+    output_log = os.path.join(output, "isort_nb.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
+    with open(output_log, "w", encoding="utf-8") as f:
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"nbqa isort --nbqa-diff {user_args_s} {path_slice}"),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
+
     if res:
         with open(output_log, "r", encoding="utf-8") as f:
             res = len(f.read().splitlines())
@@ -414,26 +665,47 @@ def check_isort_nb(output: str, check_paths: List[str], **kwargs: Dict[str, Any]
     return TaskResult(error_count=res, output_log=output_log)
 
 
-def fix_isort_nb(check_paths: List[str], **kwargs: Dict[str, Any]) -> None:
+def fix_isort_nb(
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> None:
     """Check the project against isort imports formatter rules."""
-    subprocess.call(f"nbqa isort {' '.join(check_paths)}".split(), stdout=None, stderr=None)
+    path_slices = splice_changed_files(changed_files=check_paths)
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    for path_slice in path_slices:
+        subprocess.call(
+            shlex.split(f"nbqa isort {path_slice} {user_args_s}"),
+            stdout=None,
+            stderr=None,
+            timeout=timeout,
+        )
 
 
 def check_copyright_year(
     output: str,
     changed_files: Sequence[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
     **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check the project against copy right year rules."""
     output_log = os.path.join(output, "copyright_year.txt")
-    pieces = splice_changed_files(changed_files=changed_files)
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=changed_files)
     res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        for piece in pieces:
+        for path_slice in path_slices:
             res += subprocess.call(
-                f"{sys.executable} {CODECHECK_FOLDER}/checker_copyright_year.py {piece}".split(),
+                shlex.split(
+                    f'"{sys.executable}" "{CODECHECK_FOLDER}/checker_copyright_year.py" {user_args_s} {path_slice}'
+                ),
                 stdout=f,
                 stderr=f,
+                timeout=timeout,
             )
     if res:
         with open(output_log, "r", encoding="utf-8") as f:
@@ -444,23 +716,35 @@ def check_copyright_year(
 
 def fix_copyright_year(changed_files: Sequence[str], **kwargs: Dict[str, Any]) -> None:
     """Check the project against copy right year rules."""
-    fix_copyright_in_files(changed_files)
+    path_slices = splice_changed_files(changed_files)
+    checker = CopyrightChecker()
+    for path_slice in path_slices:
+        checker.fix_files(path_slice.split())
 
 
 def check_py_file_headers(
-    output: str, changed_files: Sequence[str], **kwargs: Dict[str, Any]
+    output: str,
+    changed_files: Sequence[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Check that python files have valid header."""
     output_log = os.path.join(output, "py_header.txt")
-    pieces = splice_changed_files(changed_files=changed_files)
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=changed_files)
     res = 0
 
     with open(output_log, "w", encoding="utf-8") as f:
-        for piece in pieces:
+        for path_slice in path_slices:
             res += subprocess.call(
-                f"{sys.executable} {CODECHECK_FOLDER}/checker_py_headers.py {piece}".split(),
+                shlex.split(
+                    f'"{sys.executable}" "{CODECHECK_FOLDER}/checker_py_headers.py" {user_args_s} {path_slice}'
+                ),
                 stdout=f,
                 stderr=f,
+                timeout=timeout,
             )
 
     if res:
@@ -472,11 +756,18 @@ def check_py_file_headers(
 
 def fix_py_file_headers(changed_files: Sequence[str], **kwargs: Dict[str, Any]) -> None:
     """Check the project against copy right year rules."""
-    fix_py_headers_in_files(changed_files)
+    path_slices = splice_changed_files(changed_files)
+    for path_slice in path_slices:
+        fix_py_headers_in_files(path_slice.split())
 
 
 def check_jupyter_outputs(
-    output: str, changed_files: Sequence[str], **kwargs: Dict[str, Any]
+    output: str,
+    changed_files: Sequence[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Checker of Jupiter notebooks outputs.
 
@@ -486,21 +777,30 @@ def check_jupyter_outputs(
     :return: Checker result
     """
     output_log = os.path.join(output, "jupyter_outputs.txt")
-    pieces = splice_changed_files(changed_files=changed_files)
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=changed_files)
     res = 0
 
     with open(output_log, "w", encoding="utf-8") as f:
-        for piece in pieces:
+        for path_slice in path_slices:
             res += subprocess.call(
-                f"{sys.executable} {CODECHECK_FOLDER}/checker_jupyter.py outputs {piece}".split(),
+                shlex.split(
+                    f'"{sys.executable}" "{CODECHECK_FOLDER}/checker_jupyter.py" {user_args_s} {path_slice}'
+                ),
                 stdout=f,
                 stderr=f,
+                timeout=timeout,
             )
     return TaskResult(error_count=res, output_log=output_log)
 
 
 def check_cyclic_imports(
-    output: str, check_paths: List[str], **kwargs: Dict[str, Any]
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
 ) -> TaskResult:
     """Cyclic import check.
 
@@ -510,13 +810,225 @@ def check_cyclic_imports(
     :return: Task results
     """
     output_log = os.path.join(output, "cyclic_imports.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
     with open(output_log, "w", encoding="utf-8") as f:
-        res = subprocess.call(
-            f"{sys.executable} {CODECHECK_FOLDER}/checker_cyclic_import.py "
-            f"{' '.join(check_paths)} -j {CPU_CNT//2 or 1}".split(),
-            stdout=f,
-            stderr=f,
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(
+                    f'"{sys.executable}" "{CODECHECK_FOLDER}/checker_cyclic_import.py" {user_args_s} {path_slice}'
+                ),
+                stdout=f,
+                stderr=f,
+                timeout=timeout,
+            )
+    return TaskResult(error_count=res, output_log=output_log)
+
+
+def check_cspell(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
+    """Check the project spelling with cspell."""
+    help_timeout = 10
+    output_log = os.path.join(output, "cspell.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+
+    cspell_path = shutil.which("cspell")
+    if not cspell_path:
+        return TaskResult(error_count=1, output_log="CSPELL NOT FOUND", not_run=True)
+
+    with open(output_log, "w", encoding="utf-8") as f:
+        try:
+            res = subprocess.run(
+                f'"{cspell_path}" --help',
+                check=False,
+                capture_output=True,
+                shell=True,
+                timeout=help_timeout,
+            )  # nosec calling this without shell=True causes [WinError 193] %1 is not a valid Win32 application
+        except subprocess.TimeoutExpired:
+            f.write(f"Timed-out after waiting {help_timeout}s for initial help check.")
+            return TaskResult(error_count=1, output_log=output_log, not_run=True)
+        if res.returncode != 0:
+            f.write(res.stdout.decode("utf-8"))
+            f.write(res.stderr.decode("utf-8"))
+            return TaskResult(error_count=res.returncode, output_log=output_log, not_run=True)
+
+        for path_slice in path_slices:
+            try:
+                res = subprocess.run(
+                    f'"{cspell_path}" {user_args_s} {path_slice}',
+                    check=False,
+                    capture_output=True,
+                    shell=True,
+                    timeout=timeout,
+                )  # nosec calling this without shell=True causes [WinError 193] %1 is not a valid Win32 application
+            except subprocess.TimeoutExpired:
+                f.write(
+                    f"Timeout waiting for cspell to finish the task.Consider increasing timeout {timeout}s."
+                )
+                return TaskResult(error_count=1, output_log=output_log, not_run=True)
+            f.write(res.stdout.decode("utf-8"))
+            f.write(res.stderr.decode("utf-8"))
+
+        match = 0
+        matched = None
+
+        if res.stderr:
+            stderr = res.stderr.decode("utf-8")
+            matched = re.search(r"Issues found: (\d+)", stderr)
+
+        if matched:
+            match = int(matched.group(1))
+
+    return TaskResult(error_count=match or res.returncode, output_log=output_log)
+
+
+def check_lychee(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: Dict[str, Any],
+) -> TaskResult:
+    """Check the project links with lychee."""
+    output_log = os.path.join(output, "lychee.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+
+    lychee_path = shutil.which("lychee")
+    if not lychee_path:
+        return TaskResult(error_count=1, output_log="LYCHEE NOT FOUND", not_run=True)
+
+    with open(output_log, "w", encoding="utf-8") as f:
+        res = subprocess.run(
+            shlex.split(f'"{lychee_path}" --help'),
+            check=False,
+            capture_output=True,
+            timeout=5,
         )
+        if res.returncode != 0:
+            f.write(res.stderr.decode("utf-8"))
+            return TaskResult(error_count=res.returncode, output_log=output_log, not_run=True)
+
+        for path_slice in path_slices:
+            res = subprocess.run(
+                shlex.split(f'"{lychee_path}" {user_args_s} {path_slice}'),
+                check=False,
+                capture_output=True,
+                timeout=timeout,
+            )
+
+            f.write(res.stdout.decode("utf-8"))
+
+        match = 0
+        matched = None
+
+        if res.stdout:
+            stderr = res.stdout.decode("utf-8")
+            matched = re.search(r"(\d+)\sErrors", stderr)
+
+        if matched:
+            match = int(matched.group(1))
+
+    return TaskResult(error_count=match or res.returncode, output_log=output_log)
+
+
+def check_bandit(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: str,
+) -> TaskResult:
+    """Check for project's security vulnerabilities using Bandit."""
+    output_log = os.path.join(output, "bandit.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
+    with open(output_log, "w", encoding="utf-8") as f:
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"bandit -c pyproject.toml -r {path_slice} {user_args_s}"),
+                stderr=f,
+                stdout=f,
+                timeout=timeout,
+            )
+    # bandit return's 1 if there are any errors, we get the exact amount from the log file
+    if res > 0:
+        with open(output_log, encoding="utf-8") as f:
+            log_data = f.read()
+        res = len(re.findall(">> Issue:", log_data))
+
+    return TaskResult(error_count=res, output_log=output_log)
+
+
+def check_ruff(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: str,
+) -> TaskResult:
+    """Check for project's security vulnerabilities using Bandit."""
+    output_log = os.path.join(output, "ruff.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
+    with open(output_log, "w", encoding="utf-8") as f:
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"ruff check {path_slice} {user_args_s}"),
+                stderr=f,
+                stdout=f,
+                timeout=timeout,
+            )
+    # bandit return's 1 if there are any errors, we get the exact amount from the log file
+    if res > 0:
+        with open(output_log, encoding="utf-8") as f:
+            log_data = f.read()
+        res = int(re.findall(r"Found (\d+) error", log_data)[0])
+
+    return TaskResult(error_count=res, output_log=output_log)
+
+
+def fix_ruff(
+    output: str,
+    check_paths: List[str],
+    user_args: Optional[list[str]] = None,
+    user_kwargs: Optional[dict[str, str]] = None,
+    timeout: int = 100,
+    **kwargs: str,
+) -> TaskResult:
+    """Check for project's security vulnerabilities using Bandit."""
+    output_log = os.path.join(output, "ruff.txt")
+    user_args_s = _serialize_args_kwargs(user_args, user_kwargs, kw_separator=" ")
+    path_slices = splice_changed_files(changed_files=check_paths)
+    res = 0
+    with open(output_log, "w", encoding="utf-8") as f:
+        for path_slice in path_slices:
+            res += subprocess.call(
+                shlex.split(f"ruff check --fix {path_slice} {user_args_s}"),
+                stderr=f,
+                stdout=f,
+                timeout=timeout,
+            )
+    # bandit return's 1 if there are any errors, we get the exact amount from the log file
+    if res > 0:
+        with open(output_log, encoding="utf-8") as f:
+            log_data = f.read()
+        res = int(re.findall(r"Found (\d+) errors", log_data)[0])
+
     return TaskResult(error_count=res, output_log=output_log)
 
 
@@ -565,7 +1077,7 @@ def splice_changed_files(changed_files: Sequence[str], max_size: int = 2000) -> 
     """
     big_string = " ".join(changed_files)
     total_len = len(big_string)
-    splice_length = 1000
+    splice_length = max_size
     max_iterations = 2 * (total_len // splice_length) + 1
 
     start_offset = 0
@@ -582,6 +1094,230 @@ def splice_changed_files(changed_files: Sequence[str], max_size: int = 2000) -> 
     else:
         raise RuntimeError("Changed files splicing takes way too much time")
     return pieces
+
+
+def _get_jenkins_info() -> tuple[bool, Optional[str], Optional[str]]:
+    """Get Jenkins-related information if running in Jenkins.
+
+    Returns:
+        Tuple containing:
+        - is_jenkins: Whether running in Jenkins
+        - jenkins_artifact_url: URL to Jenkins artifacts
+        - jenkins_workspace: Jenkins workspace path
+    """
+    is_jenkins = "JENKINS_URL" in os.environ
+    jenkins_artifact_url = None
+    jenkins_workspace = None
+
+    if is_jenkins:
+        job_name = os.environ.get("JOB_NAME", "")
+        build_number = os.environ.get("BUILD_NUMBER", "")
+        jenkins_url = os.environ.get("JENKINS_URL", "")
+        jenkins_workspace = os.environ.get("WORKSPACE", "")
+
+        if job_name and build_number and jenkins_url:
+            jenkins_artifact_url = f"{jenkins_url}job/{job_name}/{build_number}/artifact"
+
+    return is_jenkins, jenkins_artifact_url, jenkins_workspace
+
+
+def _format_log_path(
+    log_path: str,
+    is_jenkins: bool,
+    jenkins_artifact_url: Optional[str],
+    jenkins_workspace: Optional[str],
+) -> str:
+    """Format a log path for display, possibly as a Jenkins artifact link.
+
+    Args:
+        log_path: Path to the log file
+        is_jenkins: Whether running in Jenkins
+        jenkins_artifact_url: URL to Jenkins artifacts
+        jenkins_workspace: Jenkins workspace path
+
+    Returns:
+        Formatted log path or link
+    """
+    if not log_path or not is_jenkins or not jenkins_artifact_url:
+        return log_path
+
+    if jenkins_workspace:
+        try:
+            rel_path = os.path.relpath(log_path, jenkins_workspace)
+        except ValueError:
+            # If paths are on different drives (Windows), fall back to basename
+            rel_path = os.path.basename(log_path)
+    else:
+        # Fallback to current directory if WORKSPACE is not available
+        rel_path = os.path.relpath(log_path, os.getcwd())
+
+    return f'<a href="{jenkins_artifact_url}/{rel_path}">{rel_path}</a>'
+
+
+def _get_result_class(status_str: str) -> str:
+    """Determine the CSS class for a result based on its status string.
+
+    Args:
+        status_str: Status string
+
+    Returns:
+        CSS class name
+    """
+    if "PASSED" in status_str:
+        return "result-passed"
+    if "FAILED" in status_str:
+        return "result-failed"
+    if "INFO ONLY" in status_str:
+        return "result-info"
+    return ""
+
+
+def _get_status_class(task: TaskInfo) -> str:
+    """Determine the CSS class for a table row based on task status.
+
+    Args:
+        task: Task info
+
+    Returns:
+        CSS class name
+    """
+    if task.info_only:
+        return "status-info"
+    if task.result and task.result.error_count == 0:
+        return "status-success"
+    return "status-failure"
+
+
+def _count_task_results(tasks: List[TaskInfo]) -> tuple[int, int, int]:
+    """Count failures, successes, and info-only tasks.
+
+    Args:
+        tasks: List of tasks
+
+    Returns:
+        Tuple of (failures, successes, info_only)
+    """
+    failures = sum(
+        1
+        for task in tasks
+        if not task.info_only and (task.result is None or task.result.error_count != 0)
+    )
+    successes = sum(
+        1 for task in tasks if not task.info_only and task.result and task.result.error_count == 0
+    )
+    info_only = sum(1 for task in tasks if task.info_only)
+    return failures, successes, info_only
+
+
+def generate_html_report(tasks: List[TaskInfo], output_dir: str, process_time: float) -> str:
+    """Generate an HTML report summarizing the codecheck results.
+
+    Args:
+        tasks: List of completed tasks
+        output_dir: Directory to save the report
+        process_time: Total execution time
+
+    Returns:
+        Path to the generated HTML report
+    """
+    report_path = os.path.join(output_dir, "codecheck_report.html")
+
+    # Get Jenkins information
+    is_jenkins, jenkins_artifact_url, jenkins_workspace = _get_jenkins_info()
+
+    # Count results
+    failures, successes, info_only = _count_task_results(tasks)
+
+    # Generate HTML
+    with open(report_path, "w", encoding="utf-8") as f:
+        # Write HTML header and styles
+        f.write(
+            f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Codecheck Results</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 20px; }}
+        h1 {{ color: #333; }}
+        .summary {{ margin: 20px 0; padding: 10px; background-color: #f5f5f5; border-radius: 5px; }}
+        .success {{ color: green; }}
+        .failure {{ color: red; }}
+        .info {{ color: blue; }}
+        table {{ border-collapse: collapse; width: 100%; }}
+        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+        th {{ background-color: #f2f2f2; }}
+        tr:nth-child(even) {{ background-color: #f9f9f9; }}
+        .status-success {{ background-color: #dff0d8; }}
+        .status-failure {{ background-color: #f2dede; }}
+        .status-info {{ background-color: #d9edf7; }}
+        .result-passed {{ color: green; font-weight: bold; }}
+        .result-failed {{ color: red; font-weight: bold; }}
+        .result-info {{ color: blue; font-weight: bold; }}
+    </style>
+</head>
+<body>
+    <h1>Codecheck Results</h1>
+    <div class="summary">
+        <p><strong>Overall Result:</strong>
+        <span class="{'success' if failures == 0 else 'failure'}">{'PASS' if failures == 0 else 'FAILED'}</span></p>
+        <p><strong>Total Time:</strong> {process_time:.1f} seconds</p>
+        <p><strong>Tests:</strong>{len(tasks)} total ({successes} passed, {failures} failed, {info_only} info only)</p>
+    </div>
+    <h2>Test Details</h2>
+    <table>
+        <tr>
+            <th>#</th>
+            <th>Test</th>
+            <th>Result</th>
+            <th>Exec Time</th>
+            <th>Error Count</th>
+            <th>Log</th>
+        </tr>
+"""
+        )
+
+        # Write table rows for each task
+        for i, task in enumerate(tasks, start=1):
+            status_class = _get_status_class(task)
+
+            # Clean up status string by removing all ANSI color codes
+            status_str = task.status_str()
+            status_str = re.sub(r"\x1b\[\d+m", "", status_str)
+
+            result_class = _get_result_class(status_str)
+
+            # Format log path
+            log_path = task.result.output_log if task.result else ""
+            log_display = ""
+
+            # Only display log link if status is FAILED or PASSED
+            if "FAILED" in status_str or "PASSED" in status_str:
+                log_display = _format_log_path(
+                    log_path, is_jenkins, jenkins_artifact_url, jenkins_workspace
+                )
+
+            f.write(
+                f"""        <tr class="{status_class}">
+            <td>{i}</td>
+            <td>{task.name}</td>
+            <td class="{result_class}">{status_str}</td>
+            <td>{task.get_exec_time()}</td>
+            <td>{task.result.error_count if task.result else 'N/A'}</td>
+            <td>{log_display}</td>
+        </tr>
+"""
+            )
+
+        # Write HTML footer
+        f.write(
+            """    </table>
+</body>
+</html>
+"""
+        )
+
+    return report_path
 
 
 @click.command(name="codecheck", no_args_is_help=False)
@@ -665,7 +1401,22 @@ def splice_changed_files(changed_files: Sequence[str], max_size: int = 2000) -> 
     default="origin/master",
     help="Name of the upstream branch for PR integration/merge.",
 )
-def main(  # pylint:disable=too-many-arguments,too-many-locals
+@click.option(
+    "-q",
+    "--quick",
+    is_flag=True,
+    default=False,
+    help="Quick test mode, do not run INFO_ONLY checks.",
+)
+@click.option(
+    "-hr",
+    "--html-report",
+    is_flag=True,
+    default=False,
+    help="Generate HTML report with test results.",
+)
+@click.version_option(codecheck_version)
+def main(  # pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
     check: List[str],
     info_check: List[str],
     disable_check: List[str],
@@ -676,44 +1427,13 @@ def main(  # pylint:disable=too-many-arguments,too-many-locals
     disable_xdist: bool,
     disable_merges: bool,
     parent_branch: str,
+    quick: bool,
+    html_report: bool,
 ) -> None:
     """Simple tool to check the Python generic development rules.
 
     Overall result is passed to OS.
     """
-
-    def get_configured_task_list(
-        available_tasks: TaskList,
-        enabled_checks: Optional[List[str]] = None,
-        disabled_checks: Optional[List[str]] = None,
-    ) -> TaskList:
-        checks = TaskList()
-        # pylint: disable=not-an-iterable,unsupported-membership-test   # TaskList is a list
-        for task in available_tasks:
-            if disabled_checks and task.name in disabled_checks:
-                continue
-            if (
-                disabled_checks
-                and task.dependencies
-                and any(dependency in disabled_checks for dependency in task.dependencies)
-            ):
-                continue
-
-            if enabled_checks and task.name not in enabled_checks:
-                continue
-            if (
-                enabled_checks
-                and task.dependencies
-                and len(set(task.dependencies) - set(enabled_checks)) != 0
-            ):
-                # insert missing dependencies
-                for dependency_name in task.dependencies:
-                    extra_task = available_tasks.get_task_by_name(dependency_name)
-                    if extra_task not in checks:
-                        checks.append(extra_task)
-            checks.append(task)
-        return checks
-
     # logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
     logging.basicConfig(level=logging.INFO)
     config = CodeCheckConfig.load_from_toml()
@@ -738,6 +1458,10 @@ def main(  # pylint:disable=too-many-arguments,too-many-locals
     output_dir = str(output) if output else config.output_directory
     disable_check = [x.upper() for x in list(disable_check)]
 
+    if quick:
+        # Disable info checks
+        disable_check += [x.name for x in config.checkers if x.info_only]
+
     ret = 1
     try:
         checks = get_configured_task_list(
@@ -753,6 +1477,13 @@ def main(  # pylint:disable=too-many-arguments,too-many-locals
         runner.run(job_cnt, True)
 
         ret = check_results(checks, output_dir)
+
+        # Generate HTML report if requested or running in Jenkins
+        if html_report or "JENKINS_URL" in os.environ:
+            html_report_path = generate_html_report(checks, output_dir, runner.process_time)
+            if not silence:
+                click.echo(f"HTML report generated: {html_report_path}")
+
         if silence < 2:
             print_results(checks)
             click.echo(f"Overall time: {round(runner.process_time, 1)} second(s).")
@@ -770,6 +1501,40 @@ def main(  # pylint:disable=too-many-arguments,too-many-locals
         ret = 1
 
     sys.exit(ret)
+
+
+def get_configured_task_list(
+    available_tasks: TaskList,
+    enabled_checks: Optional[List[str]] = None,
+    disabled_checks: Optional[List[str]] = None,
+) -> TaskList:
+    """Create final list of tasks that shall be executed."""
+    checks = TaskList()
+    # pylint: disable=not-an-iterable,unsupported-membership-test   # TaskList is a list
+    for task in available_tasks:
+        if disabled_checks and task.name in disabled_checks:
+            continue
+        if (
+            disabled_checks
+            and task.dependencies
+            and any(dependency in disabled_checks for dependency in task.dependencies)
+        ):
+            continue
+
+        if enabled_checks and task.name not in enabled_checks:
+            continue
+        if (
+            enabled_checks
+            and task.dependencies
+            and len(set(task.dependencies) - set(enabled_checks)) != 0
+        ):
+            # insert missing dependencies
+            for dependency_name in task.dependencies:
+                extra_task = available_tasks.get_task_by_name(dependency_name)
+                if extra_task not in checks:
+                    checks.append(extra_task)
+        checks.append(task)
+    return checks
 
 
 if __name__ == "__main__":

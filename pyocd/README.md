@@ -16,7 +16,7 @@ Installation
 ------------
 
 * Activate virtual env, where you have SPSDK
-    - if SPSDK is not installed, the latest one will be installed automatically from [PyPI](https://pypi.org/project/spsdk/)
+    - to install spsdk run: `pip install spsdk`
 * Install the package
     - `pip install spsdk-pyocd`
 * If you want to use P&E Micro debugger probes install the `pemicro` extra

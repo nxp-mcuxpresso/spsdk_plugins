@@ -10,7 +10,7 @@ from spsdk_pqc import DilithiumPrivateKey, DilithiumPublicKey
 
 def test_private_key():
     private = DilithiumPrivateKey(level=3)
-    assert private.key_size == 4000
+    assert private.key_size == 4000 * 8
     assert len(private.public_data) == 1952
 
 
