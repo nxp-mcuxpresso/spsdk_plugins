@@ -224,10 +224,38 @@
         },
         {
             "home_page": "https://github.com/python/importlib_metadata",
+            "name": "importlib-metadata",
+            "package": {
+                "name": "importlib-metadata",
+                "license": "Apache Software License"
+            },
+            "github": {
+                "project_name": "python/importlib_metadata",
+                "license": ""
+            }
+        },
+        {
+            "home_page": "https://github.com/python/importlib_metadata",
+            "name": "importlib-metadata",
+            "package": {
+                "name": "importlib-metadata",
+                "license": "Apache Software License"
+            },
+            "github": {
+                "project_name": "python/importlib_metadata",
+                "license": ""
+            }
+        },
+        {
+            "home_page": "https://github.com/python/importlib_metadata",
             "name": "importlib_metadata",
             "package": {
                 "name": "importlib_metadata",
                 "license": "Apache Software License"
+            },
+            "github": {
+                "project_name": "python/importlib_metadata",
+                "license": ""
             }
         },
         {

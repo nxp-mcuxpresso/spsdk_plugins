@@ -1,0 +1,66 @@
+name: Python Continuous Integration
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+permissions:
+  contents: read
+
+jobs:
+  get-packages:
+    name: Get Package List
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.get-packages.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: Install uv and set up Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          activate-environment: "true"
+          
+      - name: Install TOML parser
+        run: uv pip install toml
+          
+      - id: get-packages
+        run: |
+          python -c "import toml; print('packages=' + str(toml.load('pyproject.toml')['tool']['release-tools']['sub_projects']))" >> $GITHUB_OUTPUT
+
+  codecheck:
+    needs: [get-packages]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    name: Codecheck on ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          
+         
+      - name: Install uv and set up Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          activate-environment: "true"
+          
+      - name: Install nox and dependencies
+        run: uv pip install nox tomli
+
+      - name: Run Codecheck
+        run: nox -P 3.9 3.13 --session codecheck -- -s -o reports
+
+      - name: Archive Results
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: Codecheck-Reports-${{ matrix.os }}
+          path: "*/reports*/*.txt"
+        if: always()

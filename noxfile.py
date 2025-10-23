@@ -111,13 +111,10 @@ def venv(session: nox.Session) -> None:
         # latest version that is not yet released publicly
         install_fcn("spsdk[all]", "--prerelease", "allow")
     dependencies = collect_dependencies(include_dev_deps=True)
-    with session.chdir("codecheck"):
-        install_fcn(".")
+    install_fcn("nxp-codecheck")
     install_fcn(*dependencies)
 
     for project in get_projects():
-        if project == "codecheck":
-            continue
         with session.chdir(project):
             install_fcn(".", "--no-deps")
 
