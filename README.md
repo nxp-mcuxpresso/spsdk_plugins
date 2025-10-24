@@ -98,7 +98,3 @@ pip install -e <my_project_path>
 ### Best Practices
 - Follow the base class interface for your plugin type
 - Follow SPSDK coding standards
-
-## Codecheck
-
-This repository also includes the *codecheck* tool - a collection of quality checking tools for NXP Python projects. This standalone tool can verify code quality for any Python project and is used in SPSDK's CI/CD pipeline.

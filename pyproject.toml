@@ -1,11 +1,10 @@
 [project]
-version = "3.3.0"
+version = "3.4.0"
 name = "spsdk_plugins"
 
 [tool.release-tools]
 disabled = ['docs']
 sub_projects = [
-    "codecheck",
     "keyfactor",
     "jlink",
     "mcu_link",
@@ -23,7 +22,7 @@ scr_file = "SW_Content_Register_SPSDK_plugins.txt"
 
 [tool.release-tools.github]
 full_name = "nxp-mcuxpresso/spsdk_plugins"
-base_branch = "main"
+base_branch = "master"
 
 [tool.release-tools.blackduck_sca]
 license = 'BSD 3-clause "New" or "Revised" License'

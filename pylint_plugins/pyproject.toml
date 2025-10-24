@@ -40,7 +40,7 @@ packages = ["spsdk_pylint_plugins"]
 version = { attr = "spsdk_pylint_plugins.__version__" }
 
 [tool.bumpversion]
-current_version = "0.2.2"
+current_version = "0.2.3"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pylint_plugins/__init__.py"
