@@ -71,7 +71,7 @@ jobs:
           path: dist
 
       - name: Publish packages to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.12.4
+        uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           skip-existing: true
 
@@ -135,7 +135,7 @@ jobs:
           merge-multiple: true
 
       - name: Publish wheels to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.12.4 # v1.12.4 is needed to support metadata v2.4 including PEP 639
+        uses: pypa/gh-action-pypi-publish@v1.13.0 # v1.12.4 is needed to support metadata v2.4 including PEP 639
         with:
           skip-existing: true
           packages-dir: dist
