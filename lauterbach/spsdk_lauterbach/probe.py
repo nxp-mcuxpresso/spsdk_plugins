@@ -11,8 +11,10 @@
 
 import functools
 import logging
+import os
 import time
-from typing import Any, Callable, Dict, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, Optional
 
 from spsdk.debuggers.debug_probe import (
     DebugProbeCoreSightOnly,
@@ -40,6 +42,16 @@ class T32Mode(SpsdkEnum):
     UNKNOWN = (255, "UNKNOWN")
 
 
+@dataclass
+class T32ProbeOptions:
+    """Dataclass to store Lauterbach probe connection options."""
+
+    address: str = "localhost"
+    port: int = 20000
+    timeout: float = 1.0
+    startup_script: Optional[str] = None
+
+
 def ensure_mode(mode: Optional[T32Mode]) -> Callable:
     """Decorator that checks if connection is open and sets T32 mode.
 
@@ -65,27 +77,38 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
     def __init__(self, hardware_id: str, options: Optional[Dict] = None) -> None:
         """The Debug Probe class initialization."""
         super().__init__(hardware_id, options)
-        self.address, self.port = self.parse_options(options=options)
+        self.t32options = self.parse_options(options=options)
         self.connection: Optional[t32.Debugger] = None
         self.mode = T32Mode.UNKNOWN
 
     @classmethod
-    def parse_options(cls, options: Optional[Dict] = None) -> Tuple[str, int]:
+    def parse_options(cls, options: Optional[Dict] = None) -> T32ProbeOptions:
         """Parse options passed to __init__ method.
 
         :param options: Options passed to __init__ method, defaults to None
-        :return: T32 address and port (default localhost, 20_000)
+        :return: T32 user-specified options
         """
         if not options:
             address = "localhost"
             port = 20_000
+            startup_script = None
+            timeout = 1.0
         else:
             ip: str = options.get("ip", "localhost:20000")
             parts = ip.split(":")
             address = parts[0]
             port = 20_000 if len(parts) == 1 else int(parts[1], 0)
+            timeout = float(options.get("timeout", 1.0))
+            startup_script = options.get("startup")
 
-        return address, port
+            # we check for the presence of startup script early before any connection attempts are made
+            if startup_script:
+                if not os.path.isfile(startup_script):
+                    raise SPSDKDebugProbeError(f"Startup script '{startup_script}' not found.")
+
+        return T32ProbeOptions(
+            address=address, port=port, startup_script=startup_script, timeout=timeout
+        )
 
     @classmethod
     def get_connected_probes(
@@ -101,9 +124,11 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         :return: List of ProbeDescription
         """
         probes = DebugProbes()
-        address, port = cls.parse_options(options=options)
+        t32_options = cls.parse_options(options=options)
         try:
-            connection = t32.connect(node=address, port=port, timeout=1.0)
+            connection = t32.connect(
+                node=t32_options.address, port=t32_options.port, timeout=t32_options.timeout
+            )
             serial = connection.fnc("LICENSE.SERIAL(0)")
             if hardware_id and hardware_id != serial:
                 return probes
@@ -111,7 +136,7 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
                 ProbeDescription(
                     interface="lauterbach",
                     hardware_id=serial,
-                    description=f"Lauterbach probe at {address}:{port}",
+                    description=f"Lauterbach probe at {t32_options.address}:{t32_options.port}",
                     probe=cls,
                 )
             )
@@ -129,11 +154,13 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         """
         options_help = super().get_options_help()
         options_help["ip"] = (
-            "[HOST][:PORT] of the Lauterbach T32. Default HOST: localhost, default PORT: 20_000"
+            "[HOST][:PORT] of the Lauterbach T32. Default HOST: localhost, default PORT: 20_000. "
+            "NOTE: Your config.t32 file shall contain the following settings: RCL=NETTCP PORT=20000"
         )
-        options_help["note"] = (
-            "Your config.t32 file shall contain the following settings: RCL=NETTCP PORT=20000"
+        options_help["startup"] = (
+            "Path to the startup.cmm script for Lauterbach T32 initialization (setting up target)"
         )
+        options_help["timeout"] = "Trace32 connection timeout in seconds. Default is 1 second."
         return options_help
 
     def open(self) -> None:
@@ -143,7 +170,9 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         The function is used to initialize the connection to target and enable using debug probe
         for DAT purposes.
         """
-        self.connection = t32.connect(node=self.address, port=self.port)
+        self.connection = t32.connect(
+            node=self.t32options.address, port=self.t32options.port, timeout=self.t32options.timeout
+        )
 
     def connect(self) -> None:
         """Connect to target.
@@ -153,6 +182,16 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
 
         :raises SPSDKDebugProbeError: The PyLink cannot establish communication with target
         """
+        if not self.connection:
+            raise SPSDKDebugProbeNotOpenError("Probe is not opened")
+
+        if self.t32options.startup_script:
+            try:
+                # extra set of double-quotes needed for handling paths with spaces inside T32
+                self.connection.cmm(f'"{self.t32options.startup_script}"')
+            except (t32.PracticeError, t32.CommandError, TimeoutError) as e:
+                raise SPSDKDebugProbeError(f"Failed to execute startup script: {e}") from e
+
         self.set_mode(T32Mode.PREPARE)
 
     def close(self) -> None:
@@ -285,4 +324,4 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
 
     def __str__(self) -> str:
         """Return information about the device."""
-        return f"lauterbach at {self.address}:{self.port}"
+        return f"lauterbach at {self.t32options.address}:{self.t32options.port}"
