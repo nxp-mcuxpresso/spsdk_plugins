@@ -22,7 +22,7 @@ Installation
     - you should see `lauterbach` amongst available interfaces (--interface)
 
 
-Usage
+Setup
 -----
 
 * Make sure to enable remote control to Trace32 in your config file
@@ -42,14 +42,21 @@ Usage
     - Without specifying exact CPU, `nxpdebugmbox` will end `without AHB access`, thus unable to determine DA's status
 
 
+Usage
+-----
+
 * Start Trace32
 * Run your startup script
 * Run `nxpdebugmbox`
   - you may specify `-i/--interface lauterbach`
   - you may specify `-s/--serial-no <probe's serial number>`
 
+Alternatively you may pass the startup script to nxpdebugmbox:
+* Start Trace32
+* Run: `nxpdebugmbox -o startup=/path/to/startup_script.cmm`
+
 
 Credits
 -------
 
-This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the [audreyr/cookiecutter-pypackage](https://github.com/audreyr/cookiecutter-pypackage) project template.
+This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the [SPSDK Debug probe project template](https://github.com/nxp-mcuxpresso/spsdk/blob/master/examples/plugins/templates/cookiecutter-spsdk-debug-probe-plugin.zip).

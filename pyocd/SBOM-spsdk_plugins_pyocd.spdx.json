@@ -2,13 +2,13 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-08-28T10:43:38Z",
+    "created": "2025-11-27T14:29:13Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.20"
   },
-  "name": "spsdk_plugins_pyocd-0.3.3",
+  "name": "spsdk_plugins_pyocd-0.3.4",
   "dataLicense": "CC0-1.0",
   "hasExtractedLicensingInfos": [
     {
@@ -17,40 +17,40 @@
       "name": "Public Domain"
     }
   ],
-  "documentNamespace": "https://nxp.com/spdx/4e3dd733-2689-4140-852d-4c9ea213639d",
+  "documentNamespace": "https://nxp.com/spdx/24344fa6-dfdc-4e8d-84f4-7831d0dbf0d2",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d",
+      "SPDXID": "SPDXRef-package-24344fa6-dfdc-4e8d-84f4-7831d0dbf0d2",
       "name": "spsdk_plugins_pyocd",
-      "versionInfo": "0.3.3",
+      "versionInfo": "0.3.4",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/pyocd",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.5.0/pyocd",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-7c74ba60-582f-4f9a-83f7-2f7bfc96d08b",
+      "SPDXID": "SPDXRef-package-60cea0ee-93d4-409d-89aa-a46a047397cc",
       "name": "pyOCD",
-      "versionInfo": "0.37.0",
+      "versionInfo": "0.41.0",
       "licenseConcluded": "Apache-2.0",
       "licenseDeclared": "Apache-2.0",
       "homepage": "https://github.com/mbedmicro/pyOCD",
-      "downloadLocation": "https://pypi.org/project/pyocd/0.37.0",
+      "downloadLocation": "https://pypi.org/project/pyocd/0.41.0",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/pyocd@0.37.0",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "0328a7bb-3a69-465a-a64a-9de8a0fc1516",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "85a9694a-2465-437a-a0aa-9f29382f9bad",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pyocd@0.41.0",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -60,12 +60,12 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d"
+      "relatedSpdxElement": "SPDXRef-package-24344fa6-dfdc-4e8d-84f4-7831d0dbf0d2"
     },
     {
-      "spdxElementId": "SPDXRef-package-4e3dd733-2689-4140-852d-4c9ea213639d",
+      "spdxElementId": "SPDXRef-package-24344fa6-dfdc-4e8d-84f4-7831d0dbf0d2",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-7c74ba60-582f-4f9a-83f7-2f7bfc96d08b"
+      "relatedSpdxElement": "SPDXRef-package-60cea0ee-93d4-409d-89aa-a46a047397cc"
     }
   ]
 }
