@@ -36,12 +36,7 @@ Usage
     - `key_label` and/or `key_id`: Label or ID to identify the key you want to use
 
 * Configuration string example:
-    - `type=pkcs11;so_path:c:/SoftHSM2/lib/softhsm2-x64.dll;user_pin=~/test_pin.txt;token_label=My token 1;key_label=rsa_2048`
-
-Limitations
------------
-
-Currently the plugin doesn't wok on Windows when using Python 3.12 (https://github.com/pyauth/python-pkcs11/issues/165)
+    - `type=pkcs11;so_path=c:/SoftHSM2/lib/softhsm2-x64.dll;user_pin=~/test_pin.txt;token_label=My token 1;key_label=rsa_2048`
 
 
 Credits
