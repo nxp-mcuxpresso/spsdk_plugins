@@ -109,7 +109,7 @@ def venv(session: nox.Session) -> None:
     else:
         # install spsdk from Nexus, use --prerelease to get the latest version
         # latest version that is not yet released publicly
-        install_fcn("spsdk[all]", "--prerelease", "allow")
+        install_fcn("spsdk[all]>=3.10", "--prerelease", "allow")
     dependencies = collect_dependencies(include_dev_deps=True)
     install_fcn("nxp-codecheck")
     install_fcn(*dependencies)
