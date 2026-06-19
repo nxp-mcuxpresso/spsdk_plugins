@@ -126,7 +126,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13, macos-14, ubuntu-latest, windows-latest]
+        os: [macos-latest, macos-14, ubuntu-latest, windows-latest]
         package: ${{fromJson(needs.get-packages.outputs.compiled_packages)}}
     environment:
       name: pypi
