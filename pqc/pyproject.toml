@@ -3,8 +3,8 @@ name = "spsdk-pqc"
 description = "Post-Quantum Crypto support for SPSDK"
 dynamic = ["version"]
 
-requires-python = ">= 3.9"
-dependencies = ["pyasn1", "typing_extensions", "click", "pycryptodome"]
+requires-python = ">= 3.10"
+dependencies = ["pyasn1", "typing_extensions", "click", "pycryptodome", "spsdk>=3.10.0.dev0,<4"]
 
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
@@ -17,10 +17,10 @@ classifiers = [
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 [project.entry-points]
@@ -46,17 +46,12 @@ packages = ["spsdk_pqc", "spsdk_pqc.__pyinstaller"]
 version = { attr = "spsdk_pqc.__version__" }
 
 [tool.bumpversion]
-current_version = "0.6.8"
+current_version = "0.7.0"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pqc/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
-
-[[tool.bumpversion.files]]
-filename = "SW_Content_Register_spsdk_pqc.txt"
-search = "{current_version}"
-replace = "{new_version}"
 
 
 [tool.pytest.ini_options]
@@ -132,13 +127,13 @@ checkers = [
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
 
+[tool.release-tools]
+disabled = ['docs', 'scr']
+
 [tool.release-tools.blackduck_sca]
 project_name = "spsdk_plugins_pqc"
 include_detector_types = ["setuptools"]
 sbom_location = "SBOM-spsdk_plugins_pqc.spdx.json"
-
-[tool.release-tools.scr]
-scr_file = "SW_Content_Register_spsdk_pqc.txt"
 
 [tool.release-tools.clr]
 excluded_files = ["spsdk_pqc/liboqs_oqs.py"]

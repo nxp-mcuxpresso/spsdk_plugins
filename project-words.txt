@@ -6,6 +6,7 @@ codecheck
 codechecks
 coresight
 datas
+decryptor
 defusedxml
 dilithium
 dlen
@@ -37,6 +38,7 @@ nbqa
 noassertion
 OIDS
 oneline
+PBES
 pemicro
 pkcs
 pqcrystals
@@ -49,6 +51,7 @@ pyinstaller
 pylink
 pylint
 pyocd
+RDBUFF
 pypemicro
 pytest
 redef

@@ -2,73 +2,87 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-08-28T10:43:00Z",
+    "created": "2026-06-12T08:23:14Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_pkcs11-0.3.5",
+  "name": "spsdk_plugins_pkcs11-0.3.6",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/e62841a8-cac5-4691-82d8-6ef699bae4a3",
+  "hasExtractedLicensingInfos": [],
+  "documentNamespace": "https://nxp.com/spdx/12e48218-4e77-4591-a278-9dec82a21133",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-e62841a8-cac5-4691-82d8-6ef699bae4a3",
+      "SPDXID": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133",
       "name": "spsdk_plugins_pkcs11",
-      "versionInfo": "0.3.5",
+      "versionInfo": "0.3.6",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/pkcs11",
+      "downloadLocation": "https://pypi.org/project/spsdk-pkcs11/",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-eb2a907c-5db9-4351-b631-fa4e5b7b6b6e",
-      "name": "python-pkcs11",
-      "versionInfo": "0.9.0",
-      "licenseConcluded": "MIT",
-      "licenseDeclared": "MIT",
-      "homepage": "https://github.com/danni/python-pkcs11",
-      "downloadLocation": "https://pypi.org/project/python-pkcs11/0.9.0",
+      "SPDXID": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---a2bd903b-a548-4afc-ae80-3b6aad92d8c6",
+      "name": "cached-property",
+      "versionInfo": "2.0.1",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/pydanny/cached-property",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/python-pkcs11@0.9.0",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "884df77a-3c5b-4a1f-ab21-d5842a1aa731",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "01155d3a-f950-46dc-b8e8-995bca573f91",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/cached-property@2.0.1",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-b040313e-e51e-4139-bba0-ce840550b0ea",
-      "name": "spsdk-pkcs11",
-      "versionInfo": "0.3.3",
-      "licenseConcluded": "BSD-3-Clause",
-      "licenseDeclared": "BSD-3-Clause",
-      "downloadLocation": "https://pypi.org/project/spsdk-pkcs11/0.3.3",
+      "SPDXID": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---d0889db8-50c2-4354-8451-e26de5c1f91e",
+      "name": "python-pkcs11",
+      "versionInfo": "0.9.4",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://github.com/danni/python-pkcs11",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "98830b2d-8d0b-40b2-9921-9411bad99731",
+          "referenceLocator": "814ee984-a3e0-44a1-9348-029ed79618f5",
           "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/spsdk-pkcs11@0.3.3",
+          "referenceLocator": "pkg:pypi/python-pkcs11@0.9.4",
           "referenceType": "purl"
         }
       ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "name": "spsdk",
+      "versionInfo": "3.10.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/spsdk/",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
       "filesAnalyzed": false
     }
   ],
@@ -76,17 +90,22 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-e62841a8-cac5-4691-82d8-6ef699bae4a3"
+      "relatedSpdxElement": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133"
     },
     {
-      "spdxElementId": "SPDXRef-package-e62841a8-cac5-4691-82d8-6ef699bae4a3",
+      "spdxElementId": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-b040313e-e51e-4139-bba0-ce840550b0ea"
+      "relatedSpdxElement": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
     },
     {
-      "spdxElementId": "SPDXRef-package-e62841a8-cac5-4691-82d8-6ef699bae4a3",
+      "spdxElementId": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-eb2a907c-5db9-4351-b631-fa4e5b7b6b6e"
+      "relatedSpdxElement": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---a2bd903b-a548-4afc-ae80-3b6aad92d8c6"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---d0889db8-50c2-4354-8451-e26de5c1f91e"
     }
   ]
 }

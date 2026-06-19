@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -9,7 +9,6 @@
 
 import sys
 from pathlib import Path
-from typing import Union
 
 import click
 from spsdk.crypto.keys import PrivateKeyEcc
@@ -162,7 +161,7 @@ def encode(key: str, encoding: Literal["PEM", "DER"], output: str) -> int:
     """Encode key using PEM/DER encoding."""
     key_data = Path(key).expanduser().read_bytes()
 
-    key_obj: Union[PQCPrivateKey, PQCPublicKey, None] = None
+    key_obj: PQCPrivateKey | PQCPublicKey | None = None
 
     try:
         key_obj = PQCPrivateKey.parse(key_data)
@@ -225,7 +224,7 @@ def encode(key: str, encoding: Literal["PEM", "DER"], output: str) -> int:
     type=click.Path(dir_okay=False),
     help="Path where to store the DER-encoded PQC portion of hybrid key.",
 )
-def split(hybrid: str, password: str, keep_password: bool, classic: str, pqc: str) -> None:
+def split(hybrid: str, password: str | None, keep_password: bool, classic: str, pqc: str) -> None:
     """Split Hybrid PQC key into classic and PQC keys."""
     data = Path(hybrid).read_bytes()
     prk1, prk2, password = split_hybrid_key(data, password=password)
@@ -275,7 +274,7 @@ def combine(classic: str, pqc: str, password: str, hybrid: str) -> None:
 
 
 def save_key(
-    key: Union[PQCPrivateKey, PQCPublicKey], encoding: Literal["PEM", "DER"], output: str
+    key: PQCPrivateKey | PQCPublicKey, encoding: Literal["PEM", "DER"], output: str
 ) -> None:
     """Store key using the selected encoding."""
     key_data = key.export(pem=encoding == "PEM")

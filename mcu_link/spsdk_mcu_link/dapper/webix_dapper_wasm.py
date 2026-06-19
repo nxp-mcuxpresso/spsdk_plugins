@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2024 NXP
-# Copyright 2025 NXP
+# Copyright 2025-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -15,6 +15,7 @@ from time import sleep
 from typing import Any, Callable, Optional, Tuple, Union, cast
 
 import wasmtime
+from spsdk import get_logger
 from wasmtime import (
     Config,
     Engine,
@@ -31,7 +32,7 @@ from wasmtime import (
 
 from .core import Int32Array, Uint8Array
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 if logger.level == logging.NOTSET:
     logger.setLevel(logging.INFO)
     # logger.setLevel(logging.DEBUG)
@@ -777,11 +778,11 @@ class WebixDapperWasm:
             raise e
 
     def environ_sizes_get(self, penviron_count: int, penviron_buf_size: int) -> int:
-        logger.debug(f"environ_sizes_get {penviron_count}, {penviron_buf_size}")
+        logger.trace(f"environ_sizes_get {penviron_count}, {penviron_buf_size}")
         return 0
 
     def environ_get(self, environ: int, environ_buf: int) -> int:
-        logger.debug(f"environ_get {environ}, {environ_buf}")
+        logger.trace(f"environ_get {environ}, {environ_buf}")
         return 0
 
     def fd_write(self, fd: int, iov: int, iovcnt: int, pnum: int) -> int:
@@ -1094,7 +1095,7 @@ class WebixDapperWasm:
         return result if result is not None else 0
 
     def _emval_get_method_caller(self, arg_count: int, arg_types: int, kind: int) -> int:
-        logger.debug(f"emval get_method_caller: {arg_count} {arg_types} {kind}")
+        logger.trace(f"emval get_method_caller: {arg_count} {arg_types} {kind}")
         val_types: list[Any] = self.emval_lookup_types(arg_count, arg_types)
         ret_type = val_types.pop(0)
         arg_count -= 1
@@ -1168,7 +1169,7 @@ class WebixDapperWasm:
             self.emval_method_callers.append(caller)
             return caller_id
 
-        logger.debug(
+        logger.trace(
             f"methodCaller<( {','.join([t['name'] for t in val_types])}) => {ret_type['name']}>"
         )
 
@@ -1256,7 +1257,7 @@ class WebixDapperWasm:
         self, raw_type: int, name: int, true_value: int, false_value: int
     ) -> None:
         name_val = self.read_latin_1_string(name)
-        logger.debug(f"emval register_bool: {raw_type} {name_val}")
+        logger.trace(f"emval register_bool: {raw_type} {name_val}")
         self.register_type(
             raw_type,
             {
@@ -1288,7 +1289,7 @@ class WebixDapperWasm:
         self, primitive_type: int, name: int, size: int, min_range: int, max_range: int
     ) -> None:
         name_val = self.read_latin_1_string(name)
-        logger.debug(f"emval register_integer: {name_val}")
+        logger.trace(f"emval register_integer: {name_val}")
         if max_range == -1:
             max_range = 4294967295
 
@@ -1328,12 +1329,12 @@ class WebixDapperWasm:
     ) -> None:
         # pylint: disable=unused-argument
         name_val = self.read_latin_1_string(name)
-        logger.debug(f"emval register_bigint: {name_val}")
+        logger.trace(f"emval register_bigint: {name_val}")
 
     def _embind_register_float(self, primitive_type: int, name: int, size: int) -> None:
         # pylint: disable=unused-argument
         name_val = self.read_latin_1_string(name)
-        logger.debug(f"emval register_float: {name_val}")
+        logger.trace(f"emval register_float: {name_val}")
         self.register_type(
             primitive_type,
             {
@@ -1347,7 +1348,7 @@ class WebixDapperWasm:
         )
 
     def _embind_register_emval(self, raw_type: int) -> None:
-        logger.debug(f"emval register_emval: {raw_type}")
+        logger.trace(f"emval register_emval: {raw_type}")
         self.register_type(raw_type, self.EmValType)
 
     def utf8_array_to_string(self, ptr: int, max_bytes: int) -> str:
@@ -1398,7 +1399,7 @@ class WebixDapperWasm:
 
     def _embind_register_std_string(self, raw_type: int, name: int) -> None:
         name_val = self.read_latin_1_string(name)
-        logger.debug(f"emval register_std_string: {name_val}")
+        logger.trace(f"emval register_std_string: {name_val}")
         std_string_is_utf8 = name_val == "std::string"
 
         def from_wire_type(value: int) -> str:
@@ -1455,7 +1456,7 @@ class WebixDapperWasm:
     def _embind_register_std_wstring(self, raw_type: int, char_size: int, name: int) -> None:
         # pylint: disable=unused-argument
         name_val = self.read_latin_1_string(name)
-        logger.debug(f"emval register_std_wstring: {name_val}")
+        logger.trace(f"emval register_std_wstring: {name_val}")
         # decode_string = self.utf16_to_string
         # encode_string = self.string_to_utf16
         # length_bytes_utf = self.length_bytes_utf16
@@ -1491,7 +1492,7 @@ class WebixDapperWasm:
         destructor_signature: int,
         raw_destructor: int,
     ) -> None:
-        logger.debug(f"emval register_value_object: {name}")
+        logger.trace(f"emval register_value_object: {name}")
         rt_id = f"{raw_type}"
         self.struct_registrations[rt_id] = {
             "name": self.read_latin_1_string(name),
@@ -1513,7 +1514,7 @@ class WebixDapperWasm:
         setter: int,
         setter_context: int,
     ) -> None:
-        logger.debug(f"emval register_value_object_field: {struct_type}.{field_name}")
+        logger.trace(f"emval register_value_object_field: {struct_type}.{field_name}")
         rt_id = f"{struct_type}"
         self.struct_registrations[rt_id]["fields"].append(
             {
@@ -1528,7 +1529,7 @@ class WebixDapperWasm:
         )
 
     def _embind_finalize_value_object(self, struct_type: int) -> None:
-        logger.debug(f"emval finalize_value_object: {struct_type}")
+        logger.trace(f"emval finalize_value_object: {struct_type}")
         rt_id = f"{struct_type}"
         reg = self.struct_registrations[rt_id]
         del self.struct_registrations[rt_id]
@@ -1614,7 +1615,7 @@ class WebixDapperWasm:
 
     def _embind_register_memory_view(self, raw_type: int, data_type_index: int, name: int) -> None:
         name_val = self.read_latin_1_string(name)
-        logger.debug(f"emval register_memory_view: {name_val}:{data_type_index}")
+        logger.trace(f"emval register_memory_view: {name_val}:{data_type_index}")
         type_mapping = [
             "b",  # Int8
             Uint8Array,  # Uint8
@@ -1636,7 +1637,7 @@ class WebixDapperWasm:
             size = int.from_bytes(sub[0:4], "little")
             data = int.from_bytes(sub[4:8], "little")
             result = ta(self.HEAPU8, data, size)
-            return result
+            return cast(Union[Uint8Array, Int32Array], result)
 
         self.register_type(
             raw_type,
@@ -1663,7 +1664,7 @@ class WebixDapperWasm:
         name_val = self.read_latin_1_string(name)
         name_val = self.get_function_name(name_val)
 
-        logger.debug(
+        logger.trace(
             f"embind register_function: {name_val}, arg_count: {arg_count}, async: {is_async}"
         )
 

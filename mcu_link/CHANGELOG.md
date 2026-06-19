@@ -2,6 +2,12 @@
 Change Log
 ==========
 
+0.6.9 (2026-05-21)
+------------------
+
+* Fixed MCU-Link target connection sequence by powering up system and debug domains together.
+* Added one probe interface reopen retry for transient connect failures.
+
 0.6.3 (2025-03-06)
 ------------------
 

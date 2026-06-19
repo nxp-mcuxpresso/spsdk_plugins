@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -86,7 +86,7 @@ class PKCS11SP(SignatureProvider):
         try:
             with self.token.open(user_pin=self.user_pin) as session:
                 session: pkcs11.Session  # type: ignore[no-redef]  # this is just for intellisense
-                key: pkcs11.PrivateKey = session.get_key(
+                key: pkcs11.Key = session.get_key(
                     object_class=pkcs11.ObjectClass.PRIVATE_KEY,
                     label=self.key_label,
                     id=self.key_id,
@@ -115,7 +115,7 @@ class PKCS11SP(SignatureProvider):
         raise SPSDKError(f"Could not find PKCS11 library {path}")
 
     @classmethod
-    def _get_key_length(cls, key: pkcs11.PrivateKey) -> int:
+    def _get_key_length(cls, key: pkcs11.Key) -> int:
         if key.key_type == pkcs11.KeyType.RSA:
             return key.key_length // 8
         if key.key_type == pkcs11.KeyType.EC:
@@ -124,7 +124,7 @@ class PKCS11SP(SignatureProvider):
         raise SPSDKError(f"Unsupported KeyType: {key.key_type}")
 
     @classmethod
-    def _get_hash_alg(cls, key: pkcs11.PrivateKey) -> EnumHashAlgorithm:
+    def _get_hash_alg(cls, key: pkcs11.Key) -> EnumHashAlgorithm:
         if key.key_type == pkcs11.KeyType.RSA:
             return EnumHashAlgorithm.SHA256
         if key.key_type == pkcs11.KeyType.EC:
@@ -145,7 +145,7 @@ class PKCS11SP(SignatureProvider):
         """Return the signature for data."""
         with self.token.open(user_pin=self.user_pin) as session:
             session: pkcs11.Session  # type: ignore[no-redef]  # this is just for intellisense
-            key: pkcs11.PrivateKey = session.get_key(
+            key: pkcs11.Key = session.get_key(
                 object_class=pkcs11.ObjectClass.PRIVATE_KEY, label=self.key_label, id=self.key_id
             )
             if not key:
@@ -170,8 +170,10 @@ class PKCS11SP(SignatureProvider):
                     )
             try:
                 if mechanism_param:
-                    return key.sign(digest, mechanism=mechanism, mechanism_param=mechanism_param)
-                return key.sign(digest, mechanism=mechanism)
+                    return key.sign(  # type: ignore[attr-defined]
+                        digest, mechanism=mechanism, mechanism_param=mechanism_param
+                    )
+                return key.sign(digest, mechanism=mechanism)  # type: ignore[attr-defined]
             except (pkcs11.PKCS11Error, RuntimeError) as e:
                 raise SPSDKError(f"Problem with PKCS#11 sining: {e.__class__.__name__} {e}") from e
 
@@ -180,7 +182,7 @@ class PKCS11SP(SignatureProvider):
         """Return length of the signature."""
         with self.token.open(user_pin=self.user_pin) as session:
             session: pkcs11.Session  # type: ignore[no-redef]  # this is just for intellisense
-            key: pkcs11.PrivateKey = session.get_key(
+            key: pkcs11.Key = session.get_key(
                 object_class=pkcs11.ObjectClass.PRIVATE_KEY, label=self.key_label, id=self.key_id
             )
             if not key:

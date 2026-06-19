@@ -2,50 +2,63 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-11-27T14:26:42Z",
+    "created": "2026-06-12T08:21:57Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_lauterbach-0.5.0",
+  "name": "spsdk_plugins_lauterbach-0.5.2",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/3808925b-e3fb-430d-872c-86205f8bfaa3",
+  "hasExtractedLicensingInfos": [],
+  "documentNamespace": "https://nxp.com/spdx/c204ba02-6ac7-4946-a7d4-a7e20122506a",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-3808925b-e3fb-430d-872c-86205f8bfaa3",
+      "SPDXID": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a",
       "name": "spsdk_plugins_lauterbach",
-      "versionInfo": "0.5.0",
+      "versionInfo": "0.5.2",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/lauterbach",
+      "downloadLocation": "https://pypi.org/project/spsdk-lauterbach/",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-bd3f7a20-5a15-4ed8-a769-3c8d51537838",
+      "SPDXID": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a---88fb306e-0109-4674-b381-68e08741b25b",
       "name": "lauterbach-trace32-rcl",
-      "versionInfo": "1.1.4",
+      "versionInfo": "1.1.5",
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "homepage": "https://www.lauterbach.com",
-      "downloadLocation": "https://pypi.org/project/lauterbach-trace32-rcl/1.1.4",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/lauterbach-trace32-rcl@1.1.4",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "78c2c074-42a1-4b71-bba9-b71107d793da",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "8b643d06-e4d1-40f8-abff-3325b3b250ca",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/lauterbach-trace32-rcl@1.1.5",
+          "referenceType": "purl"
         }
       ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "name": "spsdk",
+      "versionInfo": "3.10.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/spsdk/",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
       "filesAnalyzed": false
     }
   ],
@@ -53,12 +66,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-3808925b-e3fb-430d-872c-86205f8bfaa3"
+      "relatedSpdxElement": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a"
     },
     {
-      "spdxElementId": "SPDXRef-package-3808925b-e3fb-430d-872c-86205f8bfaa3",
+      "spdxElementId": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-bd3f7a20-5a15-4ed8-a769-3c8d51537838"
+      "relatedSpdxElement": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a---88fb306e-0109-4674-b381-68e08741b25b"
     }
   ]
 }

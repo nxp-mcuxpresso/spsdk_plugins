@@ -24,6 +24,7 @@ The SPSDK plugins repository contains various extension modules that enhance SPS
 | **Keyfactor** | Keyfactor integration | `pip install spsdk-keyfactor` | BSD-3-Clause |
 | **PyLint Plugins** | SPSDK-specific coding rules for PyLint | `pip install spsdk-pylint-plugins` | BSD-3-Clause |
 | **Offline Signature Provider** | Offline signature provider| `pip install spsdk-offline-signature-provider` | BSD-3-Clause |
+| **IPED** | Fast C++ PRINCE cipher backend for SPSDK IPED encryption | `pip install spsdk-iped` | BSD-3-Clause |
 
 ## Quick Start
 

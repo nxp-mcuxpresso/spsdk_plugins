@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 """Companion application for Keyfactor Signature Provider configuration and management."""
 
 import os
@@ -35,8 +36,7 @@ def get_template(output: str) -> None:
         if not overwrite:
             return
     with open(output, "w", encoding="utf-8") as f:
-        f.write(
-            """# Keyfactor Signature Provider Configuration Template
+        f.write("""# Keyfactor Signature Provider Configuration Template
 # Authentication Type Options:
 # - client_certificate_pkcs12: Use PKCS12 client certificate
 # - client_certificate_key: Use separate client certificate and key
@@ -64,8 +64,7 @@ KEYFACTOR_SIGNATURE_LENGTH=0
 
 # Optional: Specify worker ID if not set in config
 KEYFACTOR_WORKER=3
-"""
-        )
+""")
     click.echo(f"Configuration template generated to: {output}")
 
 

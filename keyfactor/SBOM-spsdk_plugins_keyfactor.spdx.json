@@ -2,74 +2,121 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-09-24T13:49:04Z",
+    "created": "2026-06-12T08:19:13Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_keyfactor-0.4.1",
+  "name": "spsdk_plugins_keyfactor-0.4.3",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/6d9af837-a1b6-4487-990d-a0ce01251f39",
+  "hasExtractedLicensingInfos": [],
+  "documentNamespace": "https://nxp.com/spdx/e0cfbe72-9934-4f45-8274-7e94be232962",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-6d9af837-a1b6-4487-990d-a0ce01251f39",
+      "SPDXID": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962",
       "name": "spsdk_plugins_keyfactor",
-      "versionInfo": "0.4.1",
+      "versionInfo": "0.4.3",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.3.0",
+      "downloadLocation": "https://pypi.org/project/spsdk-keyfactor/",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-90534279-6299-4665-ac9f-a4dfb68d0421",
+      "SPDXID": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962---703b8973-a81c-4ce0-9f5c-c7a625f530b4",
       "name": "Click - Python Command Line Utility",
-      "versionInfo": "8.1.8",
+      "versionInfo": "8.4.1",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
       "homepage": "http://click.pocoo.org/",
-      "downloadLocation": "https://pypi.org/project/click/8.1.8",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/click@8.1.8",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "a394d393-b2f0-4e79-8770-dff151fac5eb",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "bb4a9a94-30b1-4fb5-a5c4-768cd2778787",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pallets:click:8.4.1:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/click@8.4.1",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-0fd49c23-e202-438c-b575-d3bc11c9b4bd",
+      "SPDXID": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962---36d07447-8333-49f8-9011-d2ef852ac7b8",
       "name": "python-dotenv",
-      "versionInfo": "1.1.1",
+      "versionInfo": "1.2.2",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
       "homepage": "http://github.com/theskumar/python-dotenv",
-      "downloadLocation": "https://pypi.org/project/python-dotenv/1.1.1",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/python-dotenv@1.1.1",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "0b48a359-6239-4503-affc-d05f1264b6bf",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "6de4e783-f5a8-4ec2-a584-f11a8f6f3c0e",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "SECURITY",
+          "referenceLocator": "cpe:2.3:a:pypi_package:python-dotenv:1.2.2:*:*:*:*:*:*:*",
+          "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/python-dotenv@1.2.2",
+          "referenceType": "purl"
         }
       ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962---248e4520-b67a-44cd-a3b7-254a370867bf",
+      "name": "requests-pkcs12",
+      "versionInfo": "1.27",
+      "licenseConcluded": "ISC",
+      "licenseDeclared": "ISC",
+      "homepage": "https://github.com/m-click/requests_pkcs12",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "77ae19ef-5a82-43c6-b35d-ce54f3c18427",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/requests-pkcs12@1.27",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "name": "spsdk",
+      "versionInfo": "3.10.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/spsdk/",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
       "filesAnalyzed": false
     }
   ],
@@ -77,17 +124,27 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-6d9af837-a1b6-4487-990d-a0ce01251f39"
+      "relatedSpdxElement": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962"
     },
     {
-      "spdxElementId": "SPDXRef-package-6d9af837-a1b6-4487-990d-a0ce01251f39",
+      "spdxElementId": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-0fd49c23-e202-438c-b575-d3bc11c9b4bd"
+      "relatedSpdxElement": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962---248e4520-b67a-44cd-a3b7-254a370867bf"
     },
     {
-      "spdxElementId": "SPDXRef-package-6d9af837-a1b6-4487-990d-a0ce01251f39",
+      "spdxElementId": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-90534279-6299-4665-ac9f-a4dfb68d0421"
+      "relatedSpdxElement": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962---36d07447-8333-49f8-9011-d2ef852ac7b8"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962---703b8973-a81c-4ce0-9f5c-c7a625f530b4"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-e0cfbe72-9934-4f45-8274-7e94be232962---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
     }
   ]
 }

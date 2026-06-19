@@ -18,7 +18,7 @@ pipeline {
                     checkoutRepo("spsdk", "master", "spsdk_repo")
                     withVenv(
                         'uv pip install nox tomli',
-                        'nox -P 3.9 --session codecheck -- --spsdk spsdk_repo -s -o quick-reports'
+                        'nox -P 3.10 --session codecheck -- --spsdk spsdk_repo -s -o quick-reports'
                     )
                 }
             }
@@ -52,6 +52,7 @@ pipeline {
                     stage ("Checkout") {
                         steps {
                             script {
+                                if (isUnix()) { } else { bat 'git config core.longPaths true' }
                                 checkoutRepo()
                                 checkoutRepo("spsdk", "master", "spsdk_repo")
                             }
@@ -62,7 +63,7 @@ pipeline {
                             script {
                                 withVenv(
                                     'uv pip install nox tomli',
-                                    'nox -P 3.9 3.12 --session codecheck -- --spsdk spsdk_repo -s'
+                                    'nox -P 3.10 3.13 --session codecheck -- --spsdk spsdk_repo -s'
                                 )
                             }
                         }

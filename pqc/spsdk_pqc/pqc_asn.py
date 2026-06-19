@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 """ASN.1 encoding/decoding of PQC keys."""
 
-
 import base64
-from typing import Optional
 
 from pyasn1.codec.der.decoder import decode
 from pyasn1.codec.der.encoder import encode
@@ -122,9 +120,7 @@ def decode_puk(data: bytes) -> tuple[str, bytes]:
         raise PQCError(str(exc)) from exc
 
 
-def encode_puk(
-    data: bytes, oid: str, pem: bool = True, algorithm_name: Optional[str] = None
-) -> bytes:
+def encode_puk(data: bytes, oid: str, pem: bool = True, algorithm_name: str | None = None) -> bytes:
     """Encode public key to PEM/DER format."""
     try:
         key_data = {
@@ -160,9 +156,7 @@ def decode_prk(data: bytes) -> tuple[str, bytes]:
         raise PQCError(str(exc)) from exc
 
 
-def encode_prk(
-    data: bytes, oid: str, pem: bool = True, algorithm_name: Optional[str] = None
-) -> bytes:
+def encode_prk(data: bytes, oid: str, pem: bool = True, algorithm_name: str | None = None) -> bytes:
     """Encode private key to PEM/DER format."""
     try:
         key_data = {
@@ -185,14 +179,14 @@ def encode_prk(
 
 def pem_2_der(data: bytes) -> bytes:
     """Transform PEM encoding to DER."""
-    lines = data.splitlines()
-    if lines[0].startswith(b"-----") and lines[-1].startswith(b"-----"):
+    if data.startswith(b"-----") and data.startswith(b"-----"):
+        lines = data.splitlines()
         inner_data = b"".join(lines[1:-1])
         return base64.b64decode(inner_data)
     return data
 
 
-def der_2_pem(data: bytes, private: bool, algorithm: Optional[str] = None) -> bytes:
+def der_2_pem(data: bytes, private: bool, algorithm: str | None = None) -> bytes:
     """Transform DER encoding to PEM."""
     b64_data = base64.b64encode(data)
     inner_text = f"{algorithm.upper()} " if algorithm else ""

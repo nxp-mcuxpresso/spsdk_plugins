@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 # Copyright 2025 Oidis
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -16,6 +16,7 @@ Components
 * Uint8Array: Type for handling byte arrays
 * Interface: Enumeration of available interfaces
 """
+
 # noqa: D205, D212, D415
 
 from .core import Uint8Array

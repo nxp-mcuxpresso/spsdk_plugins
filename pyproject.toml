@@ -1,12 +1,13 @@
 [project]
-version = "3.5.0"
+version = "3.10.0"
 name = "spsdk_plugins"
 
 [tool.release-tools]
-disabled = ['docs']
+disabled = ['docs', 'scr']
 sub_projects = [
     "keyfactor",
     "jlink",
+    "iped",
     "mcu_link",
     "lauterbach",
     "pemicro",
@@ -16,9 +17,6 @@ sub_projects = [
     "pyocd",
     "offline_signature_provider",
 ]
-
-[tool.release-tools.scr]
-scr_file = "SW_Content_Register_SPSDK_plugins.txt"
 
 [tool.release-tools.github]
 full_name = "nxp-mcuxpresso/spsdk_plugins"

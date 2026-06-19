@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       packages: ${{ steps.get-packages.outputs.packages }}
+      compiled_packages: ${{ steps.get-packages.outputs.compiled_packages }}
+      pure_python_packages: ${{ steps.get-packages.outputs.pure_python_packages }}
     steps:
       - uses: actions/checkout@v4
       
@@ -24,7 +26,16 @@ jobs:
           
       - id: get-packages
         run: |
-          python -c "import toml; print('packages=' + str(toml.load('pyproject.toml')['tool']['release-tools']['sub_projects']))" >> $GITHUB_OUTPUT
+          python -c "
+          import toml, json
+          config = toml.load('pyproject.toml')['tool']['release-tools']
+          all_packages = config['sub_projects']
+          compiled = ['pqc']
+          pure = [p for p in all_packages if p not in compiled]
+          print(f'packages={json.dumps(all_packages)}')
+          print(f'pure_python_packages={json.dumps(pure)}')
+          print(f'compiled_packages={json.dumps(compiled)}')
+          " >> $GITHUB_OUTPUT
 
   build_sdist:
     name: Build Packages
@@ -76,14 +87,47 @@ jobs:
         with:
           skip-existing: true
 
-  build_wheels:
+  build_pure_wheels:
+    name: Build Pure Python Wheels
+    runs-on: ubuntu-latest
+    needs: [get-packages]
+    permissions:
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        # All packages except pqc (which has C extensions)
+        package: ${{fromJson(needs.get-packages.outputs.pure_python_packages)}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build universal wheel
+        run: python -m build --wheel --outdir dist  ${{ matrix.package }}
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: wheels-${{ matrix.package }}
+          path: dist/*.whl
+          overwrite: true
+
+  build_compiled_wheels:
     name: Wheel ${{ matrix.package}} on ${{ matrix.os}}
     runs-on: ${{ matrix.os }}
+    needs: [get-packages]
     strategy:
       fail-fast: false
       matrix:
         os: [macos-13, macos-14, ubuntu-latest, windows-latest]
-        package: ["pqc"]
+        package: ${{fromJson(needs.get-packages.outputs.compiled_packages)}}
     environment:
       name: pypi
       url: https://pypi.org/
@@ -115,7 +159,7 @@ jobs:
 
   deploy_wheels:
     name: Deploy Wheels to PyPI
-    needs: [build_wheels]
+    needs: [build_compiled_wheels, build_pure_wheels]
     runs-on: ubuntu-latest
     environment:
       name: pypi

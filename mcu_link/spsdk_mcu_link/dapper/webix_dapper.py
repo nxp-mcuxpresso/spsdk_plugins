@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2025, 2026 NXP
 # Copyright 2025 Oidis
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -85,6 +85,14 @@ class ProbeInfo:
 
 class WebixDapper:  # pylint: disable=too-many-public-methods
     """WebixDapper class for handling WASM-based DAP operations."""
+
+    DP_CTRL_STAT_REG = 0x04
+
+    MASKLANE = 0x0F << 8
+    CSYSPWRUPREQ = 0x40 << 24
+    CSYSPWRUPACK = 0x80 << 24
+    CDBGPWRUPREQ = 0x10 << 24
+    CDBGPWRUPACK = 0x20 << 24
 
     def __init__(self, context_path: Optional[str] = None) -> None:
         """Initialize WebixDapper instance.
@@ -318,6 +326,17 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
             raise RuntimeError("Device interface needs to be opened first.")
         self.interface.close()
 
+    def reopen(self) -> None:
+        """Reopen the device interface connection."""
+        if self.interface is None:
+            raise RuntimeError("Device interface needs to be opened first.")
+        try:
+            self.interface.close()
+        except RuntimeError:
+            pass
+        sleep(0.1)
+        self.interface.open()
+
     def power_control(self, sys_power: bool) -> None:
         """Control device power.
 
@@ -355,14 +374,47 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         if not succeed:
             raise RuntimeError("Failed to control device power")
 
+    def initialize_debug_port(self) -> None:
+        """Initialize Debug Port after low-level SWD/JTAG connection.
+
+        The method powers up system and debug domains together using a single
+        CoreSight power-up request.
+        """
+        req = self.MASKLANE | self.CSYSPWRUPREQ | self.CDBGPWRUPREQ
+        check_status = self.CSYSPWRUPACK | self.CDBGPWRUPACK
+        self.core_sight_write(False, self.DP_CTRL_STAT_REG, req)
+
+        index = 10
+        succeed = False
+        while index >= 0:
+            ret = self.core_sight_read(False, self.DP_CTRL_STAT_REG)
+            if (ret & check_status) == check_status:
+                succeed = True
+                break
+            sleep(0.1)
+            index -= 1
+
+        if not succeed:
+            raise RuntimeError("Failed to initialize debug port")
+
     def connect(self) -> None:
         """Connect to the device and control power."""
         # pylint: disable=no-member
-        self.module.connect()  # type: ignore[attr-defined]
-        self.power_control(True)
-        self._stdout_handler("System Power True")
-        self.power_control(False)
-        self._stdout_handler("Debug Power True")
+        last_exception = None
+        for attempt in range(2):
+            try:
+                self.module.connect()  # type: ignore[attr-defined]
+                self.initialize_debug_port()
+                self._stdout_handler("System and Debug Power True")
+                return
+            except RuntimeError as exc:
+                last_exception = exc
+                if attempt == 0:
+                    logger.debug(f"Connect attempt failed, reopening probe interface: {exc}")
+                    self.reopen()
+                    continue
+                raise
+        raise RuntimeError(f"Failed to connect to device: {last_exception}")
 
     def get_probe_dap_info(self) -> ProbeInfo:
         """Get probe DAP information.

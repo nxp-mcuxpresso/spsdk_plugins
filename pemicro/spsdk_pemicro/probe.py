@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024,2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 """Main module for P&E Micro debugger probe plugin."""
 
-import logging
 from typing import Dict, Optional
 
 from pypemicro import PEMicroException, PEMicroInterfaces, PyPemicro
+from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
     DebugProbeCoreSightOnly,
     DebugProbes,
@@ -20,7 +21,7 @@ from spsdk.debuggers.debug_probe import (
 )
 from spsdk.utils.misc import value_to_int
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 logger_pypemicro = logger.getChild("PyPemicro")
 
 
@@ -88,7 +89,10 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
                 if not hardware_id or hardware_id == str(probe["id"]):
                     probes.append(
                         ProbeDescription(
-                            "PEMicro", probe["id"], probe["description"], DebugProbePemicro
+                            "PEMicro",
+                            probe["id"],
+                            probe["description"],
+                            DebugProbePemicro,
                         )
                     )
         except PEMicroException as exc:
@@ -164,6 +168,9 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
                 ret = self.pemicro.read_ap_register(apselect=ap_ix, addr=addr)
             else:
                 ret = self.pemicro.read_dp_register(addr=addr)
+            logger.trace(
+                f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {ret:08X}"
+            )
             return ret
         except PEMicroException as exc:
             self._reinit_target()
@@ -191,6 +198,9 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
                 self.pemicro.write_ap_register(apselect=ap_ix, addr=addr, value=data)
             else:
                 self.pemicro.write_dp_register(addr=addr, value=data)
+            logger.trace(
+                f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
+            )
 
         except PEMicroException as exc:
             self._reinit_target()
@@ -209,6 +219,7 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
             raise SPSDKDebugProbeNotOpenError("The Pemicro debug probe is not opened yet")
 
         try:
+            logger.trace(f"Assert reset line: {assert_reset}")
             if assert_reset:
                 self.pemicro.control_reset_line(True)
             else:

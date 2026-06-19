@@ -2,6 +2,11 @@
 Change Log
 ==========
 
+0.3.6 (2026-05)
+------------------
+
+* Fixed J-Link MCU-Link probe not being found when using newer J-Link DLL versions (e.g. from LinkServer 26.3)
+
 0.3.4 (2025-11)
 ------------------
 
