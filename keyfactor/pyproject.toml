@@ -14,8 +14,8 @@ dynamic = ["version"]
 name = "spsdk_keyfactor"
 description = "SPSDK Signature Provider plugin using Keyfactor's API"
 
-requires-python = ">= 3.9"
-dependencies = ["requests-pkcs12", "python-dotenv", "click"]
+requires-python = ">= 3.10"
+dependencies = ["requests-pkcs12", "python-dotenv", "click", "spsdk>=3.10.0.dev0,<4"]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -46,17 +46,12 @@ Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/keyfacto
 Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
 
 [tool.bumpversion]
-current_version = "0.4.1"
+current_version = "0.4.2"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_keyfactor/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
-
-[[tool.bumpversion.files]]
-filename = "SW_Content_Register_spsdk_keyfactor.txt"
-search = "{current_version}"
-replace = "{new_version}"
 
 
 [tool.pytest.ini_options]
@@ -121,10 +116,10 @@ checkers = [
     { "bandit" = { info_only = true } },
 ]
 
+[tool.release-tools]
+disabled = ['docs', 'scr']
+
 [tool.release-tools.blackduck_sca]
 project_name = "spsdk_plugins_keyfactor"
 include_detector_types = ["setuptools"]
 sbom_location = "SBOM-spsdk_plugins_keyfactor.spdx.json"
-
-[tool.release-tools.scr]
-scr_file = "SW_Content_Register_spsdk_keyfactor.txt"

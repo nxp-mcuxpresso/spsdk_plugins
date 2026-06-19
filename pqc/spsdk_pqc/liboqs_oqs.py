@@ -8,14 +8,15 @@ This module provides a Python 3 interface to liboqs.
 """
 
 import ctypes as ct
-import logging
 import pathlib
+
+from spsdk import get_logger
 
 from .errors import PQCError
 
 THIS_DIR = pathlib.Path(__file__).parent
 LIB_PATH = THIS_DIR / "liboqs.so"
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 # derive OQS errors from PQCError
 Exception = PQCError

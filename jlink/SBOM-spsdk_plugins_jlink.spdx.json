@@ -2,50 +2,63 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-05-22T10:29:06Z",
+    "created": "2026-06-12T08:20:00Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_jlink-0.3.2",
+  "name": "spsdk_plugins_jlink-0.3.4",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/3db2ad62-9a40-40eb-beec-e1c9d444d7ac",
+  "hasExtractedLicensingInfos": [],
+  "documentNamespace": "https://nxp.com/spdx/4b120d54-dbb1-4a50-9865-514612ffd176",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-3db2ad62-9a40-40eb-beec-e1c9d444d7ac",
+      "SPDXID": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176",
       "name": "spsdk_plugins_jlink",
-      "versionInfo": "0.3.2",
+      "versionInfo": "0.3.4",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/main/jlink",
-      "externalRefs": [],
-      "filesAnalyzed": false,
+      "downloadLocation": "https://pypi.org/project/spsdk-jlink/",
       "originator": "Organization: NXP",
-      "supplier": "NOASSERTION"
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-e3ed00b2-490e-4396-82f8-fbabb6ecd23b",
+      "SPDXID": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176---d6f6899d-67ae-46c1-9572-c696ac7f7d36",
       "name": "pylink-square",
-      "versionInfo": "1.6.0",
+      "versionInfo": "1.7.0",
       "licenseConcluded": "Apache-2.0",
       "licenseDeclared": "Apache-2.0",
       "homepage": "http://www.github.com/Square/pylink",
-      "downloadLocation": "https://pypi.org/project/pylink-square/1.6.0",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/pylink-square@1.6.0",
-          "referenceType": "purl"
+          "referenceCategory": "OTHER",
+          "referenceLocator": "e39d8b9e-bd79-4af8-9881-ea97e50f3167",
+          "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "5d3d2a1a-016f-4e88-83d4-a55017943c15",
-          "referenceType": "BlackDuck-ComponentOrigin"
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/pylink-square@1.7.0",
+          "referenceType": "purl"
         }
       ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "name": "spsdk",
+      "versionInfo": "3.10.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/spsdk/",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
       "filesAnalyzed": false
     }
   ],
@@ -53,12 +66,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-3db2ad62-9a40-40eb-beec-e1c9d444d7ac"
+      "relatedSpdxElement": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176"
     },
     {
-      "spdxElementId": "SPDXRef-package-3db2ad62-9a40-40eb-beec-e1c9d444d7ac",
+      "spdxElementId": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-e3ed00b2-490e-4396-82f8-fbabb6ecd23b"
+      "relatedSpdxElement": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176---d6f6899d-67ae-46c1-9572-c696ac7f7d36"
     }
   ]
 }

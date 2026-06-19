@@ -80,6 +80,21 @@
             }
         },
         {
+            "home_page": "https://github.com/chardet/chardet",
+            "name": "chardet",
+            "package": {
+                "name": "chardet",
+                "license": "LGPL"
+            },
+            "github": {
+                "project_name": "chardet/chardet",
+                "license": "LGPL-2.1-or-later"
+            },
+            "manual": {
+                "license": "LGPL-2.1-or-later"
+            }
+        },
+        {
             "home_page": "https://github.com/Ousret/charset_normalizer",
             "name": "charset-normalizer",
             "package": {
@@ -164,6 +179,21 @@
             "package": {
                 "name": "fastjsonschema",
                 "license": "BSD"
+            }
+        },
+        {
+            "home_page": "https://github.com/tox-dev/filelock",
+            "name": "filelock",
+            "package": {
+                "name": "filelock",
+                "license": "The Unlicense (Unlicense)"
+            },
+            "github": {
+                "project_name": "tox-dev/filelock",
+                "license": "MIT"
+            },
+            "manual": {
+                "license": "MIT"
             }
         },
         {
@@ -267,6 +297,18 @@
             "name": "libusbsio",
             "package": {
                 "name": "libusbsio",
+                "license": "BSD-3-Clause"
+            }
+        },
+        {
+            "home_page": "https://github.com/nxp-imx/mfgtools",
+            "name": "libuuu",
+            "package": {
+                "name": "libuuu",
+                "license": "BSD-3-Clause"
+            },
+            "github": {
+                "project_name": "nxp-imx/mfgtools",
                 "license": "BSD-3-Clause"
             }
         },
@@ -502,6 +544,14 @@
             }
         },
         {
+            "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins",
+            "name": "spsdk-mcu-link",
+            "package": {
+                "name": "spsdk-mcu-link",
+                "license": "BSD-3-Clause"
+            }
+        },
+        {
             "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/pqc",
             "name": "spsdk-pqc",
             "package": {
@@ -511,6 +561,46 @@
             "github": {
                 "project_name": "nxp-mcuxpresso/spsdk_plugins/tree/master/pqc",
                 "license": ""
+            }
+        },
+        {
+            "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/pemicro",
+            "name": "spsdk-pyocd",
+            "package": {
+                "name": "spsdk-pyocd",
+                "license": "BSD-3-Clause"
+            },
+            "github": {
+                "project_name": "nxp-mcuxpresso/spsdk_plugins/tree/master/pemicro",
+                "license": ""
+            }
+        },
+        {
+            "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins",
+            "name": "spsdk_mcu_link",
+            "package": {
+                "name": "spsdk_mcu_link",
+                "license": "BSD-3-Clause"
+            }
+        },
+        {
+            "home_page": "https://github.com/exhuma/t61codec",
+            "name": "t61codec",
+            "package": {
+                "name": "t61codec",
+                "license": "MIT License"
+            },
+            "github": {
+                "project_name": "exhuma/t61codec",
+                "license": "MIT"
+            }
+        },
+        {
+            "home_page": "https://github.com/scott-griffiths/tibs",
+            "name": "tibs",
+            "package": {
+                "name": "tibs",
+                "license": "MIT License"
             }
         },
         {
@@ -538,10 +628,30 @@
             }
         },
         {
+            "home_page": "https://github.com/bytecodealliance/wasmtime-py",
+            "name": "wasmtime",
+            "package": {
+                "name": "wasmtime",
+                "license": "Apache-2.0 WITH LLVM-exception"
+            },
+            "github": {
+                "project_name": "bytecodealliance/wasmtime-py",
+                "license": "Apache-2.0"
+            }
+        },
+        {
             "home_page": "https://github.com/jquast/wcwidth",
             "name": "wcwidth",
             "package": {
                 "name": "wcwidth",
+                "license": "MIT"
+            }
+        },
+        {
+            "home_page": "https://exhuma.github.io/x690/",
+            "name": "x690",
+            "package": {
+                "name": "x690",
                 "license": "MIT"
             }
         },

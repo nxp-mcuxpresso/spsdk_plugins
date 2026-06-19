@@ -2,23 +2,36 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-08-28T10:42:45Z",
+    "created": "2026-06-12T08:22:35Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_pemicro-0.3.3",
+  "name": "spsdk_plugins_pemicro-0.3.5",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/2c8ff761-88a5-4763-ab4a-dff82a38d59c",
+  "hasExtractedLicensingInfos": [],
+  "documentNamespace": "https://nxp.com/spdx/3dd8824b-9f83-4de8-a4fd-b983ae9ad730",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-2c8ff761-88a5-4763-ab4a-dff82a38d59c",
+      "SPDXID": "SPDXRef-package-3dd8824b-9f83-4de8-a4fd-b983ae9ad730",
       "name": "spsdk_plugins_pemicro",
-      "versionInfo": "0.3.3",
+      "versionInfo": "0.3.5",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.2.0/pemicro",
+      "downloadLocation": "https://pypi.org/project/spsdk-pemicro/",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-3dd8824b-9f83-4de8-a4fd-b983ae9ad730---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "name": "spsdk",
+      "versionInfo": "3.10.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/spsdk/",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
@@ -29,7 +42,12 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-2c8ff761-88a5-4763-ab4a-dff82a38d59c"
+      "relatedSpdxElement": "SPDXRef-package-3dd8824b-9f83-4de8-a4fd-b983ae9ad730"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-3dd8824b-9f83-4de8-a4fd-b983ae9ad730",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-3dd8824b-9f83-4de8-a4fd-b983ae9ad730---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
     }
   ]
 }

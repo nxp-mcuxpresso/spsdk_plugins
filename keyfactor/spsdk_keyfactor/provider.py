@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 """Main module for Keyfactor Signature Provider."""
 
 import base64
 import json
-import logging
 import os
 from enum import Enum
 from typing import Any, Optional, Union
@@ -17,6 +16,7 @@ import requests
 import requests.adapters
 import requests_pkcs12
 from dotenv import load_dotenv
+from spsdk import get_logger
 from spsdk.crypto.certificate import Certificate
 from spsdk.crypto.hash import EnumHashAlgorithm, get_hash
 from spsdk.crypto.keys import PublicKey, PublicKeyRsa
@@ -24,7 +24,7 @@ from spsdk.crypto.signature_provider import SignatureProvider
 from spsdk.exceptions import SPSDKError
 from spsdk.utils.misc import load_secret
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class KeyfactorPluginError(SPSDKError):
@@ -189,7 +189,7 @@ class KeyfactorSP(SignatureProvider):
         url = f"{self.host}/signserver/rest/v1/workers/{self.worker}/process"
 
         logger.info(f"Invoking: {url}")
-        logger.debug(f"Data: {json.dumps(payload, indent=2)}")
+        logger.trace(f"Data: {json.dumps(payload, indent=2)}")
         response = self.session.post(url=url, json=payload, timeout=60)
         try:
             response.raise_for_status()
@@ -197,7 +197,7 @@ class KeyfactorSP(SignatureProvider):
             message: str = json.loads(response.content)
             raise KeyfactorHTTPError(f"HTTP error: {exc}\n{json.dumps(message, indent=2)}") from exc
         response_data: dict[str, str] = response.json()
-        logger.debug(json.dumps(response_data, indent=2))
+        logger.trace(json.dumps(response_data, indent=2))
 
         self.signer_certificate = Certificate.parse(
             base64.b64decode(response_data["signerCertificate"])

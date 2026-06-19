@@ -2,57 +2,63 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2025-11-27T14:29:13Z",
+    "created": "2026-06-12T08:25:09Z",
     "creators": [
       "Organization: NXP"
     ],
-    "licenseListVersion": "3.20"
+    "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_pyocd-0.3.4",
+  "name": "spsdk_plugins_pyocd-0.3.6",
   "dataLicense": "CC0-1.0",
-  "hasExtractedLicensingInfos": [
-    {
-      "licenseId": "LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4",
-      "extractedText": "Public domain code is not subject to any license.",
-      "name": "Public Domain"
-    }
-  ],
-  "documentNamespace": "https://nxp.com/spdx/24344fa6-dfdc-4e8d-84f4-7831d0dbf0d2",
+  "hasExtractedLicensingInfos": [],
+  "documentNamespace": "https://nxp.com/spdx/815e336f-9341-4ce2-849c-7ec9ecb0ab27",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-24344fa6-dfdc-4e8d-84f4-7831d0dbf0d2",
+      "SPDXID": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27",
       "name": "spsdk_plugins_pyocd",
-      "versionInfo": "0.3.4",
+      "versionInfo": "0.3.6",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/v3.5.0/pyocd",
+      "downloadLocation": "https://pypi.org/project/spsdk-pyocd/",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-60cea0ee-93d4-409d-89aa-a46a047397cc",
+      "SPDXID": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27---4cd397e9-889b-4d55-a6f5-e54ea8bb605d",
       "name": "pyOCD",
-      "versionInfo": "0.41.0",
+      "versionInfo": "0.44.1",
       "licenseConcluded": "Apache-2.0",
       "licenseDeclared": "Apache-2.0",
       "homepage": "https://github.com/mbedmicro/pyOCD",
-      "downloadLocation": "https://pypi.org/project/pyocd/0.41.0",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "0328a7bb-3a69-465a-a64a-9de8a0fc1516",
+          "referenceLocator": "7f42f9e3-b16f-49b1-bccc-45b06d383896",
           "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/pyocd@0.41.0",
+          "referenceLocator": "pkg:pypi/pyocd@0.44.1",
           "referenceType": "purl"
         }
       ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "name": "spsdk",
+      "versionInfo": "3.10.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/spsdk/",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
       "filesAnalyzed": false
     }
   ],
@@ -60,12 +66,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-24344fa6-dfdc-4e8d-84f4-7831d0dbf0d2"
+      "relatedSpdxElement": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27"
     },
     {
-      "spdxElementId": "SPDXRef-package-24344fa6-dfdc-4e8d-84f4-7831d0dbf0d2",
+      "spdxElementId": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-60cea0ee-93d4-409d-89aa-a46a047397cc"
+      "relatedSpdxElement": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27---4cd397e9-889b-4d55-a6f5-e54ea8bb605d"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
     }
   ]
 }

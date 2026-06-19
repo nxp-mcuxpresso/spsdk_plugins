@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024,2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
+
 """Main module for PyOCD SW Debugger."""
 
-import logging
 from time import sleep
 from typing import Dict, List, Optional
 
+from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
     DebugProbeCoreSightOnly,
     DebugProbes,
@@ -29,7 +30,7 @@ from pyocd.coresight.dap import DPConnector
 from pyocd.probe.debug_probe import DebugProbe as PyOCDDebugProbe
 
 TRACE_ENABLE = True
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class DebugProbePyOCD(DebugProbeCoreSightOnly):
@@ -92,7 +93,16 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
                 unique_id=self.hardware_id,
             )
 
-            self.probe.session = Session(self.probe, options={"target_override": "cortex_m"})
+            self.probe.session = Session(
+                self.probe,
+                options={
+                    "target_override": "cortex_m",
+                    # Workaround: PyOCD's disable_dialog_boxes() sends HideDeviceSelection=1
+                    # to the J-Link DLL, which in newer J-Link DLL versions (e.g. from
+                    # LinkServer 26.3) prevents finding J-Link MCU-Link probes.
+                    "jlink.non_interactive": False,
+                },
+            )
             self.probe.open()
         except PyOCDError as exc:
             raise SPSDKDebugProbeError(f"Opening the debug probe failed ({str(exc)})") from exc
@@ -148,6 +158,7 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
             raise SPSDKDebugProbeNotOpenError("The PyOCD debug probe is not opened yet")
 
         try:
+            logger.trace(f"Assert reset line: {assert_reset}")
             self.probe.assert_reset(assert_reset)
         except PyOCDError as exc:
             raise SPSDKDebugProbeError(f"PyOCD reset operation failed: {str(exc)}") from exc
@@ -190,10 +201,9 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
                 ret = self.probe.read_ap(addr=addr)
             else:
                 ret = self.probe.read_dp(addr)
-            if TRACE_ENABLE:
-                logger.debug(
-                    f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {ret:08X}"
-                )
+            logger.trace(
+                f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {ret:08X}"
+            )
             return ret
         except (PyOCDError, Exception) as exc:
             self._reinit_target()
@@ -220,10 +230,9 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
                 self.probe.write_ap(addr=addr, data=data)
             else:
                 self.probe.write_dp(addr, data)
-            if TRACE_ENABLE:
-                logger.debug(
-                    f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
-                )
+            logger.trace(
+                f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
+            )
         except (PyOCDError, Exception) as exc:
             self._reinit_target()
             raise SPSDKDebugProbeTransferError("The Coresight write operation failed") from exc

@@ -7,7 +7,7 @@ pipeline {
         timeout(time: 2, unit: 'HOURS', activity: true)   // timeout on whole pipeline job
     }
     parameters {
-        string(name: 'PYTHON_VERSIONS', defaultValue: '3.9,3.10,3.11,3.12,3.13', description: 'Comma-separated list of Python versions')
+        string(name: 'PYTHON_VERSIONS', defaultValue: '3.10,3.11,3.12,3.13', description: 'Comma-separated list of Python versions')
     }
 
     stages {

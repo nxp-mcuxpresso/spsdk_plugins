@@ -3,8 +3,8 @@ name = "spsdk-pyocd"
 description = "PyOCD SW Debugger. A debugger probe plugin for SPSDK."
 dynamic = ["version"]
 
-requires-python = ">= 3.9"
-dependencies = ["pyocd<0.50,>=0.35.1"]
+requires-python = ">= 3.10"
+dependencies = ["pyocd<0.50,>=0.35.1", "spsdk>=3.10.0.dev0,<4"]
 
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
@@ -54,11 +54,6 @@ current_version = "0.3.4"
 filename = "spsdk_pyocd/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
-
-[[tool.bumpversion.files]]
-filename = "SW_Content_Register_spsdk_PyOCD.txt"
-search = "{current_version}"
-replace = "{new_version}"
 
 
 [tool.pytest.ini_options]
@@ -121,10 +116,10 @@ checkers = [
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
 
+[tool.release-tools]
+disabled = ['docs', 'scr']
+
 [tool.release-tools.blackduck_sca]
 project_name = "spsdk_plugins_pyocd"
 include_detector_types = ["setuptools"]
 sbom_location = "SBOM-spsdk_plugins_pyocd.spdx.json"
-
-[tool.release-tools.scr]
-scr_file = "SW_Content_Register_spsdk_PyOCD.txt"

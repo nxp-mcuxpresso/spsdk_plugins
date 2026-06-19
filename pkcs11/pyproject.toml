@@ -14,8 +14,8 @@ dynamic = ["version"]
 name = "spsdk-pkcs11"
 description = "Signature Provider plugin for SPSDK using PKCS#11 interface"
 
-requires-python = ">= 3.9"
-dependencies = ["python-pkcs11>=0.8.1", "cached-property"]
+requires-python = ">= 3.10"
+dependencies = ["python-pkcs11>=0.8.1", "cached-property", "spsdk>=3.10.0.dev0,<4"]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "Michal Starecek", email = "spsdk@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -43,17 +43,12 @@ Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
 
 
 [tool.bumpversion]
-current_version = "0.3.5"
+current_version = "0.3.6"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pkcs11/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
-
-[[tool.bumpversion.files]]
-filename = "SW_Content_Register_spsdk_pkcs11.txt"
-search = "{current_version}"
-replace = "{new_version}"
 
 
 [tool.pytest.ini_options]
@@ -116,10 +111,10 @@ checkers = [
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
 
+[tool.release-tools]
+disabled = ['docs', 'scr']
+
 [tool.release-tools.blackduck_sca]
 project_name = "spsdk_plugins_pkcs11"
 include_detector_types = ["setuptools"]
 sbom_location = "SBOM-spsdk_plugins_pkcs11.spdx.json"
-
-[tool.release-tools.scr]
-scr_file = "SW_Content_Register_spsdk_pkcs11.txt"

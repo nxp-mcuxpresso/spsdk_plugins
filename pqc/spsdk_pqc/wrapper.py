@@ -1,24 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
 """Wrapper for Open-Quantum-Safe python library."""
 
-import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
+from spsdk import get_logger
 from typing_extensions import Self
 
 from . import pqc_asn
 from .errors import PQCError
 from .liboqs_oqs import Signature
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 DISABLE_DIL_MLDSA_PUBLIC_KEY_MISMATCH_WARNING = False
 
@@ -186,7 +186,8 @@ class PQCPublicKey(PQCKey):
                 logger.debug if DISABLE_DIL_MLDSA_PUBLIC_KEY_MISMATCH_WARNING else logger.warning
             )
             logger_func(
-                "Parsing raw public key data. Key type (Dilithium/ML-DSA) might be incorrect."
+                "Public key raw data parsed successfully. "
+                + "It is not possible to verify whether the key type is Dilithium or MLDSA from the public key data."
             )
 
             return key
@@ -210,9 +211,7 @@ class PQCPrivateKey(PQCKey):
 
     ALGORITHMS = DILITHIUM_ALGORITHMS + ML_DSA_ALGORITHMS
 
-    def __init__(
-        self, algorithm: Optional[PQCAlgorithm] = None, data: Optional[bytes] = None
-    ) -> None:
+    def __init__(self, algorithm: PQCAlgorithm | None = None, data: bytes | None = None) -> None:
         """Initialize PQC private key."""
         if data is None:
             if algorithm is None:
@@ -291,9 +290,9 @@ class DilithiumPrivateKey(PQCPrivateKey):
 
     def __init__(
         self,
-        level: Optional[int] = None,
-        algorithm: Optional[PQCAlgorithm] = None,
-        data: Optional[bytes] = None,
+        level: int | None = None,
+        algorithm: PQCAlgorithm | None = None,
+        data: bytes | None = None,
     ):
         """Initialize Dilithium private key."""
         if not data:
@@ -317,9 +316,9 @@ class MLDSAPrivateKey(PQCPrivateKey):
 
     def __init__(
         self,
-        level: Optional[int] = None,
-        algorithm: Optional[PQCAlgorithm] = None,
-        data: Optional[bytes] = None,
+        level: int | None = None,
+        algorithm: PQCAlgorithm | None = None,
+        data: bytes | None = None,
     ):
         """Initialize ML-DSA private key."""
         if not data:

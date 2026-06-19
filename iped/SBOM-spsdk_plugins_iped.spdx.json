@@ -1,0 +1,53 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2026-06-12T08:20:34Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.28"
+  },
+  "name": "spsdk_plugins_iped-0.1.0",
+  "dataLicense": "CC0-1.0",
+  "hasExtractedLicensingInfos": [],
+  "documentNamespace": "https://nxp.com/spdx/bdbee1b3-7cb8-455c-9fa9-94041ae5132b",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b",
+      "name": "spsdk_plugins_iped",
+      "versionInfo": "0.1.0",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://pypi.org/project/spsdk-iped/",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "name": "spsdk",
+      "versionInfo": "3.10.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "downloadLocation": "https://pypi.org/project/spsdk/",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
+    }
+  ]
+}

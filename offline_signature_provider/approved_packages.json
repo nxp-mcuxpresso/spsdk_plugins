@@ -296,6 +296,21 @@
             }
         },
         {
+            "home_page": "https://github.com/chardet/chardet",
+            "name": "chardet",
+            "package": {
+                "name": "chardet",
+                "license": "LGPL"
+            },
+            "github": {
+                "project_name": "chardet/chardet",
+                "license": "LGPL-2.1-or-later"
+            },
+            "manual": {
+                "license": "LGPL-2.1-or-later"
+            }
+        },
+        {
             "home_page": "http://cffi.readthedocs.org",
             "name": "cffi",
             "package": {
@@ -509,7 +524,10 @@
             },
             "github": {
                 "project_name": "tox-dev/filelock",
-                "license": "The Unlicense"
+                "license": "MIT"
+            },
+            "manual": {
+                "license": "MIT"
             }
         },
         {
@@ -1894,6 +1912,18 @@
             "github": {
                 "project_name": "jupyter/terminado",
                 "license": "BSD-2-Clause"
+            }
+        },
+        {
+            "home_page": "https://github.com/scott-griffiths/tibs",
+            "name": "tibs",
+            "package": {
+                "name": "tibs",
+                "license": "The MIT License"
+            },
+            "github": {
+                "project_name": "scott-griffiths/tibs",
+                "license": "MIT"
             }
         },
         {

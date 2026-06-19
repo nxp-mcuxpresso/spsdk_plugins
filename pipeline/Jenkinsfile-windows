@@ -13,14 +13,11 @@ pipeline {
     stages {
             stage ("Checkout") {
                 steps {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: scm.branches,
-                        doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
-                        extensions: scm.extensions + [[$class: 'CloneOption', noTags: false, reference: '', shallow: false]],
-                        submoduleCfg: [],
-                        userRemoteConfigs: scm.userRemoteConfigs
-                    ])
+                    script {
+                        bat 'git config core.longPaths true'
+                        checkoutRepo()
+                        checkoutRepo("spsdk", "master", "spsdk_repo")
+                    }
                 }
             }
         stage ("Test") {
@@ -29,7 +26,7 @@ pipeline {
                     try {
                         withVenv(
                             "uv pip install nox tomli",
-                            "nox -P 3.9 3.13 --session codecheck -- -s -o reports",
+                            "nox -P 3.10 3.13 --session codecheck -- --spsdk spsdk_repo -s -o reports",
                         )
                     } finally {
                         archiveArtifacts(artifacts: '*/reports*/*.txt', allowEmptyArchive: true)

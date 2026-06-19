@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -10,12 +10,12 @@
 # cspell: ignore NETTCP, EDBG
 
 import functools
-import logging
 import os
 import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Optional
 
+from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
     DebugProbeCoreSightOnly,
     DebugProbes,
@@ -28,7 +28,7 @@ from spsdk.utils.spsdk_enum import SpsdkEnum
 
 import lauterbach.trace32.rcl as t32
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class T32Mode(SpsdkEnum):
@@ -52,7 +52,7 @@ class T32ProbeOptions:
     startup_script: Optional[str] = None
 
 
-def ensure_mode(mode: Optional[T32Mode]) -> Callable:
+def ensure_mode(mode: Optional["T32Mode"]) -> Callable:
     """Decorator that checks if connection is open and sets T32 mode.
 
     If `mode` is set to None, perform only check for open connection.
@@ -127,7 +127,9 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         t32_options = cls.parse_options(options=options)
         try:
             connection = t32.connect(
-                node=t32_options.address, port=t32_options.port, timeout=t32_options.timeout
+                node=t32_options.address,
+                port=t32_options.port,
+                timeout=t32_options.timeout,
             )
             serial = connection.fnc("LICENSE.SERIAL(0)")
             if hardware_id and hardware_id != serial:
@@ -171,7 +173,9 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         for DAT purposes.
         """
         self.connection = t32.connect(
-            node=self.t32options.address, port=self.t32options.port, timeout=self.t32options.timeout
+            node=self.t32options.address,
+            port=self.t32options.port,
+            timeout=self.t32options.timeout,
         )
 
     def connect(self) -> None:
@@ -201,7 +205,6 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         """
         if self.connection:
             self.set_mode(T32Mode.DOWN)
-            self.connection.disconnect()
             self.connection = None
 
     def set_mode(self, mode: Optional[T32Mode]) -> None:
@@ -273,12 +276,14 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         :param addr: the register address
         :return: The read value of addressed register (4 bytes)
         """
-        logger.debug(f"CS READ: AP: {access_port}, ADDR: {addr:#x}")
+        logger.trace(f"CS READ: AP: {access_port}, ADDR: {addr:#x}")
         try:
             cs_addr = self._get_cs_addr(access_port=access_port, addr=addr)
             cmd = f"DATA.LONG(EDBG:{cs_addr:#06x})"
             data = self.connection.fnc(cmd)  # type: ignore[union-attr] # None case is handled by "ensure_mode"
-            logger.debug(f"RESULT: {data:#x}")
+            logger.trace(
+                f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
+            )
             return data
         except t32.FunctionError as e:
             raise SPSDKDebugProbeTransferError(str(e)) from e
@@ -293,12 +298,15 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         :param addr: the register address
         :param data: the data to be written into register
         """
-        logger.debug(f"CS WRITE: AP: {access_port}, ADDR: {addr:#x}")
+        logger.trace(f"CS WRITE: AP: {access_port}, ADDR: {addr:#x}")
         try:
             cs_addr = self._get_cs_addr(access_port=access_port, addr=addr)
             cmd = f"DATA.SET EDBG:{cs_addr:#06x} %Long {data:#x}"
             try:
                 self.connection.cmd(cmd)  # type: ignore[union-attr] # None case is handled by "ensure_mode"
+                logger.trace(
+                    f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
+                )
             except t32.CommandError as e:
                 if e.args[0] == "target reset detected":
                     time.sleep(0.5)
@@ -313,6 +321,7 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
 
         :param assert_reset: If True, the reset line is asserted(pulled down), if False the reset line is not affected.
         """
+        logger.trace(f"Assert reset line: {assert_reset}")
         if assert_reset:
             self.connection.cmd("SYStem.RESetOut")  # type: ignore[union-attr] # None case is handled by "ensure_mode"
 

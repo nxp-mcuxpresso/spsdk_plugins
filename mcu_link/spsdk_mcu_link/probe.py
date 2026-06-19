@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -10,6 +10,7 @@
 import logging
 from typing import Optional
 
+from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
     DebugProbeCoreSightOnly,
     DebugProbes,
@@ -21,8 +22,7 @@ from spsdk.debuggers.debug_probe import (
 
 from .dapper import DapperFactory, Interface, WebixDapper
 
-TRACE_ENABLED = True
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class DebugProbeMCULink(DebugProbeCoreSightOnly):
@@ -150,10 +150,9 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
 
         try:
             ret = self.probe.core_sight_read(access_port, addr)
-            if TRACE_ENABLED:
-                logger.debug(
-                    f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {ret:08X}"
-                )
+            logger.trace(
+                f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {ret:08X}"
+            )
             return ret
         except Exception as e:
             self.probe.reinit_target()
@@ -175,10 +174,9 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
 
         try:
             self.probe.core_sight_write(access_port, addr, data)
-            if TRACE_ENABLED:
-                logger.debug(
-                    f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
-                )
+            logger.trace(
+                f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
+            )
         except Exception as e:
             self.probe.reinit_target()
             raise SPSDKDebugProbeTransferError(
@@ -187,6 +185,7 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
 
     def assert_reset_line(self, assert_reset: bool = False) -> None:
         """Nothing to do, controlled directly by reset override."""
+        logger.trace(f"Assert reset line: {assert_reset}")
 
     def reset(self) -> None:
         """Control target reset."""
@@ -194,6 +193,7 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
             raise SPSDKDebugProbeNotOpenError("The MCU-Link debug probe is not opened yet")
 
         try:
+            logger.trace("Resetting target")
             self.probe.reset()
         except Exception as e:
             raise SPSDKDebugProbeError(f"The MCU-Link reset operation failed: {str(e)}") from e

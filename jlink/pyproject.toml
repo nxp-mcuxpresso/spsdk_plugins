@@ -3,8 +3,8 @@ name = "spsdk-jlink"
 description = "J-Link Debug probe. A debugger probe plugin for SPSDK."
 dynamic = ["version"]
 
-requires-python = ">= 3.9"
-dependencies = ["pylink-square"]
+requires-python = ">= 3.10"
+dependencies = ["pylink-square", "spsdk>=3.10.0.dev0,<4"]
 
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
@@ -44,17 +44,12 @@ packages = ["spsdk_jlink", "spsdk_jlink.__pyinstaller"]
 version = { attr = "spsdk_jlink.__version__" }
 
 [tool.bumpversion]
-current_version = "0.3.2"
+current_version = "0.3.4"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_jlink/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
-
-[[tool.bumpversion.files]]
-filename = "SW_Content_Register_spsdk_jlink.txt"
-search = "{current_version}"
-replace = "{new_version}"
 
 
 [tool.pytest.ini_options]
@@ -117,10 +112,10 @@ checkers = [
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
 
+[tool.release-tools]
+disabled = ['docs', 'scr']
+
 [tool.release-tools.blackduck_sca]
 project_name = "spsdk_plugins_jlink"
 include_detector_types = ["setuptools"]
 sbom_location = "SBOM-spsdk_plugins_jlink.spdx.json"
-
-[tool.release-tools.scr]
-scr_file = "SW_Content_Register_spsdk_jlink.txt"

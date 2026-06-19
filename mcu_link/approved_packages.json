@@ -80,6 +80,18 @@
       }
     },
     {
+      "home_page": "https://github.com/chardet/chardet",
+      "name": "chardet",
+      "package": {
+        "name": "chardet",
+        "license": "LGPL"
+      },
+      "github": {
+        "project_name": "chardet/chardet",
+        "license": "LGPL-2.1-or-later"
+      }
+    },
+    {
       "home_page": "https://github.com/Ousret/charset_normalizer",
       "name": "charset-normalizer",
       "package": {
@@ -179,11 +191,14 @@
       "name": "filelock",
       "package": {
         "name": "filelock",
-        "license": "The Unlicense (Unlicense)"
+        "license": "MIT"
       },
       "github": {
         "project_name": "tox-dev/py-filelock",
-        "license": "Unlicense"
+        "license": "MIT"
+      },
+      "manual": {
+        "license": "MIT"
       }
     },
     {
@@ -228,6 +243,14 @@
       "github": {
         "project_name": "python/importlib_metadata",
         "license": "Apache-2.0"
+      }
+    },
+    {
+      "home_page": "https://github.com/python/importlib_resources",
+      "name": "importlib-resources",
+      "package": {
+        "name": "importlib-resources",
+        "license": "Apache Software License"
       }
     },
     {
@@ -549,6 +572,14 @@
       }
     },
     {
+      "home_page": "https://github.com/nxp-mcuxpresso/spsdk_plugins",
+      "name": "spsdk-pyocd",
+      "package": {
+        "name": "spsdk-pyocd",
+        "license": "BSD-3-Clause"
+      }
+    },
+    {
       "home_page": "https://github.com/mkelnar/spsdk_dapper",
       "name": "spsdk_dapper",
       "package": {
@@ -570,6 +601,26 @@
       "github": {
         "project_name": "nxp-mcuxpresso/spsdk_plugins/tree/master/spsdk_mcu_link",
         "license": ""
+      }
+    },
+    {
+      "home_page": "https://github.com/exhuma/t61codec",
+      "name": "t61codec",
+      "package": {
+        "name": "t61codec",
+        "license": "UNKNOWN"
+      },
+      "github": {
+        "project_name": "exhuma/t61codec",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://github.com/scott-griffiths/tibs",
+      "name": "tibs",
+      "package": {
+        "name": "tibs",
+        "license": "MIT License"
       }
     },
     {
@@ -613,6 +664,14 @@
       "name": "wcwidth",
       "package": {
         "name": "wcwidth",
+        "license": "MIT"
+      }
+    },
+    {
+      "home_page": "https://exhuma.github.io/x690/",
+      "name": "x690",
+      "package": {
+        "name": "x690",
         "license": "MIT"
       }
     },
