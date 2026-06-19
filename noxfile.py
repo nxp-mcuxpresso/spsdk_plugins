@@ -97,6 +97,13 @@ def venv(session: nox.Session) -> None:
     """Setup venv with all plugins and SPSDK. To use custom SPSDK use `--spsdk <repo-path>`."""
     install_fcn = get_install_command(session=session)
 
+    # Install the local plugins first (without their dependencies) so that their
+    # in-repo versions satisfy SPSDK's plugin dependency constraints (e.g.
+    # spsdk-mcu-link>=0.6.9), which may not yet be published to PyPI.
+    for project in get_projects():
+        with session.chdir(project):
+            install_fcn(".", "--no-deps")
+
     spsdk_index = get_args_index(session.posargs, "--spsdk")
     if spsdk_index is not None:
         logger.info(f"--spsdk found on index {spsdk_index}")
@@ -113,10 +120,6 @@ def venv(session: nox.Session) -> None:
     dependencies = collect_dependencies(include_dev_deps=True)
     install_fcn("nxp-codecheck")
     install_fcn(*dependencies)
-
-    for project in get_projects():
-        with session.chdir(project):
-            install_fcn(".", "--no-deps")
 
 
 @nox.session
