@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -9,11 +8,12 @@
 
 import sys
 from pathlib import Path
+from typing import Literal
 
 import click
 from spsdk.crypto.keys import PrivateKeyEcc
-from typing_extensions import Literal
 
+from spsdk_pqc.mldsa_migration import convert_mldsa_key, inspect_mldsa_key
 from spsdk_pqc.pqc_asn import der_2_pem
 from spsdk_pqc.utils import combine_hybrid_key, split_hybrid_key
 from spsdk_pqc.wrapper import (
@@ -194,6 +194,69 @@ def encode(key: str, encoding: Literal["PEM", "DER"], output: str) -> int:
 
     click.secho("Unable to determine PQC Key type", fg="red")
     return 1
+
+
+@main.command(name="migrate-key", no_args_is_help=True)
+@click.option(
+    "-k",
+    "--key",
+    type=click.Path(exists=True, dir_okay=False),
+    required=True,
+    help="Path to ML-DSA key that should be inspected or converted.",
+)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(dir_okay=False),
+    help="Path where to store the converted native ML-DSA key. If omitted, only inspection is done.",
+)
+@click.option(
+    "-e",
+    "--encoding",
+    type=click.Choice(["PEM", "DER"], case_sensitive=False),
+    default="PEM",
+    show_default=True,
+    help="Encoding of the converted native key.",
+)
+@click.option(
+    "-a",
+    "--algorithm",
+    type=click.Choice(["ML-DSA-44", "ML-DSA-65", "ML-DSA-87"], case_sensitive=False),
+    help="Required for raw ML-DSA public keys that do not carry OID metadata.",
+)
+def migrate_key(
+    key: str,
+    output: str | None,
+    encoding: Literal["PEM", "DER"],
+    algorithm: Literal["ML-DSA-44", "ML-DSA-65", "ML-DSA-87"] | None,
+) -> None:
+    """Inspect or convert ML-DSA keys into native cryptography format."""
+    key_data = Path(key).expanduser().read_bytes()
+    try:
+        key_info = inspect_mldsa_key(key_data, algorithm=algorithm)
+    except PQCError as exc:
+        click.secho(str(exc), fg="red")
+        click.get_current_context().exit(1)
+
+    click.echo(f"Detected format: {key_info.format_name}")
+    if key_info.algorithm:
+        click.echo(f"Algorithm: {key_info.algorithm}")
+    click.echo(f"Convertible: {'yes' if key_info.is_convertible else 'no'}")
+    click.echo(key_info.reason)
+
+    if output is None:
+        return
+
+    try:
+        converted_data = convert_mldsa_key(key_data, encoding=encoding, algorithm=algorithm)
+    except PQCError as exc:
+        click.secho(str(exc), fg="red")
+        click.get_current_context().exit(1)
+
+    output_path = Path(output).expanduser()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_bytes(converted_data)
+    click.echo(f"Saved native ML-DSA key to: {output_path}")
 
 
 @main.command(name="split", no_args_is_help=True)

@@ -100,6 +100,14 @@
             }
         },
         {
+            "home_page": "https://github.com/ntamas/crcmod-plus",
+            "name": "crcmod-plus",
+            "package": {
+                "name": "crcmod-plus",
+                "license": "MIT"
+            }
+        },
+        {
             "home_page": "https://palletsprojects.com/p/click/",
             "name": "click",
             "package": {
@@ -187,7 +195,7 @@
             "name": "fastjsonschema",
             "package": {
                 "name": "fastjsonschema",
-                "license": "BSD"
+                "license": "BSD-3-Clause"
             }
         },
         {
@@ -514,6 +522,9 @@
             },
             "github": {
                 "project_name": "pypa/setuptools_scm",
+                "license": "MIT"
+            },
+            "manual": {
                 "license": "MIT"
             }
         },

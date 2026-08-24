@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Copyright 2024-2026 NXP
 # Copyright 2025 Oidis
@@ -16,8 +15,6 @@ Components
 * Uint8Array: Type for handling byte arrays
 * Interface: Enumeration of available interfaces
 """
-
-# noqa: D205, D212, D415
 
 from .core import Uint8Array
 from .interfaces import Interface
@@ -36,8 +33,8 @@ if False:  # pylint: disable=using-constant-test,unused-import
 __all__ = [
     "DapperFactory",
     "DapperProbeInfo",
+    "Interface",
+    "Uint8Array",
     "WebixDapper",
     "WebixDapperWasm",
-    "Uint8Array",
-    "Interface",
 ]

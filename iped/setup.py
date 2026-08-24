@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -38,7 +37,7 @@ class BuildCtypesExtension(build_ext):
 
 
 prince_lib = CTypesExtension(
-    name="spsdk_iped.prince",
+    "spsdk_iped.prince",
     sources=[
         "src/ip_prince_ctr.cpp",
         "src/ip_prince_model.cpp",

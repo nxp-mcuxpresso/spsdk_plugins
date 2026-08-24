@@ -2,26 +2,74 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-06-12T10:16:44Z",
+    "created": "2026-08-21T16:37:24Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_pylint_plugins-0.2.4",
+  "name": "spsdk_plugins_pylint_plugins-0.2.6",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/65419536-3e3e-4d53-8270-e9374b8eac43",
+  "documentNamespace": "https://nxp.com/spdx/1812845a-be3e-440f-bd7b-d86bed4d5860",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-65419536-3e3e-4d53-8270-e9374b8eac43",
+      "SPDXID": "SPDXRef-package-1812845a-be3e-440f-bd7b-d86bed4d5860",
       "name": "spsdk_plugins_pylint_plugins",
-      "versionInfo": "0.2.4",
+      "versionInfo": "0.2.6",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://pypi.org/project/spsdk-pylint-plugins/",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-1812845a-be3e-440f-bd7b-d86bed4d5860---7ad2ab4e-f34d-44ed-8f92-be0fcbdc614d",
+      "name": "python-astroid",
+      "versionInfo": "4.0.4",
+      "licenseConcluded": "LGPL-2.1-or-later",
+      "licenseDeclared": "(GPL-2.0-or-later AND LGPL-2.1-or-later)",
+      "homepage": "http://www.astroid.org/",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "9107e933-0603-4a7b-a4c9-d27c9ba9ad0b",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/astroid@4.0.4",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-1812845a-be3e-440f-bd7b-d86bed4d5860---66fabaa5-2e84-491e-a153-62dd51d98453",
+      "name": "spsdk",
+      "versionInfo": "3.10.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/NXPmicro/spsdk",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b77bb8b1-987f-400a-a0bb-f52fda631af5",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk@3.10.0",
+          "referenceType": "purl"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -29,7 +77,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-65419536-3e3e-4d53-8270-e9374b8eac43"
+      "relatedSpdxElement": "SPDXRef-package-1812845a-be3e-440f-bd7b-d86bed4d5860"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-1812845a-be3e-440f-bd7b-d86bed4d5860",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-1812845a-be3e-440f-bd7b-d86bed4d5860---66fabaa5-2e84-491e-a153-62dd51d98453"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-1812845a-be3e-440f-bd7b-d86bed4d5860",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-1812845a-be3e-440f-bd7b-d86bed4d5860---7ad2ab4e-f34d-44ed-8f92-be0fcbdc614d"
     }
   ]
 }

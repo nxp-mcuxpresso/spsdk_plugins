@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -9,7 +8,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, ClassVar
 
 from spsdk import get_logger
 from typing_extensions import Self
@@ -125,7 +124,7 @@ KEY_INFO = {
 class PQCKey:
     """Base class for all supported PQC keys."""
 
-    ALGORITHMS: list[PQCAlgorithm] = []
+    ALGORITHMS: ClassVar[list[PQCAlgorithm]] = []
 
     def __init__(self, algorithm: PQCAlgorithm):
         """Initialize PQC key with given algorithm."""
@@ -196,7 +195,7 @@ class PQCPublicKey(PQCKey):
         oid, data = pqc_asn.decode_puk(data=data)
         if oid.startswith(DILITHIUM_GROUP_OID):
             return DilithiumPublicKey(public_data=data)  # type: ignore[return-value]
-        if oid.startswith(ML_DSA_GROUP_OID) or oid.startswith(ML_DSA_GROUP_OID_LEGACY):
+        if oid.startswith((ML_DSA_GROUP_OID, ML_DSA_GROUP_OID_LEGACY)):
             return MLDSAPublicKey(public_data=data)  # type: ignore[return-value]
         raise PQCError("Unable to determine PQC Public key type (Dilithium/ML-DSA)")
 
@@ -249,7 +248,7 @@ class PQCPrivateKey(PQCKey):
 
     def export(self, pem: bool = True) -> bytes:
         """Export key in PEM or DER format."""
-        data = self.private_data + (self.public_data or bytes())
+        data = self.private_data + (self.public_data or b"")
         return pqc_asn.encode_prk(data=data, oid=self.key_info.oid, pem=pem)
 
     def get_public_key(self) -> PQCPublicKey:
@@ -273,7 +272,7 @@ class PQCPrivateKey(PQCKey):
             return cls(data=data)
         if oid.startswith(DILITHIUM_GROUP_OID):
             return DilithiumPrivateKey(data=data)  # type: ignore[return-value]
-        if oid.startswith(ML_DSA_GROUP_OID) or oid.startswith(ML_DSA_GROUP_OID_LEGACY):
+        if oid.startswith((ML_DSA_GROUP_OID, ML_DSA_GROUP_OID_LEGACY)):
             return MLDSAPrivateKey(data=data)  # type: ignore[return-value]
         raise PQCError("Unable to determine PQC Private key type (Dilithium/ML-DSA)")
 

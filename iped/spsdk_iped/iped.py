@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -10,7 +9,6 @@
 import ctypes
 import logging
 from pathlib import Path
-from typing import Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +50,12 @@ class IPED:  # pylint: disable=too-many-instance-attributes
 
     def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
-        key: Union[int, bytes],
-        address: Union[int, bytes],
-        iv: Union[int, bytes],
+        key: int | bytes,
+        address: int | bytes,
+        iv: int | bytes,
         use_gcm: bool = False,
-        aad: Union[int, bytes, None] = None,
-        tag: Union[int, bytes] = 0,
+        aad: int | bytes | None = None,
+        tag: int | bytes = 0,
         double_encrypt: bool = False,
     ) -> None:
         """Initialize IPED cipher instance.
@@ -110,7 +108,7 @@ class IPED:  # pylint: disable=too-many-instance-attributes
         self.prince_mem_enc.argtypes = [ctypes.c_int, ctypes.POINTER(_Transaction)]
         self.prince_mem_enc.restype = ctypes.c_int
 
-    def decrypt(self, data: Union[bytes, int], address: Optional[int] = None) -> bytes:
+    def decrypt(self, data: bytes | int, address: int | None = None) -> bytes:
         """Decrypt data using PRINCE cipher.
 
         :param data: Encrypted data (bytes or single 64-bit int).
@@ -121,7 +119,7 @@ class IPED:  # pylint: disable=too-many-instance-attributes
             data = data.to_bytes(length=8, byteorder="big")
         return self._transaction(decrypt=True, data=data, address=address)
 
-    def encrypt(self, data: Union[bytes, int], address: Optional[int] = None) -> bytes:
+    def encrypt(self, data: bytes | int, address: int | None = None) -> bytes:
         """Encrypt data using PRINCE cipher.
 
         :param data: Plaintext data (bytes or single 64-bit int).
@@ -139,7 +137,7 @@ class IPED:  # pylint: disable=too-many-instance-attributes
         """
         return self.mode == 1
 
-    def _transaction(self, decrypt: bool, data: bytes, address: Optional[int] = None) -> bytes:
+    def _transaction(self, decrypt: bool, data: bytes, address: int | None = None) -> bytes:
         """Execute PRINCE cipher transaction via native library.
 
         :param decrypt: True for decryption, False for encryption.

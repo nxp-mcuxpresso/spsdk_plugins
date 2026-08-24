@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -126,7 +125,7 @@ def encode_puk(data: bytes, oid: str, pem: bool = True, algorithm_name: str | No
         key_data = {
             "info": {
                 "algorithm": univ.ObjectIdentifier(oid),
-                "parameter": bytes(),
+                "parameter": b"",
             },
             "puk": univ.BitString(hexValue=data.hex()),
         }
@@ -163,7 +162,7 @@ def encode_prk(data: bytes, oid: str, pem: bool = True, algorithm_name: str | No
             "version": univ.Integer(0),
             "info": {
                 "algorithm": univ.ObjectIdentifier(oid),
-                "parameter": bytes(),
+                "parameter": b"",
             },
             "prkData": {
                 "prk": univ.OctetString(encode(PrivateKey(data))),
@@ -192,7 +191,7 @@ def der_2_pem(data: bytes, private: bool, algorithm: str | None = None) -> bytes
     inner_text = f"{algorithm.upper()} " if algorithm else ""
     inner_text += "PRIVATE" if private else "PUBLIC"
     lines = []
-    lines.append(f"-----BEGIN {inner_text} KEY-----".encode("utf-8"))
+    lines.append(f"-----BEGIN {inner_text} KEY-----".encode())
     lines.extend([b64_data[i : i + 64] for i in range(0, len(b64_data), 64)])
-    lines.append(f"-----END {inner_text} KEY-----".encode("utf-8"))
+    lines.append(f"-----END {inner_text} KEY-----".encode())
     return b"\n".join(lines) + b"\n"

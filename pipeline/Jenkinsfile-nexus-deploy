@@ -7,7 +7,7 @@ pipeline {
         timeout(time: 2, unit: 'HOURS', activity: true)   // timeout on whole pipeline job
     }
     parameters {
-        string(name: 'PYTHON_VERSIONS', defaultValue: '3.10,3.11,3.12,3.13', description: 'Comma-separated list of Python versions')
+        string(name: 'PYTHON_VERSIONS', defaultValue: '3.10,3.11,3.12,3.13,3.14', description: 'Comma-separated list of Python versions')
     }
 
     stages {
@@ -18,10 +18,20 @@ pipeline {
             steps {
                 script {
                     checkoutRepo("spsdk_plugins")
+                    checkoutRepo("spsdk", "master", "spsdk_repo")
                     withVenv(
                         "uv pip install nox tomli",
-                        "nox --session codecheck -- -s",
+                        "nox --session codecheck -- --spsdk spsdk_repo -s",
                     )
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: "*/reports*/*.txt", allowEmptyArchive: true
+                    archiveArtifacts artifacts: "*/reports*/*.html", allowEmptyArchive: true
+                    archiveArtifacts artifacts: "reports-summary/*.xml", allowEmptyArchive: true
+                    junit allowEmptyResults: true, testResults: "reports-summary/*.xml"
+                    junit allowEmptyResults: true, testResults: "*/reports*/tests.xml"
                 }
             }
         }
@@ -48,13 +58,19 @@ pipeline {
                     agent { label 'linux-spsdk' }
                     steps {
                         script {
-                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }
+                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }.findAll { it }
+                            def cibwBuildSelector = pythonVersionsList.collect { "cp${it.replace('.', '')}-*" }.join(' ')
                             checkoutRepo("spsdk_plugins")
-                            doBuildWheels(
-                                packageDir: "pqc",
-                                pythonVersions: pythonVersionsList,
-                                artifactDir: 'wheels-linux'
-                            )
+                            withEnv([
+                                "CIBW_BUILD=${cibwBuildSelector}",
+                                'CIBW_SKIP=pp* cp314t-*',
+                            ]) {
+                                doBuildWheels(
+                                    packageDir: "pqc",
+                                    pythonVersions: pythonVersionsList,
+                                    artifactDir: 'wheels-linux'
+                                )
+                            }
                         }
                     }
                 }
@@ -63,13 +79,19 @@ pipeline {
                     agent { label 'mac-spsdk' }
                     steps {
                         script {
-                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }
+                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }.findAll { it }
+                            def cibwBuildSelector = pythonVersionsList.collect { "cp${it.replace('.', '')}-*" }.join(' ')
                             checkoutRepo("spsdk_plugins")
-                            doBuildWheels(
-                                packageDir: "pqc",
-                                pythonVersions: pythonVersionsList,
-                                artifactDir: 'wheels-macos'
-                            )
+                            withEnv([
+                                "CIBW_BUILD=${cibwBuildSelector}",
+                                'CIBW_SKIP=pp* cp314t-*',
+                            ]) {
+                                doBuildWheels(
+                                    packageDir: "pqc",
+                                    pythonVersions: pythonVersionsList,
+                                    artifactDir: 'wheels-macos'
+                                )
+                            }
                         }
                     }
                 }
@@ -78,13 +100,19 @@ pipeline {
                     agent { label 'windows-spsdk' }
                     steps {
                         script {
-                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }
+                            def pythonVersionsList = params.PYTHON_VERSIONS.split(',').collect { it.trim() }.findAll { it }
+                            def cibwBuildSelector = pythonVersionsList.collect { "cp${it.replace('.', '')}-*" }.join(' ')
                             checkoutRepo("spsdk_plugins")
-                            doBuildWheels(
-                                packageDir: "pqc",
-                                pythonVersions: pythonVersionsList,
-                                artifactDir: 'wheels-windows'
-                            )
+                            withEnv([
+                                "CIBW_BUILD=${cibwBuildSelector}",
+                                'CIBW_SKIP=pp* cp314t-*',
+                            ]) {
+                                doBuildWheels(
+                                    packageDir: "pqc",
+                                    pythonVersions: pythonVersionsList,
+                                    artifactDir: 'wheels-windows'
+                                )
+                            }
                         }
                     }
                 }

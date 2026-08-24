@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -9,7 +8,7 @@
 
 __author__ = """NXP"""
 __email__ = "spsdk@nxp.com"
-__version__ = "0.4.3"
+__version__ = "0.4.5"
 
 try:
     from spsdk.__version__ import version, version_tuple
@@ -27,6 +26,6 @@ if version_tuple < MIN_SPSDK_VERSION:
     )
 
 # pylint: disable=wrong-import-position
-from .provider import KeyfactorSP  # noqa: E402
+from .provider import KeyfactorSP
 
 __all__ = ["KeyfactorSP"]

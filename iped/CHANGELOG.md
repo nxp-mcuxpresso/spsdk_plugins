@@ -2,6 +2,11 @@
 
 All notable changes to the spsdk-iped package will be documented in this file.
 
+## [0.1.1] - 2026-07-09
+
+### Changed
+- Upgraded codebase to utilize Python 3.10 features (PEP 604 union types, built-in generic types, `collections.abc` imports)
+
 ## [0.1.0] - 2026-05-27
 
 ### Added

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -9,7 +8,7 @@
 
 __author__ = """NXP"""
 __email__ = "spsdk@gmail.com"
-__version__ = "0.2.4"
+__version__ = "0.2.6"
 
 from pylint.lint import PyLinter
 

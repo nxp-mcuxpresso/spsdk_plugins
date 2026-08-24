@@ -15,7 +15,12 @@ name = "spsdk_keyfactor"
 description = "SPSDK Signature Provider plugin using Keyfactor's API"
 
 requires-python = ">= 3.10"
-dependencies = ["requests-pkcs12", "python-dotenv", "click", "spsdk>=3.10.0.dev0,<4"]
+dependencies = [
+    "requests-pkcs12",
+    "python-dotenv",
+    "click",
+    "spsdk>=3.10.0.dev0,<4",
+]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -28,10 +33,11 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [project.scripts]
@@ -46,7 +52,7 @@ Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/keyfacto
 Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
 
 [tool.bumpversion]
-current_version = "0.4.2"
+current_version = "0.4.5"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_keyfactor/__init__.py"
@@ -66,8 +72,14 @@ relative_files = true
 
 [tool.black]
 line-length = 100
-target-version = ["py39", "py310", "py311", "py312"]
+target-version = ["py310", "py311", "py312", "py313", "py314"]
 include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["EXE001", "I001", "N999"]
 
 [tool.isort]
 multi_line_output = 3
@@ -104,7 +116,7 @@ checkers = [
     { "gitcov" = { info_only = true } },
     "pylint",
     "mypy",
-    "dependencies",
+    # "dependencies",
     "pydocstyle",
     "ruff",
     { "radon_c" = { info_only = true } },
@@ -112,7 +124,7 @@ checkers = [
     "black",
     "isort",
     "copyright",
-    "py_headers",
+    { "py_headers" = { args = ['--header "#!/usr/bin/env python"'] } },
     { "bandit" = { info_only = true } },
 ]
 
@@ -121,5 +133,5 @@ disabled = ['docs', 'scr']
 
 [tool.release-tools.blackduck_sca]
 project_name = "spsdk_plugins_keyfactor"
-include_detector_types = ["setuptools"]
+include_detector_types = ["pip"]
 sbom_location = "SBOM-spsdk_plugins_keyfactor.spdx.json"

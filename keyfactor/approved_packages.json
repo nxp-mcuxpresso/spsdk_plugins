@@ -53,7 +53,7 @@
             "name": "bitarray",
             "package": {
                 "name": "bitarray",
-                "license": "PSF"
+                "license": "PSF-2.0"
             },
             "github": {
                 "project_name": "ilanschnell/bitarray",
@@ -124,7 +124,7 @@
             },
             "github": {
                 "project_name": "chardet/chardet",
-                "license": "LGPL-2.1-or-later"
+                "license": "0BSD"
             },
             "manual": {
                 "license": "LGPL-2.1-or-later"
@@ -139,6 +139,14 @@
             },
             "github": {
                 "project_name": "Ousret/charset_normalizer",
+                "license": "MIT"
+            }
+        },
+        {
+            "home_page": "https://github.com/ntamas/crcmod-plus",
+            "name": "crcmod-plus",
+            "package": {
+                "name": "crcmod-plus",
                 "license": "MIT"
             }
         },
@@ -191,7 +199,7 @@
             "name": "colorama",
             "package": {
                 "name": "colorama",
-                "license": "BSD License"
+                "license": "BSD-3-Clause"
             },
             "github": {
                 "project_name": "tartley/colorama",
@@ -203,6 +211,18 @@
             "name": "crcmod",
             "package": {
                 "name": "crcmod",
+                "license": "MIT"
+            }
+        },
+        {
+            "home_page": "https://github.com/ntamas/crcmod-plus",
+            "name": "crcmod-plus",
+            "package": {
+                "name": "crcmod-plus",
+                "license": "MIT"
+            },
+            "github": {
+                "project_name": "ntamas/crcmod-plus",
                 "license": "MIT"
             }
         },
@@ -234,7 +254,7 @@
             "name": "fastjsonschema",
             "package": {
                 "name": "fastjsonschema",
-                "license": "BSD"
+                "license": "BSD-3-Clause"
             },
             "github": {
                 "project_name": "horejsek/python-fastjsonschema",
@@ -289,7 +309,7 @@
             "name": "idna",
             "package": {
                 "name": "idna",
-                "license": "BSD License"
+                "license": "BSD-3-Clause"
             },
             "github": {
                 "project_name": "kjd/idna",
@@ -321,7 +341,7 @@
             "name": "importlib_metadata",
             "package": {
                 "name": "importlib_metadata",
-                "license": "Apache Software License"
+                "license": "Apache-2.0"
             },
             "github": {
                 "project_name": "python/importlib_metadata",
@@ -357,7 +377,7 @@
             "name": "intervaltree",
             "package": {
                 "name": "intervaltree",
-                "license": "Apache License, Version 2.0"
+                "license": "Apache-2.0"
             },
             "github": {
                 "project_name": "chaimleib/intervaltree",
@@ -437,11 +457,14 @@
             "name": "packaging",
             "package": {
                 "name": "packaging",
-                "license": "Apache Software License"
+                "license": "Apache-2.0 OR BSD-2-Clause"
             },
             "github": {
                 "project_name": "pypa/packaging",
                 "license": ""
+            },
+            "manual": {
+                "license": "Apache 2.0"
             }
         },
         {
@@ -449,7 +472,7 @@
             "name": "platformdirs",
             "package": {
                 "name": "platformdirs",
-                "license": "MIT License"
+                "license": "MIT"
             },
             "github": {
                 "project_name": "platformdirs/platformdirs",
@@ -461,7 +484,7 @@
             "name": "prettytable",
             "package": {
                 "name": "prettytable",
-                "license": "BSD (3 clause)"
+                "license": "BSD-3-Clause"
             },
             "github": {
                 "project_name": "jazzband/prettytable",
@@ -661,7 +684,7 @@
             "name": "ruamel.yaml",
             "package": {
                 "name": "ruamel.yaml",
-                "license": "MIT license"
+                "license": "MIT"
             }
         },
         {
@@ -693,6 +716,9 @@
             },
             "github": {
                 "project_name": "pypa/setuptools_scm",
+                "license": ""
+            },
+            "manual": {
                 "license": "MIT"
             }
         },
@@ -797,7 +823,7 @@
             "name": "t61codec",
             "package": {
                 "name": "t61codec",
-                "license": "MIT License"
+                "license": "UNKNOWN"
             },
             "github": {
                 "project_name": "exhuma/t61codec",
@@ -825,7 +851,7 @@
             "name": "typing_extensions",
             "package": {
                 "name": "typing_extensions",
-                "license": "Python Software Foundation License"
+                "license": "PSF-2.0"
             },
             "github": {
                 "project_name": "python/typing_extensions",
@@ -877,7 +903,7 @@
             "name": "zipp",
             "package": {
                 "name": "zipp",
-                "license": "MIT License"
+                "license": "MIT"
             },
             "github": {
                 "project_name": "jaraco/zipp",

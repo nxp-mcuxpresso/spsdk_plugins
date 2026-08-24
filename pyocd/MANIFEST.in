@@ -1,6 +1,5 @@
 include LICENSE
 include README.md
-include SW_Content_Register_spsdk_PyOCD.txt
 
 recursive-include tests *
 recursive-exclude * __pycache__

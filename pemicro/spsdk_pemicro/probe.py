@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024,2026 NXP
 #
@@ -7,10 +6,11 @@
 
 """Main module for P&E Micro debugger probe plugin."""
 
-from typing import Dict, Optional
+import logging
+from typing import Protocol, cast
 
+import spsdk
 from pypemicro import PEMicroException, PEMicroInterfaces, PyPemicro
-from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
     DebugProbeCoreSightOnly,
     DebugProbes,
@@ -21,7 +21,51 @@ from spsdk.debuggers.debug_probe import (
 )
 from spsdk.utils.misc import value_to_int
 
-logger = get_logger(__name__)
+from .protocols import DebugProbeProtocol, get_debug_probe_protocol
+
+
+class TraceLogger(Protocol):
+    """Logger protocol with SPSDK trace method."""
+
+    def debug(self, msg: object, *args: object, **kwargs: object) -> None:
+        """Log debug message."""
+
+    def error(self, msg: object, *args: object, **kwargs: object) -> None:
+        """Log error message."""
+
+    def getChild(self, suffix: str) -> "TraceLogger":  # pylint: disable=invalid-name
+        """Get child logger."""
+
+    def info(self, msg: object, *args: object, **kwargs: object) -> None:
+        """Log info message."""
+
+    def trace(self, msg: object, *args: object, **kwargs: object) -> None:
+        """Log trace message."""
+
+    def warning(self, msg: object, *args: object, **kwargs: object) -> None:
+        """Log warning message."""
+
+    def warn(self, msg: object, *args: object, **kwargs: object) -> None:
+        """Log warning message."""
+
+
+def get_compatible_logger(name: str) -> TraceLogger:
+    """Get logger compatible with older and newer SPSDK versions.
+
+    :param name: Logger name.
+    :return: Logger with trace method available.
+    """
+    get_spsdk_logger = getattr(spsdk, "get_logger", None)
+    if callable(get_spsdk_logger):
+        return cast(TraceLogger, get_spsdk_logger(name))
+
+    standard_logger = logging.getLogger(name)
+    standard_logger.trace = standard_logger.debug  # type: ignore[attr-defined]
+    return cast(TraceLogger, standard_logger)
+
+
+logger = get_compatible_logger(__name__)
+cs_trace_logger = get_compatible_logger("spsdk.probe.trace")
 logger_pypemicro = logger.getChild("PyPemicro")
 
 
@@ -29,9 +73,13 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
     """Class to define Pemicro package interface for NXP SPSDK."""
 
     NAME = "pemicro"
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (  # type: ignore[assignment]
+        DebugProbeProtocol.SWD,
+        # DebugProbeProtocol.JTAG,
+    )
 
     @classmethod
-    def get_options_help(cls) -> Dict[str, str]:
+    def get_options_help(cls) -> dict[str, str]:
         """Get full list of options of debug probe.
 
         :return: Dictionary with individual options. Key is parameter name and value the help text.
@@ -55,23 +103,23 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
                 log_war=logger_pypemicro.warn,
             )
         except PEMicroException as exc:
-            raise SPSDKDebugProbeError(f"Cannot get Pemicro library: ({str(exc)})") from exc
+            raise SPSDKDebugProbeError(f"Cannot get Pemicro library: ({exc!s})") from exc
 
-    def __init__(self, hardware_id: str, options: Optional[Dict] = None) -> None:
+    def __init__(self, hardware_id: str, options: dict | None = None) -> None:
         """The Pemicro class initialization.
 
         The Pemicro initialization function for SPSDK library to support various DEBUG PROBES.
         """
         super().__init__(hardware_id, options)
 
-        self.pemicro: Optional[PyPemicro] = None
+        self.pemicro: PyPemicro | None = None
 
         logger.debug("The SPSDK Pemicro Interface has been initialized")
 
     # pylint: disable=unused-argument # we need to satisfy the method signature
     @classmethod
     def get_connected_probes(
-        cls, hardware_id: Optional[str] = None, options: Optional[Dict] = None
+        cls, hardware_id: str | None = None, options: dict | None = None
     ) -> DebugProbes:
         """Get all connected probes over Pemicro.
 
@@ -96,7 +144,7 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
                         )
                     )
         except PEMicroException as exc:
-            logger.warning(f"Cannot get list of PEMicro probes: {str(exc)}")
+            logger.warning(f"Cannot get list of PEMicro probes: {exc!s}")
         return probes
 
     def open(self) -> None:
@@ -113,11 +161,11 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
             if self.pemicro is None:
                 raise SPSDKDebugProbeError("Getting of Pemicro library failed.")
         except SPSDKDebugProbeError as exc:
-            raise SPSDKDebugProbeError(f"Getting of Pemicro library failed({str(exc)}).") from exc
+            raise SPSDKDebugProbeError(f"Getting of Pemicro library failed({exc!s}).") from exc
         try:
             self.pemicro.open(debug_hardware_name_ip_or_serialnum=self.hardware_id)
         except PEMicroException as exc:
-            raise SPSDKDebugProbeError(f"Opening the debug probe failed ({str(exc)})") from exc
+            raise SPSDKDebugProbeError(f"Opening the debug probe failed ({exc!s})") from exc
 
     def connect(self) -> None:
         """Connect to target.
@@ -130,15 +178,33 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
         if self.pemicro is None:
             raise SPSDKDebugProbeError("Debug probe must be opened first")
         try:
-            self.pemicro.connect(PEMicroInterfaces.SWD)
-            self.pemicro.set_debug_frequency(value_to_int(self.options.get("frequency", 100000)))
+            protocol = get_debug_probe_protocol(self)
+            if protocol == DebugProbeProtocol.SWD:
+                interface = PEMicroInterfaces.SWD
+            elif protocol == DebugProbeProtocol.JTAG:
+                interface = PEMicroInterfaces.JTAG
+            else:
+                raise SPSDKDebugProbeError(
+                    f"PEMicro does not support {protocol.label.upper()} protocol"
+                )
+            frequency = value_to_int(self.options.get("frequency", 100000))
+            self.pemicro.connect(interface, shift_speed=frequency)
+            self.pemicro.set_debug_frequency(frequency)
+            self.read_dp_idr()
             self.clear_sticky_errors()
             self.power_up_target()
 
         except PEMicroException as exc:
             raise SPSDKDebugProbeError(
-                f"Pemicro cannot establish communication with target({str(exc)})."
+                f"Pemicro cannot establish communication with target({exc!s})."
             ) from exc
+
+    def connect_safe(self) -> None:
+        """Connect to target without generic ARM recovery for PEMicro JTAG attach failures."""
+        if get_debug_probe_protocol(self) == DebugProbeProtocol.JTAG:
+            self.connect()
+            return
+        super().connect_safe()  # type: ignore[safe-super, unused-ignore]
 
     def close(self) -> None:
         """Close Pemicro interface.
@@ -148,6 +214,28 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
         if self.pemicro:
             self.pemicro.close()
 
+    # --- Transitional fallback; remove when min SPSDK >= 3.15 provides these. ---
+    def trace_cs_read(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight read in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value read.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS RD {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    def trace_cs_write(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight write in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value written.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS WR {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    # --- End transitional fallback. ---
     def coresight_reg_read(self, access_port: bool = True, addr: int = 0) -> int:
         """Read coresight register over Pemicro interface.
 
@@ -168,14 +256,12 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
                 ret = self.pemicro.read_ap_register(apselect=ap_ix, addr=addr)
             else:
                 ret = self.pemicro.read_dp_register(addr=addr)
-            logger.trace(
-                f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {ret:08X}"
-            )
+            self.trace_cs_read(access_port, addr, ret)
             return ret
         except PEMicroException as exc:
             self._reinit_target()
             raise SPSDKDebugProbeTransferError(
-                f"The Coresight read operation failed({str(exc)})."
+                f"The Coresight read operation failed({exc!s})."
             ) from exc
 
     def coresight_reg_write(self, access_port: bool = True, addr: int = 0, data: int = 0) -> None:
@@ -198,14 +284,12 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
                 self.pemicro.write_ap_register(apselect=ap_ix, addr=addr, value=data)
             else:
                 self.pemicro.write_dp_register(addr=addr, value=data)
-            logger.trace(
-                f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
-            )
+            self.trace_cs_write(access_port, addr, data)
 
         except PEMicroException as exc:
             self._reinit_target()
             raise SPSDKDebugProbeTransferError(
-                f"The Coresight write operation failed({str(exc)})."
+                f"The Coresight write operation failed({exc!s})."
             ) from exc
 
     def assert_reset_line(self, assert_reset: bool = False) -> None:
@@ -218,11 +302,8 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
         if self.pemicro is None:
             raise SPSDKDebugProbeNotOpenError("The Pemicro debug probe is not opened yet")
 
-        try:
-            logger.trace(f"Assert reset line: {assert_reset}")
-            if assert_reset:
-                self.pemicro.control_reset_line(True)
-            else:
-                self.pemicro.control_reset_line(False)
-        except PEMicroException as exc:
-            raise SPSDKDebugProbeError(f"Pemicro reset operation failed: {str(exc)}") from exc
+        logger.trace(f"Assert reset line: {assert_reset}")
+        raise SPSDKDebugProbeError(
+            "PEMicro hardware reset line control is not supported by the current "
+            "PyPEMicro ARM interface"
+        )

@@ -2,31 +2,30 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-06-12T08:23:14Z",
+    "created": "2026-08-21T16:35:04Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_pkcs11-0.3.6",
+  "name": "spsdk_plugins_pkcs11-0.3.8",
   "dataLicense": "CC0-1.0",
-  "hasExtractedLicensingInfos": [],
-  "documentNamespace": "https://nxp.com/spdx/12e48218-4e77-4591-a278-9dec82a21133",
+  "documentNamespace": "https://nxp.com/spdx/badd9ede-fe63-4534-9929-9a0acbba1b4c",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133",
+      "SPDXID": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c",
       "name": "spsdk_plugins_pkcs11",
-      "versionInfo": "0.3.6",
+      "versionInfo": "0.3.8",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://pypi.org/project/spsdk-pkcs11/",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---a2bd903b-a548-4afc-ae80-3b6aad92d8c6",
+      "SPDXID": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c---a2bd903b-a548-4afc-ae80-3b6aad92d8c6",
       "name": "cached-property",
       "versionInfo": "2.0.1",
       "licenseConcluded": "BSD-3-Clause",
@@ -50,9 +49,9 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---d0889db8-50c2-4354-8451-e26de5c1f91e",
+      "SPDXID": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c---eb814e16-b8fc-4ae2-9259-dcde13ae0d5d",
       "name": "python-pkcs11",
-      "versionInfo": "0.9.4",
+      "versionInfo": "0.9.5",
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "homepage": "https://github.com/danni/python-pkcs11",
@@ -62,27 +61,39 @@
       "externalRefs": [
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "814ee984-a3e0-44a1-9348-029ed79618f5",
+          "referenceLocator": "6e655c4c-830f-41b7-8ff6-2838114a0353",
           "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/python-pkcs11@0.9.4",
+          "referenceLocator": "pkg:pypi/python-pkcs11@0.9.5",
           "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "SPDXID": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c---66fabaa5-2e84-491e-a153-62dd51d98453",
       "name": "spsdk",
       "versionInfo": "3.10.0",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
-      "downloadLocation": "https://pypi.org/project/spsdk/",
-      "originator": "Organization: NXP",
+      "homepage": "https://github.com/NXPmicro/spsdk",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
-      "externalRefs": [],
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b77bb8b1-987f-400a-a0bb-f52fda631af5",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk@3.10.0",
+          "referenceType": "purl"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -90,22 +101,22 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133"
+      "relatedSpdxElement": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c"
     },
     {
-      "spdxElementId": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133",
+      "spdxElementId": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
+      "relatedSpdxElement": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c---66fabaa5-2e84-491e-a153-62dd51d98453"
     },
     {
-      "spdxElementId": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133",
+      "spdxElementId": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---a2bd903b-a548-4afc-ae80-3b6aad92d8c6"
+      "relatedSpdxElement": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c---a2bd903b-a548-4afc-ae80-3b6aad92d8c6"
     },
     {
-      "spdxElementId": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133",
+      "spdxElementId": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-12e48218-4e77-4591-a278-9dec82a21133---d0889db8-50c2-4354-8451-e26de5c1f91e"
+      "relatedSpdxElement": "SPDXRef-package-badd9ede-fe63-4534-9929-9a0acbba1b4c---eb814e16-b8fc-4ae2-9259-dcde13ae0d5d"
     }
   ]
 }

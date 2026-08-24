@@ -2,33 +2,32 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-06-12T08:21:57Z",
+    "created": "2026-08-21T16:30:44Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_lauterbach-0.5.2",
+  "name": "spsdk_plugins_lauterbach-0.5.6",
   "dataLicense": "CC0-1.0",
-  "hasExtractedLicensingInfos": [],
-  "documentNamespace": "https://nxp.com/spdx/c204ba02-6ac7-4946-a7d4-a7e20122506a",
+  "documentNamespace": "https://nxp.com/spdx/f534bfa5-5900-41e8-a595-6a5a4e880927",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a",
+      "SPDXID": "SPDXRef-package-f534bfa5-5900-41e8-a595-6a5a4e880927",
       "name": "spsdk_plugins_lauterbach",
-      "versionInfo": "0.5.2",
+      "versionInfo": "0.5.6",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://pypi.org/project/spsdk-lauterbach/",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a---88fb306e-0109-4674-b381-68e08741b25b",
+      "SPDXID": "SPDXRef-package-f534bfa5-5900-41e8-a595-6a5a4e880927---49cdc901-317e-475c-ba16-68ac5743034c",
       "name": "lauterbach-trace32-rcl",
-      "versionInfo": "1.1.5",
+      "versionInfo": "1.1.6",
       "licenseConcluded": "MIT",
       "licenseDeclared": "MIT",
       "homepage": "https://www.lauterbach.com",
@@ -38,27 +37,39 @@
       "externalRefs": [
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "78c2c074-42a1-4b71-bba9-b71107d793da",
+          "referenceLocator": "5022605e-a4a1-4578-80dc-187bd11112be",
           "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/lauterbach-trace32-rcl@1.1.5",
+          "referenceLocator": "pkg:pypi/lauterbach-trace32-rcl@1.1.6",
           "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "SPDXID": "SPDXRef-package-f534bfa5-5900-41e8-a595-6a5a4e880927---66fabaa5-2e84-491e-a153-62dd51d98453",
       "name": "spsdk",
       "versionInfo": "3.10.0",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
-      "downloadLocation": "https://pypi.org/project/spsdk/",
-      "originator": "Organization: NXP",
+      "homepage": "https://github.com/NXPmicro/spsdk",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
-      "externalRefs": [],
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b77bb8b1-987f-400a-a0bb-f52fda631af5",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk@3.10.0",
+          "referenceType": "purl"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -66,17 +77,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a"
+      "relatedSpdxElement": "SPDXRef-package-f534bfa5-5900-41e8-a595-6a5a4e880927"
     },
     {
-      "spdxElementId": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a",
+      "spdxElementId": "SPDXRef-package-f534bfa5-5900-41e8-a595-6a5a4e880927",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
+      "relatedSpdxElement": "SPDXRef-package-f534bfa5-5900-41e8-a595-6a5a4e880927---49cdc901-317e-475c-ba16-68ac5743034c"
     },
     {
-      "spdxElementId": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a",
+      "spdxElementId": "SPDXRef-package-f534bfa5-5900-41e8-a595-6a5a4e880927",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-c204ba02-6ac7-4946-a7d4-a7e20122506a---88fb306e-0109-4674-b381-68e08741b25b"
+      "relatedSpdxElement": "SPDXRef-package-f534bfa5-5900-41e8-a595-6a5a4e880927---66fabaa5-2e84-491e-a153-62dd51d98453"
     }
   ]
 }

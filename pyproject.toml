@@ -5,17 +5,17 @@ name = "spsdk_plugins"
 [tool.release-tools]
 disabled = ['docs', 'scr']
 sub_projects = [
-    "keyfactor",
-    "jlink",
     "iped",
-    "mcu_link",
+    "jlink",
+    "keyfactor",
     "lauterbach",
+    "mcu_link",
+    "offline_signature_provider",
     "pemicro",
     "pkcs11",
     "pqc",
     "pylint_plugins",
     "pyocd",
-    "offline_signature_provider",
 ]
 
 [tool.release-tools.github]

@@ -2,33 +2,32 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-06-12T08:25:09Z",
+    "created": "2026-08-21T16:38:26Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_pyocd-0.3.6",
+  "name": "spsdk_plugins_pyocd-0.3.10",
   "dataLicense": "CC0-1.0",
-  "hasExtractedLicensingInfos": [],
-  "documentNamespace": "https://nxp.com/spdx/815e336f-9341-4ce2-849c-7ec9ecb0ab27",
+  "documentNamespace": "https://nxp.com/spdx/2c7a4aa3-8582-4e15-8214-e929a3e23c1b",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27",
+      "SPDXID": "SPDXRef-package-2c7a4aa3-8582-4e15-8214-e929a3e23c1b",
       "name": "spsdk_plugins_pyocd",
-      "versionInfo": "0.3.6",
+      "versionInfo": "0.3.10",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://pypi.org/project/spsdk-pyocd/",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27---4cd397e9-889b-4d55-a6f5-e54ea8bb605d",
+      "SPDXID": "SPDXRef-package-2c7a4aa3-8582-4e15-8214-e929a3e23c1b---14b85e33-32f7-423c-a0b0-e74f12d36713",
       "name": "pyOCD",
-      "versionInfo": "0.44.1",
+      "versionInfo": "0.45.1",
       "licenseConcluded": "Apache-2.0",
       "licenseDeclared": "Apache-2.0",
       "homepage": "https://github.com/mbedmicro/pyOCD",
@@ -38,27 +37,39 @@
       "externalRefs": [
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "7f42f9e3-b16f-49b1-bccc-45b06d383896",
+          "referenceLocator": "eb80402a-451d-4763-9c18-0c922bb20169",
           "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/pyocd@0.44.1",
+          "referenceLocator": "pkg:pypi/pyocd@0.45.1",
           "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "SPDXID": "SPDXRef-package-2c7a4aa3-8582-4e15-8214-e929a3e23c1b---66fabaa5-2e84-491e-a153-62dd51d98453",
       "name": "spsdk",
       "versionInfo": "3.10.0",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
-      "downloadLocation": "https://pypi.org/project/spsdk/",
-      "originator": "Organization: NXP",
+      "homepage": "https://github.com/NXPmicro/spsdk",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
-      "externalRefs": [],
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b77bb8b1-987f-400a-a0bb-f52fda631af5",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk@3.10.0",
+          "referenceType": "purl"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -66,17 +77,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27"
+      "relatedSpdxElement": "SPDXRef-package-2c7a4aa3-8582-4e15-8214-e929a3e23c1b"
     },
     {
-      "spdxElementId": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27",
+      "spdxElementId": "SPDXRef-package-2c7a4aa3-8582-4e15-8214-e929a3e23c1b",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27---4cd397e9-889b-4d55-a6f5-e54ea8bb605d"
+      "relatedSpdxElement": "SPDXRef-package-2c7a4aa3-8582-4e15-8214-e929a3e23c1b---14b85e33-32f7-423c-a0b0-e74f12d36713"
     },
     {
-      "spdxElementId": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27",
+      "spdxElementId": "SPDXRef-package-2c7a4aa3-8582-4e15-8214-e929a3e23c1b",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-815e336f-9341-4ce2-849c-7ec9ecb0ab27---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
+      "relatedSpdxElement": "SPDXRef-package-2c7a4aa3-8582-4e15-8214-e929a3e23c1b---66fabaa5-2e84-491e-a153-62dd51d98453"
     }
   ]
 }

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # -*- coding: UTF-8 -*-
 #
@@ -11,7 +10,7 @@
 
 __author__ = """NXP"""
 __email__ = "spsdk@nxp.com"
-__version__ = "0.2.1"
+__version__ = "0.2.4"
 
 from .offline_signature_provider import OfflineSP
 
