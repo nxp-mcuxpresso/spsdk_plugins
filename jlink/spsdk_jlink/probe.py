@@ -33,7 +33,7 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
     """SPSDK Debug Probe J-Link Debug probe class."""
 
     NAME = "jlink"
-    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (  # type: ignore[assignment]
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
         DebugProbeProtocol.SWD,
         DebugProbeProtocol.JTAG,
     )

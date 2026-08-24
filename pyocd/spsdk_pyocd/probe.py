@@ -38,7 +38,7 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
     """Class to define PyOCD package interface for NXP SPSDK."""
 
     NAME = "pyocd"
-    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (  # type: ignore[assignment]
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
         DebugProbeProtocol.SWD,
         DebugProbeProtocol.JTAG,
     )

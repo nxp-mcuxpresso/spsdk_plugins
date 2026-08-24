@@ -73,7 +73,7 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
     """Class to define Pemicro package interface for NXP SPSDK."""
 
     NAME = "pemicro"
-    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (  # type: ignore[assignment]
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
         DebugProbeProtocol.SWD,
         # DebugProbeProtocol.JTAG,
     )

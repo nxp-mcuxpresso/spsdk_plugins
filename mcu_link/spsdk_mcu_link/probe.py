@@ -31,7 +31,7 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
     """SPSDK Debug Probe NXP MCU-Link probe class."""
 
     NAME = "mcu-link"
-    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (  # type: ignore[assignment]
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
         DebugProbeProtocol.SWD,
         DebugProbeProtocol.JTAG,
     )
