@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -9,7 +8,7 @@
 
 __author__ = """NXP"""
 __email__ = "spsdk@nxp.com"
-__version__ = "0.7.1"
+__version__ = "0.7.5"
 
 try:
     from spsdk.__version__ import version, version_tuple
@@ -27,8 +26,8 @@ if version_tuple < MIN_SPSDK_VERSION:
     )
 
 # pylint: disable=wrong-import-position
-from .errors import PQCError  # noqa: E402
-from .wrapper import (  # noqa: E402
+from .errors import PQCError
+from .wrapper import (
     DISABLE_DIL_MLDSA_PUBLIC_KEY_MISMATCH_WARNING,
     DilithiumPrivateKey,
     DilithiumPublicKey,

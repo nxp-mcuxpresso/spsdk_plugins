@@ -25,11 +25,15 @@ pipeline {
                 script {
                     try {
                         withVenv(
-                            "uv pip install nox tomli",
-                            "nox -P 3.10 3.13 --session codecheck -- --spsdk spsdk_repo -s -o reports",
+                            "uv pip install -U uv && uv python install 3.10 3.14 && uv pip install nox tomli",
+                            "nox -P 3.10 3.14 --session codecheck -- --spsdk spsdk_repo -s -o reports",
                         )
                     } finally {
                         archiveArtifacts(artifacts: '*/reports*/*.txt', allowEmptyArchive: true)
+                        archiveArtifacts(artifacts: '*/reports*/*.html', allowEmptyArchive: true)
+                        archiveArtifacts(artifacts: 'reports-summary/*.xml', allowEmptyArchive: true)
+                        junit(allowEmptyResults: true, testResults: 'reports-summary/*.xml')
+                        junit(allowEmptyResults: true, testResults: '*/reports*/tests.xml')
                     }
                 }
             }

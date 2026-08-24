@@ -2,36 +2,23 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-06-12T08:20:34Z",
+    "created": "2026-08-21T16:27:03Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_iped-0.1.0",
+  "name": "spsdk_plugins_iped-0.1.1",
   "dataLicense": "CC0-1.0",
-  "hasExtractedLicensingInfos": [],
-  "documentNamespace": "https://nxp.com/spdx/bdbee1b3-7cb8-455c-9fa9-94041ae5132b",
+  "documentNamespace": "https://nxp.com/spdx/a828b1dd-c06c-4e16-9456-2aeb1b19ce6e",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b",
+      "SPDXID": "SPDXRef-package-a828b1dd-c06c-4e16-9456-2aeb1b19ce6e",
       "name": "spsdk_plugins_iped",
-      "versionInfo": "0.1.0",
+      "versionInfo": "0.1.1",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://pypi.org/project/spsdk-iped/",
-      "originator": "Organization: NXP",
-      "supplier": "NOASSERTION",
-      "externalRefs": [],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
-      "name": "spsdk",
-      "versionInfo": "3.10.0",
-      "licenseConcluded": "BSD-3-Clause",
-      "licenseDeclared": "BSD-3-Clause",
-      "downloadLocation": "https://pypi.org/project/spsdk/",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
@@ -42,12 +29,7 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b",
-      "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-bdbee1b3-7cb8-455c-9fa9-94041ae5132b---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
+      "relatedSpdxElement": "SPDXRef-package-a828b1dd-c06c-4e16-9456-2aeb1b19ce6e"
     }
   ]
 }

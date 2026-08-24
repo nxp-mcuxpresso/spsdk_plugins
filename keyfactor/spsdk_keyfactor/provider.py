@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -10,7 +9,7 @@ import base64
 import json
 import os
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any
 
 import requests
 import requests.adapters
@@ -54,8 +53,8 @@ class KeyfactorSP(SignatureProvider):
     # pylint: disable=unused-argument
     def __init__(
         self,
-        env_file: Optional[str] = None,
-        worker: Optional[Union[str, int]] = None,
+        env_file: str | None = None,
+        worker: str | int | None = None,
         **kwargs: str,
     ) -> None:
         """Initialize the KeyfactorSP."""
@@ -75,7 +74,7 @@ class KeyfactorSP(SignatureProvider):
         self.session = requests.Session()
         self._setup_session_auth()
 
-        self.signer_certificate: Optional[Certificate] = None
+        self.signer_certificate: Certificate | None = None
         self.prehash = self._get_prehash()
         # simply get the signature length from the environment
         # actual signature length will be self-corrected by the signer certificate
@@ -85,7 +84,7 @@ class KeyfactorSP(SignatureProvider):
 
     def _load_dotenv(
         self,
-        env_file: Optional[str] = None,
+        env_file: str | None = None,
     ) -> None:
         """Fetch configuration from environment variables."""
         env_file_candidates = [

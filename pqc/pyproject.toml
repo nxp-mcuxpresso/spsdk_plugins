@@ -4,7 +4,13 @@ description = "Post-Quantum Crypto support for SPSDK"
 dynamic = ["version"]
 
 requires-python = ">= 3.10"
-dependencies = ["pyasn1", "typing_extensions", "click", "pycryptodome", "spsdk>=3.10.0.dev0,<4"]
+dependencies = [
+    "pyasn1",
+    "typing_extensions",
+    "click",
+    "pycryptodome",
+    "spsdk>=3.10.0.dev0,<4",
+]
 
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
@@ -21,6 +27,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [project.entry-points]
@@ -46,7 +53,7 @@ packages = ["spsdk_pqc", "spsdk_pqc.__pyinstaller"]
 version = { attr = "spsdk_pqc.__version__" }
 
 [tool.bumpversion]
-current_version = "0.7.0"
+current_version = "0.7.5"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pqc/__init__.py"
@@ -66,8 +73,14 @@ relative_files = true
 
 [tool.black]
 line-length = 100
-target-version = ["py39", "py310", "py311", "py312"]
+target-version = ["py310", "py311", "py312", "py313", "py314"]
 include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["EXE001", "I001", "N999"]
 
 [tool.isort]
 multi_line_output = 3
@@ -114,7 +127,7 @@ checkers = [
     { "gitcov" = { info_only = true } },
     "pylint",
     "mypy",
-    "dependencies",
+    # "dependencies",
     "pydocstyle",
     "ruff",
     { "radon_c" = { info_only = true } },
@@ -122,7 +135,7 @@ checkers = [
     "black",
     "isort",
     "copyright",
-    "py_headers",
+    { "py_headers" = { args = ['--header "#!/usr/bin/env python"'] } },
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
@@ -132,7 +145,7 @@ disabled = ['docs', 'scr']
 
 [tool.release-tools.blackduck_sca]
 project_name = "spsdk_plugins_pqc"
-include_detector_types = ["setuptools"]
+include_detector_types = ["pip"]
 sbom_location = "SBOM-spsdk_plugins_pqc.spdx.json"
 
 [tool.release-tools.clr]

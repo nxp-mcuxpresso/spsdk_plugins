@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -7,8 +6,9 @@
 
 """Main module for MCU-Link."""
 
+from __future__ import annotations
+
 import logging
-from typing import Optional
 
 from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
@@ -21,19 +21,26 @@ from spsdk.debuggers.debug_probe import (
 )
 
 from .dapper import DapperFactory, Interface, WebixDapper
+from .protocols import DebugProbeProtocol, get_debug_probe_protocol
 
 logger = get_logger(__name__)
+cs_trace_logger = get_logger("spsdk.probe.trace")
 
 
 class DebugProbeMCULink(DebugProbeCoreSightOnly):
     """SPSDK Debug Probe NXP MCU-Link probe class."""
 
     NAME = "mcu-link"
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
+        DebugProbeProtocol.SWD,
+        DebugProbeProtocol.JTAG,
+    )
 
-    def __init__(self, hardware_id: str, options: Optional[dict] = None) -> None:
+    def __init__(self, hardware_id: str, options: dict | None = None) -> None:
         """The Debug Probe class initialization."""
+        self.probe: WebixDapper | None = None
         super().__init__(hardware_id, options)
-        self.probe: Optional[WebixDapper] = None
+
         self.configure_logger()
         logger.info("The SPSDK MCU-Link Interface has been initialized")
 
@@ -56,8 +63,8 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
     @classmethod
     def get_connected_probes(
         cls,
-        hardware_id: Optional[str] = None,
-        options: Optional[dict] = None,  # pylint: disable=unused-argument
+        hardware_id: str | None = None,
+        options: dict | None = None,  # pylint: disable=unused-argument
     ) -> DebugProbes:
         """Functions returns the list of all connected probes in system.
 
@@ -72,8 +79,8 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
 
         try:
             connected_probes: list[Interface] = DapperFactory.list_probes()
-        except Exception as e:  # pylint: disable=broad-except
-            logger.debug(f"Probing connected probes over MCU-Link failed: {str(e)}")
+        except (RuntimeError, TypeError) as e:
+            logger.debug(f"Probing connected probes over MCU-Link failed: {e!s}")
             connected_probes = []
 
         for probe in connected_probes:
@@ -108,8 +115,8 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
             self.probe = DapperFactory.create_probe(self.hardware_id)
             self.probe.stdout_handler = lambda _: None
             self.probe.stderr_handler = logger.error
-        except Exception as e:
-            raise SPSDKDebugProbeError(f"Failed to initialize MCU-Link probe: {str(e)}") from e
+        except (RuntimeError, TypeError) as e:
+            raise SPSDKDebugProbeError(f"Failed to initialize MCU-Link probe: {e!s}") from e
 
     def connect(self) -> None:
         """Connect to target.
@@ -121,11 +128,23 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
         """
         if self.probe is None:
             raise SPSDKDebugProbeError("Debug probe needs to be opened first")
+        use_jtag = get_debug_probe_protocol(self) == DebugProbeProtocol.JTAG
         try:
+            self.probe.use_jtag = use_jtag
             self.probe.connect()
-        except Exception as e:
+            self.read_dp_idr()
+        except (RuntimeError, TypeError) as e:
+            if use_jtag:
+                try:
+                    self.probe.initialize_debug_port()
+                    logger.debug(
+                        f"MCU-Link JTAG connect reported an error, but DP access is functional: {e}"
+                    )
+                    return
+                except (RuntimeError, TypeError) as jtag_exc:
+                    logger.debug(f"MCU-Link JTAG DP fallback failed: {jtag_exc!s}")
             raise SPSDKDebugProbeError(
-                f"The MCU-Link cannot establish communication with target: {str(e)}"
+                f"The MCU-Link cannot establish communication with target: {e!s}"
             ) from e
 
     def close(self) -> None:
@@ -133,9 +152,31 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
 
         The MCU-Link closing function for SPSDK library to support various DEBUG PROBES.
         """
-        if self.probe:
-            self.probe.close()
+        if probe := getattr(self, "probe", None):
+            probe.close()
 
+    # --- Transitional fallback; remove when min SPSDK >= 3.15 provides these. ---
+    def trace_cs_read(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight read in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value read.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS RD {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    def trace_cs_write(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight write in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value written.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS WR {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    # --- End transitional fallback. ---
     def coresight_reg_read(self, access_port: bool = True, addr: int = 0) -> int:
         """Read coresight register over MCU-Link probe.
 
@@ -150,15 +191,11 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
 
         try:
             ret = self.probe.core_sight_read(access_port, addr)
-            logger.trace(
-                f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {ret:08X}"
-            )
+            self.trace_cs_read(access_port, addr, ret)
             return ret
         except Exception as e:
             self.probe.reinit_target()
-            raise SPSDKDebugProbeTransferError(
-                f"The coresight read operation failed({str(e)})"
-            ) from e
+            raise SPSDKDebugProbeTransferError(f"The coresight read operation failed({e!s})") from e
 
     def coresight_reg_write(self, access_port: bool = True, addr: int = 0, data: int = 0) -> None:
         """Write coresight register over MCU-Link probe.
@@ -174,13 +211,11 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
 
         try:
             self.probe.core_sight_write(access_port, addr, data)
-            logger.trace(
-                f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
-            )
+            self.trace_cs_write(access_port, addr, data)
         except Exception as e:
             self.probe.reinit_target()
             raise SPSDKDebugProbeTransferError(
-                f"The Coresight write operation failed({str(e)})"
+                f"The Coresight write operation failed({e!s})"
             ) from e
 
     def assert_reset_line(self, assert_reset: bool = False) -> None:
@@ -196,10 +231,10 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
             logger.trace("Resetting target")
             self.probe.reset()
         except Exception as e:
-            raise SPSDKDebugProbeError(f"The MCU-Link reset operation failed: {str(e)}") from e
+            raise SPSDKDebugProbeError(f"The MCU-Link reset operation failed: {e!s}") from e
 
     def __str__(self) -> str:
         """Return information about the device."""
         if self.probe is None:
             return "MCU-Link debug probe"
-        return f"MCU-Link debug probe at {str(self.probe.get_probe_id())}"
+        return f"MCU-Link debug probe at {self.probe.get_probe_id()!s}"

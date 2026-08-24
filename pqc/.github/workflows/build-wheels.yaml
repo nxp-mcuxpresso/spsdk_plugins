@@ -1,3 +1,7 @@
+# Copyright 2026 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 name: Build wheels
 
 on:
@@ -29,11 +33,12 @@ jobs:
           python-version: '3.9'
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v4.1.0
         with:
           output-dir: dist
         env:
-          CIBW_SKIP: "pp*"
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-* cp314-*"
+          CIBW_SKIP: "pp* cp314t-*"
 
 
       - uses: actions/upload-artifact@v4

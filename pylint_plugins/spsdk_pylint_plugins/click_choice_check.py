@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024,2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -15,7 +14,7 @@ class ClickChoiceChecker(BaseChecker):
     """When using click.Choice option, check if case_sensitive is set to True."""
 
     name = "click-choice"
-    msgs = {
+    msgs = {  # noqa: RUF012
         "W9901": (
             "Click.Choice is case sensitive",
             "case-sensitive-choice",

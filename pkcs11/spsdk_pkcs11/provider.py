@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -10,7 +9,7 @@
 import os
 import warnings
 from functools import cached_property
-from typing import Any, Optional, Tuple
+from typing import Any
 
 from asn1crypto.keys import ECDomainParameters
 from spsdk.crypto.hash import EnumHashAlgorithm, get_hash
@@ -33,10 +32,10 @@ class PKCS11SP(SignatureProvider):
         self,
         so_path: str,
         user_pin: str,
-        token_label: Optional[str] = None,
-        token_serial: Optional[str] = None,
-        key_label: Optional[str] = None,
-        key_id: Optional[str] = None,
+        token_label: str | None = None,
+        token_serial: str | None = None,
+        key_label: str | None = None,
+        key_id: str | None = None,
         pss_padding: bool = False,
         **kwargs: Any,
     ) -> None:
@@ -61,7 +60,7 @@ class PKCS11SP(SignatureProvider):
         if not key_label and not key_id:
             raise SPSDKError("Missing 'key_label' or 'key_id', or both")
         self.key_label = key_label
-        self.key_id: Optional[bytes] = None
+        self.key_id: bytes | None = None
         if key_id:
             if len(key_id) > 2:
                 warnings.warn(
@@ -157,7 +156,7 @@ class PKCS11SP(SignatureProvider):
             hash_alg = self._get_hash_alg(key=key)
             digest = get_hash(data=data, algorithm=hash_alg)
             mechanism = pkcs11.Mechanism.ECDSA
-            mechanism_param: Optional[Tuple] = None
+            mechanism_param: tuple | None = None
 
             if key.key_type == pkcs11.KeyType.RSA:
                 if self.pss_padding:

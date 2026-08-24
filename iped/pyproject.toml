@@ -2,7 +2,7 @@
 name = "spsdk-iped"
 description = "Fast C++ PRINCE cipher backend for SPSDK IPED encryption."
 dynamic = ["version"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = ["spsdk>=3.10.0.dev0,<4"]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
@@ -15,11 +15,11 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [project.urls]
@@ -37,7 +37,7 @@ packages = ["spsdk_iped"]
 version = { attr = "spsdk_iped.__version__" }
 
 [tool.bumpversion]
-current_version = "0.1.0"
+current_version = "0.1.1"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_iped/__init__.py"
@@ -55,8 +55,14 @@ relative_files = true
 
 [tool.black]
 line-length = 100
-target-version = ["py39", "py310", "py311", "py312"]
+target-version = ["py310", "py311", "py312", "py313", "py314"]
 include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["EXE001", "I001", "N999"]
 
 [tool.isort]
 multi_line_output = 3
@@ -78,7 +84,10 @@ match = '(?!test_|__version__).*\.py'
 
 [tool.pylint]
 format = { max-line-length = 120 }
-"messages control" = { disable = ["logging-fstring-interpolation", "attribute-defined-outside-init"] }
+"messages control" = { disable = [
+    "logging-fstring-interpolation",
+    "attribute-defined-outside-init",
+] }
 
 [tool.nxp_codecheck]
 git_parent_branch = "origin/master"
@@ -89,7 +98,7 @@ checkers = [
     { "gitcov" = { info_only = true } },
     "pylint",
     "mypy",
-    { "dependencies" = { info_only = true } },
+    # { "dependencies" = { info_only = true } },
     "pydocstyle",
     "ruff",
     { "radon_c" = { info_only = true } },
@@ -97,14 +106,14 @@ checkers = [
     "black",
     "isort",
     "copyright",
-    "py_headers",
+    { "py_headers" = { args = ['--header "#!/usr/bin/env python"'] } },
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
 
 [tool.release-tools.blackduck_sca]
 project_name = "spsdk_plugins_iped"
-include_detector_types = ["setuptools"]
+include_detector_types = ["pip"]
 sbom_location = "SBOM-spsdk_plugins_iped.spdx.json"
 
 [tool.release-tools.scr]

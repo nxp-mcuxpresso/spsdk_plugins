@@ -1,30 +1,31 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 # Copyright 2025 Oidis
 #
 # SPDX-License-Identifier: BSD-3-Clause
 """USB Interface implementation for communicating with USB devices."""
 
+from __future__ import annotations
+
 import ctypes
 import logging
 import queue
 import threading
-from typing import Any, Optional
+from typing import Any
 
 from ..core import Uint8Array
 from . import Interface
+from .usb_backend import get_usb_backend
 
 logger = logging.getLogger(__name__)
 
 try:
-    import libusb_package
     import usb
 
-    IMPORTS_AVAILABLE = True
+    IMPORTS_AVAILABLE = get_usb_backend() is not None
 except ImportError:
-    logger.debug("usb or libusb_package not available. USB v1 interface will not be available.")
+    logger.debug("usb backend dependencies not available. USB v1 interface will not be available.")
     usb = type(
         "usb", (), {"core": type("core", (), {"Device": None})}
     )  # bypass for Interface[T] type checker
@@ -56,8 +57,8 @@ class UsbV1Interface(Interface[usb.core.Device]):
         """
         super().__init__(device)
         self._type = "usb_v1"
-        self._endpoint_in: Optional[usb.core.Endpoint] = None
-        self._endpoint_out: Optional[usb.core.Endpoint] = None
+        self._endpoint_in: usb.core.Endpoint | None = None
+        self._endpoint_out: usb.core.Endpoint | None = None
 
         self.serial_no = device.serial_number
         self.vendor = device.manufacturer
@@ -66,7 +67,7 @@ class UsbV1Interface(Interface[usb.core.Device]):
         self.pid = device.idProduct
         self.packet_size = 64
 
-        self.thread: Optional[threading.Thread] = None
+        self.thread: threading.Thread | None = None
         self.interface_number = 0
         self.worker_stop_flag = threading.Event()
         self.data_fifo_rx: queue.SimpleQueue[bytes] = queue.SimpleQueue()
@@ -79,9 +80,11 @@ class UsbV1Interface(Interface[usb.core.Device]):
         :return: List of available USB interfaces
         """
         probes: list[Interface] = []
+        if (backend := get_usb_backend()) is None:
+            return probes
         # todo(mkelnar) supported_vendor_ids will be changed
-        for vid in list([0x1FC9, 0x0D28]):
-            usb_devices = libusb_package.find(find_all=True, idVendor=vid)
+        for vid in (0x1FC9, 0x0D28):
+            usb_devices = usb.core.find(find_all=True, idVendor=vid, backend=backend)
             for usb_device in usb_devices:
                 if usb_device.bDeviceClass in {0x00, 0xEF}:  # not HID
                     try:
@@ -174,7 +177,7 @@ class UsbV1Interface(Interface[usb.core.Device]):
         if self._endpoint_out is None:
             raise RuntimeError("Device endpoint needs to be opened first.")
         if not isinstance(data, Uint8Array):
-            raise RuntimeError("Data must be an instance of Uint8Array.")
+            raise TypeError("Data must be an instance of Uint8Array.")
 
         self.read_mutex.release()
         self._endpoint_out.write(data.buffer, 10000)
@@ -216,13 +219,12 @@ class UsbV1Interface(Interface[usb.core.Device]):
         try:
             while not self.worker_stop_flag.is_set():
                 self.read_mutex.acquire()
-                if not self.worker_stop_flag.is_set():
-                    if self._endpoint_in is not None:
-                        read_data = self._endpoint_in.read(
-                            self._endpoint_in.wMaxPacketSize, 10000
-                        ).tobytes()
-                        self.data_fifo_rx.put(read_data)
-        except Exception as e:
+                if not self.worker_stop_flag.is_set() and self._endpoint_in is not None:
+                    read_data = self._endpoint_in.read(
+                        self._endpoint_in.wMaxPacketSize, 10000
+                    ).tobytes()
+                    self.data_fifo_rx.put(read_data)
+        except (RuntimeError, usb.core.USBError) as e:
             logger.debug(f"receiver worker failed: {e}")
 
         logger.debug("receiver worker ended")

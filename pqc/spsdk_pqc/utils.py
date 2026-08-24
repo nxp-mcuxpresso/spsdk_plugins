@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Copyright 2025-2026 NXP
 #
@@ -145,12 +144,11 @@ def check_compatibility(classic: PrivateKeyEcc, pqc: PQCPrivateKey) -> str:
                 return "1.3.9999.7.7"
             if pqc.level == 5:
                 return MLDSA_LEVEL_OID[5]
-        if classic.key_size == 521:
-            if pqc.level == 5:
-                return "1.3.9999.7.8"
-        raise ValueError(f"Can't combine {repr(classic)} and {repr(pqc)}")
+        if classic.key_size == 521 and pqc.level == 5:
+            return "1.3.9999.7.8"
+        raise ValueError(f"Can't combine {classic!r} and {pqc!r}")
 
-    raise ValueError(f"Unsupported hybrid type (classic {repr(classic)} ,PQC {repr(pqc)})")
+    raise ValueError(f"Unsupported hybrid type (classic {classic!r} ,PQC {pqc!r})")
 
 
 def test_key(private_key: PrivateKey | PQCPrivateKey) -> bool:

@@ -1,16 +1,17 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 # Copyright 2025 Oidis
 #
 # SPDX-License-Identifier: BSD-3-Clause
 """HID interface implementation for communicating with USB HID devices."""
 
+from __future__ import annotations
+
 import ctypes
 import logging
 import platform
-from typing import Any
+from types import TracebackType
 
 from ..core import Uint8Array
 from . import Interface
@@ -76,19 +77,17 @@ class HidInterface(Interface[hid.device]):
 
         devices = hid.enumerate()  # pylint: disable=c-extension-no-member
         for device_info in devices:
-            if device_info["vendor_id"] in {0x1FC9, 0xD28}:  # nxp vid, dap link vid
-                if device_info["product_id"] in {
-                    0x0090,
-                    0x0143,
-                    0x204,
-                }:  # lpc-link, mcu-link, dap-link
-                    if device_info["usage_page"] == 0xFF00:  # vendor defined usage page
-                        device = hid.device(  # pylint: disable=c-extension-no-member, not-callable
-                            vendor_id=device_info["vendor_id"],
-                            product_id=device_info["product_id"],
-                            path=device_info["path"],
-                        )
-                        probes.append(HidInterface(device, device_info))
+            if (
+                device_info["vendor_id"] in {0x1FC9, 0xD28}
+                and device_info["product_id"] in {0x0090, 0x0143, 0x204}
+                and device_info["usage_page"] == 0xFF00
+            ):
+                device = hid.device(  # pylint: disable=c-extension-no-member, not-callable
+                    vendor_id=device_info["vendor_id"],
+                    product_id=device_info["product_id"],
+                    path=device_info["path"],
+                )
+                probes.append(HidInterface(device, device_info))
 
         return probes
 
@@ -138,7 +137,12 @@ class HidInterface(Interface[hid.device]):
 
         return Uint8Array((ctypes.c_uint8 * len(data))(*data))
 
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         """Exit the context manager.
 
         :param exc_type: Exception type

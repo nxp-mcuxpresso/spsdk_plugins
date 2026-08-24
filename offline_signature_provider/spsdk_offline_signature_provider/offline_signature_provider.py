@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2023,2025 NXP
+# Copyright 2023,2025-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -11,7 +10,7 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from spsdk.crypto.hash import EnumHashAlgorithm, get_hash
 from spsdk.crypto.keys import PublicKeyEcc
@@ -67,7 +66,7 @@ class OfflineSP(SignatureProvider):
         hash_file: str = "hash_file",
         key_size: str = "256",
         algorithm: str = "ecc",
-        hash_algorithm: Optional[str] = None,
+        hash_algorithm: str | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize the Offline SignatureProvider.
@@ -195,10 +194,9 @@ class OfflineSP(SignatureProvider):
                 # specific DER structure used by your signing tool
                 # Basic DER signature extraction (simplified approach)
                 # This assumes the signature is at the end of the DER structure
-                if len(sig_data) >= self.signature_length:
-                    # Try extracting from the end (common for some DER formats)
-                    potential_sig = sig_data[-self.signature_length :]
-                    return potential_sig
+                # Try extracting from the end (common for some DER formats)
+                potential_sig = sig_data[-self.signature_length :]
+                return potential_sig
 
         except Exception as e:
             raise ValueError(f"Failed to process RSA signature: {e}") from e
@@ -246,7 +244,7 @@ class OfflineSP(SignatureProvider):
             with open(full_hash_file_path, "wb") as f:
                 f.write(data_hash)
             print(f"Hash is also stored in file: {full_hash_file_path}")
-        except IOError as e:
+        except OSError as e:
             print(f"Warning: Could not write hash file {full_hash_file_path}: {e}")
 
         # Provide algorithm-specific signing instructions
@@ -292,7 +290,7 @@ class OfflineSP(SignatureProvider):
                 print(f"Error: {e}")
                 print("Please check your signature file and try again.")
                 continue
-            except Exception as e:  # pylint: disable=broad-exception-caught
+            except OSError as e:
                 print(f"Unexpected error reading signature file: {e}")
                 continue
 

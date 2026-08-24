@@ -21,7 +21,7 @@ jobs:
       - name: Install uv and set up Python
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: '3.13'
+          python-version: '3.14'
           activate-environment: "true"
           
       - name: Install TOML parser
@@ -44,19 +44,28 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - name: Checkout SPSDK
+        uses: actions/checkout@v5
+        with:
+          repository: nxp-mcuxpresso/spsdk
+          ref: master
+          path: spsdk_repo
           
          
       - name: Install uv and set up Python
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: '3.13'
+          python-version: '3.14'
           activate-environment: "true"
           
       - name: Install nox and dependencies
         run: uv pip install nox tomli
 
+      - name: Install required Python interpreters
+        run: uv python install 3.10 3.14
+
       - name: Run Codecheck
-        run: nox -P 3.10 3.13 --session codecheck -- -s -o reports
+        run: nox -P 3.10 3.14 --session codecheck -- --spsdk spsdk_repo -s -o reports
 
       - name: Archive Results
         uses: actions/upload-artifact@v4.6.2

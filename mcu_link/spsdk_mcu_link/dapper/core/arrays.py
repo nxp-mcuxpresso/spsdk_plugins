@@ -1,14 +1,15 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 # Copyright 2025 Oidis
 #
 # SPDX-License-Identifier: BSD-3-Clause
 """Arrays implementation."""
 
+from __future__ import annotations
+
 import ctypes
-from typing import Any, Optional, Union
+from typing import Any
 
 
 class Uint8Array:
@@ -16,9 +17,9 @@ class Uint8Array:
 
     def __init__(
         self,
-        source: Union[ctypes.Array, "Uint8Array"],
+        source: ctypes.Array | Uint8Array,
         offset: int = 0,
-        length: Optional[int] = None,
+        length: int | None = None,
     ) -> None:
         """8-bit unsigned integer array implementation.
 
@@ -64,9 +65,7 @@ class Uint8Array:
         self._length = value
 
     # JS emulation
-    def constructor(
-        self, val: Union[ctypes.Array, "Uint8Array"], ptr: int, size: int
-    ) -> "Uint8Array":
+    def constructor(self, val: ctypes.Array | Uint8Array, ptr: int, size: int) -> Uint8Array:
         """Create new array from existing array.
 
         :param val: Source array
@@ -77,7 +76,7 @@ class Uint8Array:
         n_array = Uint8Array(val, ptr, size)
         return n_array
 
-    def set(self, source: "Uint8Array") -> int:
+    def set(self, source: Uint8Array) -> int:
         """Copy data from source array.
 
         :param source: Source array to copy from
@@ -87,7 +86,7 @@ class Uint8Array:
         ctypes.memmove(self.buffer, source.buffer, length_to_copy)
         return self.length
 
-    def __getitem__(self, index: Union[str, int]) -> Any:
+    def __getitem__(self, index: str | int) -> Any:
         """Get item from array by index or property name.
 
         :param index: Array index or property name
@@ -141,9 +140,9 @@ class Int32Array:
 
     def __init__(
         self,
-        source: Union[ctypes.Array, Uint8Array, "Int32Array"],
+        source: ctypes.Array | Uint8Array | Int32Array,
         offset: int = 0,
-        length: Optional[int] = None,
+        length: int | None = None,
     ) -> None:
         """Initialize Int32Array.
 
@@ -169,9 +168,7 @@ class Int32Array:
 
         self.length = length
         self.buffer: ctypes.Array
-        if isinstance(source, Uint8Array):
-            self.buffer = (ctypes.c_int32 * length).from_buffer(source.buffer, offset)
-        elif isinstance(source, Int32Array):
+        if isinstance(source, (Int32Array, Uint8Array)):
             self.buffer = (ctypes.c_int32 * length).from_buffer(source.buffer, offset)
         else:
             self.buffer = (ctypes.c_int32 * length).from_buffer(source, offset)
@@ -193,9 +190,7 @@ class Int32Array:
         self._length = value
 
     # JS emulation
-    def constructor(
-        self, val: Union[ctypes.Array, "Int32Array"], ptr: int, size: int
-    ) -> "Int32Array":
+    def constructor(self, val: ctypes.Array | Int32Array, ptr: int, size: int) -> Int32Array:
         """Constructor method for creating a new Int32Array.
 
         :param val: Source array to initialize from (ctypes.Array, Int32Array)
@@ -206,7 +201,7 @@ class Int32Array:
         n_array = Int32Array(val, ptr, size)
         return n_array
 
-    def set(self, source: "Int32Array") -> int:
+    def set(self, source: Int32Array) -> int:
         """Set values from source array.
 
         :param source: Source Int32Array to copy values from
@@ -216,7 +211,7 @@ class Int32Array:
         ctypes.memmove(self.buffer, source.buffer, length_to_copy)
         return self.length
 
-    def __getitem__(self, index: Union[str, int]) -> Any:
+    def __getitem__(self, index: str | int) -> Any:
         """Get item from array by index or property name.
 
         :param index: Index or property name to access

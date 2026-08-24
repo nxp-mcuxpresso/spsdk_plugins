@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -45,15 +44,15 @@ class CMakeBuild(build_ext):
                 "-DOQS_USE_OPENSSL=OFF",
                 "-DOQS_MINIMAL_BUILD=SIG_dilithium_2;SIG_dilithium_3;SIG_dilithium_5;SIG_ml_dsa_44;SIG_ml_dsa_65;SIG_ml_dsa_87",
                 "-DCMAKE_BUILD_TYPE=%s" % cfg,
-                "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
-                "-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), self.build_temp),
+                f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}",
+                f"-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_{cfg.upper()}={self.build_temp}",
             ]
 
             if platform.system() == "Windows":
                 plat = "x64" if platform.architecture()[0] == "64bit" else "Win32"
                 cmake_args += [
                     "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE",
-                    "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
+                    f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}",
                 ]
                 if self.compiler.compiler_type == "msvc":
                     cmake_args += [

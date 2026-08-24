@@ -188,7 +188,7 @@ class Signature(ct.Structure):
         rv = native().OQS_SIG_verify(
             self._sig, my_message, message_len, my_signature, sig_len, my_public_key
         )
-        return True if rv == OQS_SUCCESS else False
+        return rv == OQS_SUCCESS
 
     def free(self):
         """Releases the native resources."""

@@ -1,18 +1,20 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Copyright 2024 NXP
 # Copyright 2025-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+from __future__ import annotations
+
 import ctypes
 import logging
 import os
 import sys
 import types
+from collections.abc import Callable
 from time import sleep
-from typing import Any, Callable, Optional, Tuple, Union, cast
+from typing import Any, cast
 
 import wasmtime
 from spsdk import get_logger
@@ -118,7 +120,7 @@ class WasmExceptionInfo:
 
 
 class WebixDapperWasm:
-    def __init__(self, context_path: Optional[str] = None) -> None:
+    def __init__(self, context_path: str | None = None) -> None:
         self.trace = False
         self.with_stack_control = False
         config = Config()
@@ -156,7 +158,7 @@ class WebixDapperWasm:
         self.registered_types: dict[str, Any] = {}
         self.type_dependencies: dict[int, Any] = {}
         self.awaiting_dependencies: dict[str, Any] = {}
-        self.emval_handles: list[Union[int, bool, float, None]] = []
+        self.emval_handles: list[int | bool | float | None] = []
         self.emval_freelist: list[int] = []
         self.emval_method_callers: list[Callable] = []
         self.emval_symbols: dict[str, Any] = {}
@@ -306,16 +308,16 @@ class WebixDapperWasm:
         if name in self.exports:
             f = self.exports[name]
 
-            def wrapper(*args: Tuple[Any, ...]) -> Any:
+            def wrapper(*args: tuple[Any, ...]) -> Any:
                 return f(*args)
 
             return wrapper
         return lambda *args: None
 
-    def invoke(self, name: str, *args: Tuple[Any, ...]) -> Any:
+    def invoke(self, name: str, *args: tuple[Any, ...]) -> Any:
         return self.exports[name](self.store, *args)
 
-    def invoke_dyn(self, name: str, *args: Tuple[Any, ...]) -> Any:
+    def invoke_dyn(self, name: str, *args: tuple[Any, ...]) -> Any:
         return getattr(self, name)(*args)
 
     def invoke_jiiii(self, index: int, a1: int, a2: int, a3: int, a4: int) -> Any:
@@ -814,7 +816,7 @@ class WebixDapperWasm:
         # pylint: disable=unused-argument
         logger.warning("fd_close called")
 
-    def dynCall(self, sig: str, ptr: int, *args: Tuple[Any, ...]) -> Any:
+    def dynCall(self, sig: str, ptr: int, *args: tuple[Any, ...]) -> Any:
         if args is None:
             args = []
         if not any(f"dynCall_{sig}" in item.name for item in self.module.exports):
@@ -1029,10 +1031,7 @@ class WebixDapperWasm:
         if raw_type <= 0:
             raise RuntimeError(f"type {name} must have positive pointer")
         if rt_id in self.registered_types:
-            if (
-                "ignoreDuplicateRegistrations" in options
-                and options["ignoreDuplicateRegistrations"]
-            ):
+            if options.get("ignoreDuplicateRegistrations"):
                 return
             print("duplicate register check?")
         self.registered_types[rt_id] = registered_instance
@@ -1121,7 +1120,7 @@ class WebixDapperWasm:
             func: Callable,
             destructors_ref: int,
             args: int,
-            f_args: Optional[list[Any]] = None,
+            f_args: list[Any] | None = None,
         ) -> Any:
             # pylint: disable=unused-argument
             if f_args is None:
@@ -1135,7 +1134,7 @@ class WebixDapperWasm:
             func: Callable,
             destructors_ref: int,
             args: int,
-            f_args: Optional[list[Any]] = None,
+            f_args: list[Any] | None = None,
         ) -> Any:
             # pylint: disable=unused-argument
             if f_args is None:
@@ -1151,7 +1150,7 @@ class WebixDapperWasm:
             func: Callable,
             destructors_ref: int,
             args: int,
-            f_args: Optional[list[Any]] = None,
+            f_args: list[Any] | None = None,
         ) -> Any:
             # pylint: disable=unused-argument
             if f_args is None:
@@ -1630,14 +1629,14 @@ class WebixDapperWasm:
         ]
         ta = cast(Callable, type_mapping[data_type_index])
 
-        def decode_memory_view(handle: int) -> Union[Uint8Array, Int32Array]:
+        def decode_memory_view(handle: int) -> Uint8Array | Int32Array:
             if ta not in {Uint8Array, Int32Array}:
                 raise NotImplementedError("Not implemented memory decoder")
             sub = self.memory.read(self.store, handle, handle + 8)
             size = int.from_bytes(sub[0:4], "little")
             data = int.from_bytes(sub[4:8], "little")
             result = ta(self.HEAPU8, data, size)
-            return cast(Union[Uint8Array, Int32Array], result)
+            return cast(Uint8Array | Int32Array, result)
 
         self.register_type(
             raw_type,
@@ -1730,7 +1729,7 @@ class WebixDapperWasm:
         exc_info = WasmExceptionInfo(ptr, self.memory, self.store)
         exc_info.init(ex_type, destructor)
         exc_data = self.get_exception_message(ptr)
-        raise RuntimeError(f"{str(exc_data)}")
+        raise RuntimeError(f"{exc_data!s}")
 
     def __cxa_begin_catch(self, ptr: int) -> None:
         # pylint: disable=unused-argument
@@ -1870,7 +1869,7 @@ class WebixDapperWasm:
             if (name := imp.name) in wasm_imports:
                 import_array.append(Func(self.store, cast(FuncType, imp.type), wasm_imports[name]))
             else:
-                raise RuntimeError(f"{str(name)} not found in wasm imports")
+                raise RuntimeError(f"{name!s} not found in wasm imports")
         return import_array
 
     def register_handler(self, fcn_handler: Callable) -> None:

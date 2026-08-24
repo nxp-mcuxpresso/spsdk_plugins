@@ -15,7 +15,11 @@ name = "spsdk-pkcs11"
 description = "Signature Provider plugin for SPSDK using PKCS#11 interface"
 
 requires-python = ">= 3.10"
-dependencies = ["python-pkcs11>=0.8.1", "cached-property", "spsdk>=3.10.0.dev0,<4"]
+dependencies = [
+    "python-pkcs11>=0.8.1",
+    "cached-property",
+    "spsdk>=3.10.0.dev0,<4",
+]
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "Michal Starecek", email = "spsdk@nxp.com" }]
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -28,9 +32,11 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [project.entry-points]
@@ -43,7 +49,7 @@ Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
 
 
 [tool.bumpversion]
-current_version = "0.3.6"
+current_version = "0.3.8"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pkcs11/__init__.py"
@@ -63,8 +69,14 @@ relative_files = true
 
 [tool.black]
 line-length = 100
-target-version = ["py39", "py310", "py311"]
+target-version = ["py310", "py311", "py312", "py313", "py314"]
 include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["EXE001", "I001", "N999"]
 
 [tool.isort]
 multi_line_output = 3
@@ -98,7 +110,7 @@ checkers = [
     { "gitcov" = { info_only = true } },
     "pylint",
     "mypy",
-    "dependencies",
+    # "dependencies",
     "pydocstyle",
     "ruff",
     { "radon_c" = { info_only = true } },
@@ -106,7 +118,7 @@ checkers = [
     "black",
     "isort",
     "copyright",
-    "py_headers",
+    { "py_headers" = { args = ['--header "#!/usr/bin/env python"'] } },
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]
@@ -116,5 +128,5 @@ disabled = ['docs', 'scr']
 
 [tool.release-tools.blackduck_sca]
 project_name = "spsdk_plugins_pkcs11"
-include_detector_types = ["setuptools"]
+include_detector_types = ["pip"]
 sbom_location = "SBOM-spsdk_plugins_pkcs11.spdx.json"

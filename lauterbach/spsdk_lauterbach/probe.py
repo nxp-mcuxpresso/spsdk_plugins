@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -12,8 +11,9 @@
 import functools
 import os
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Optional, cast
 
 from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
@@ -29,6 +29,7 @@ from spsdk.utils.spsdk_enum import SpsdkEnum
 import lauterbach.trace32.rcl as t32
 
 logger = get_logger(__name__)
+cs_trace_logger = get_logger("spsdk.probe.trace")
 
 
 class T32Mode(SpsdkEnum):
@@ -42,6 +43,11 @@ class T32Mode(SpsdkEnum):
     UNKNOWN = (255, "UNKNOWN")
 
 
+T32_MODE_DOWN = cast(T32Mode, T32Mode.DOWN)
+T32_MODE_PREPARE = cast(T32Mode, T32Mode.PREPARE)
+T32_MODE_UNKNOWN = cast(T32Mode, T32Mode.UNKNOWN)
+
+
 @dataclass
 class T32ProbeOptions:
     """Dataclass to store Lauterbach probe connection options."""
@@ -49,7 +55,7 @@ class T32ProbeOptions:
     address: str = "localhost"
     port: int = 20000
     timeout: float = 1.0
-    startup_script: Optional[str] = None
+    startup_script: str | None = None
 
 
 def ensure_mode(mode: Optional["T32Mode"]) -> Callable:
@@ -74,15 +80,15 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
 
     NAME = "lauterbach"
 
-    def __init__(self, hardware_id: str, options: Optional[Dict] = None) -> None:
+    def __init__(self, hardware_id: str, options: dict | None = None) -> None:
         """The Debug Probe class initialization."""
         super().__init__(hardware_id, options)
         self.t32options = self.parse_options(options=options)
-        self.connection: Optional[t32.Debugger] = None
-        self.mode = T32Mode.UNKNOWN
+        self.connection: t32.Debugger | None = None
+        self.mode = T32_MODE_UNKNOWN
 
     @classmethod
-    def parse_options(cls, options: Optional[Dict] = None) -> T32ProbeOptions:
+    def parse_options(cls, options: dict | None = None) -> T32ProbeOptions:
         """Parse options passed to __init__ method.
 
         :param options: Options passed to __init__ method, defaults to None
@@ -102,9 +108,8 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
             startup_script = options.get("startup")
 
             # we check for the presence of startup script early before any connection attempts are made
-            if startup_script:
-                if not os.path.isfile(startup_script):
-                    raise SPSDKDebugProbeError(f"Startup script '{startup_script}' not found.")
+            if startup_script and not os.path.isfile(startup_script):
+                raise SPSDKDebugProbeError(f"Startup script '{startup_script}' not found.")
 
         return T32ProbeOptions(
             address=address, port=port, startup_script=startup_script, timeout=timeout
@@ -112,7 +117,7 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
 
     @classmethod
     def get_connected_probes(
-        cls, hardware_id: Optional[str] = None, options: Optional[Dict] = None
+        cls, hardware_id: str | None = None, options: dict | None = None
     ) -> DebugProbes:
         """Functions returns the list of all connected probes in system.
 
@@ -149,7 +154,7 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         return probes
 
     @classmethod
-    def get_options_help(cls) -> Dict[str, str]:
+    def get_options_help(cls) -> dict[str, str]:
         """Get full list of options of debug probe.
 
         :return: Dictionary with individual options. Key is parameter name and value the help text.
@@ -196,7 +201,8 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
             except (t32.PracticeError, t32.CommandError, TimeoutError) as e:
                 raise SPSDKDebugProbeError(f"Failed to execute startup script: {e}") from e
 
-        self.set_mode(T32Mode.PREPARE)
+        self.set_mode(T32_MODE_PREPARE)
+        self.read_dp_idr()
 
     def close(self) -> None:
         """Debug probe close.
@@ -204,10 +210,32 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         This is general closing function for SPSDK library to support various DEBUG PROBES.
         """
         if self.connection:
-            self.set_mode(T32Mode.DOWN)
+            self.set_mode(T32_MODE_DOWN)
             self.connection = None
 
-    def set_mode(self, mode: Optional[T32Mode]) -> None:
+    # --- Transitional fallback; remove when min SPSDK >= 3.15 provides these. ---
+    def trace_cs_read(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight read in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value read.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS RD {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    def trace_cs_write(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight write in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value written.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS WR {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    # --- End transitional fallback. ---
+    def set_mode(self, mode: T32Mode | None) -> None:
         """Method to check if connection is open and sets Trace32 to desired mode.
 
         If `mode` is set to None, perform only check for open connection.
@@ -266,7 +294,7 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         addr |= 0x4000_0000
         return addr
 
-    @ensure_mode(T32Mode.PREPARE)
+    @ensure_mode(T32_MODE_PREPARE)
     def coresight_reg_read(self, access_port: bool = True, addr: int = 0) -> int:
         """Read coresight register.
 
@@ -276,19 +304,16 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         :param addr: the register address
         :return: The read value of addressed register (4 bytes)
         """
-        logger.trace(f"CS READ: AP: {access_port}, ADDR: {addr:#x}")
         try:
             cs_addr = self._get_cs_addr(access_port=access_port, addr=addr)
             cmd = f"DATA.LONG(EDBG:{cs_addr:#06x})"
             data = self.connection.fnc(cmd)  # type: ignore[union-attr] # None case is handled by "ensure_mode"
-            logger.trace(
-                f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
-            )
+            self.trace_cs_read(access_port, addr, data)
             return data
         except t32.FunctionError as e:
             raise SPSDKDebugProbeTransferError(str(e)) from e
 
-    @ensure_mode(T32Mode.PREPARE)
+    @ensure_mode(T32_MODE_PREPARE)
     def coresight_reg_write(self, access_port: bool = True, addr: int = 0, data: int = 0) -> None:
         """Write coresight register.
 
@@ -298,15 +323,12 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         :param addr: the register address
         :param data: the data to be written into register
         """
-        logger.trace(f"CS WRITE: AP: {access_port}, ADDR: {addr:#x}")
         try:
             cs_addr = self._get_cs_addr(access_port=access_port, addr=addr)
             cmd = f"DATA.SET EDBG:{cs_addr:#06x} %Long {data:#x}"
             try:
                 self.connection.cmd(cmd)  # type: ignore[union-attr] # None case is handled by "ensure_mode"
-                logger.trace(
-                    f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
-                )
+                self.trace_cs_write(access_port, addr, data)
             except t32.CommandError as e:
                 if e.args[0] == "target reset detected":
                     time.sleep(0.5)
@@ -328,8 +350,8 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
     @ensure_mode(None)
     def clear_sticky_errors(self) -> None:
         """Clear sticky errors of Debug port interface."""
-        self.set_mode(T32Mode.DOWN)
-        self.set_mode(T32Mode.PREPARE)
+        self.set_mode(T32_MODE_DOWN)
+        self.set_mode(T32_MODE_PREPARE)
 
     def __str__(self) -> str:
         """Return information about the device."""

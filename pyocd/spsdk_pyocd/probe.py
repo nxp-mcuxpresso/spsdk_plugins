@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024,2026 NXP
 #
@@ -8,7 +7,6 @@
 """Main module for PyOCD SW Debugger."""
 
 from time import sleep
-from typing import Dict, List, Optional
 
 from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
@@ -29,16 +27,23 @@ from pyocd.core.session import Session
 from pyocd.coresight.dap import DPConnector
 from pyocd.probe.debug_probe import DebugProbe as PyOCDDebugProbe
 
+from .protocols import DebugProbeProtocol, get_debug_probe_protocol
+
 TRACE_ENABLE = True
 logger = get_logger(__name__)
+cs_trace_logger = get_logger("spsdk.probe.trace")
 
 
 class DebugProbePyOCD(DebugProbeCoreSightOnly):
     """Class to define PyOCD package interface for NXP SPSDK."""
 
     NAME = "pyocd"
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
+        DebugProbeProtocol.SWD,
+        DebugProbeProtocol.JTAG,
+    )
 
-    def __init__(self, hardware_id: str, options: Optional[Dict] = None) -> None:
+    def __init__(self, hardware_id: str, options: dict | None = None) -> None:
         """The PyOCD class initialization.
 
         The PyOCD initialization function for SPSDK library to support various DEBUG PROBES.
@@ -50,7 +55,7 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
 
     @classmethod
     def get_connected_probes(
-        cls, hardware_id: Optional[str] = None, options: Optional[Dict] = None
+        cls, hardware_id: str | None = None, options: dict | None = None
     ) -> DebugProbes:
         """Get all connected probes over PyOCD.
 
@@ -63,11 +68,11 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
         """
         probes = DebugProbes()
         try:
-            connected_probes: List[PyOCDDebugProbe] = ConnectHelper.get_all_connected_probes(
+            connected_probes: list[PyOCDDebugProbe] = ConnectHelper.get_all_connected_probes(
                 blocking=False, unique_id=hardware_id
             )
         except ProbeError as exc:
-            logger.debug(f"Probing connected probes over PyOCD failed: {str(exc)}")
+            logger.debug(f"Probing connected probes over PyOCD failed: {exc!s}")
             connected_probes = []
 
         for probe in connected_probes:
@@ -105,7 +110,7 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
             )
             self.probe.open()
         except PyOCDError as exc:
-            raise SPSDKDebugProbeError(f"Opening the debug probe failed ({str(exc)})") from exc
+            raise SPSDKDebugProbeError(f"Opening the debug probe failed ({exc!s})") from exc
 
     def connect(self) -> None:
         """Connect to target.
@@ -118,18 +123,15 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
         if self.probe is None:
             raise SPSDKDebugProbeError("Debug probe must be opened first")
         try:
-            if self.options.get("use_jtag") is None:
+            if get_debug_probe_protocol(self) == DebugProbeProtocol.SWD:
                 self.probe.connect(pyocd.probe.debug_probe.DebugProbe.Protocol.SWD)
             else:
-                logger.warning(
-                    "Experimental support for JTAG on RW61x."
-                    "The implementation may have bugs and lack features."
-                )
                 self.probe.connect(pyocd.probe.debug_probe.DebugProbe.Protocol.JTAG)
             # Do reset sequence to switch to used protocol
             connector = DPConnector(self.probe)
             connector.connect()
             logger.debug(connector._idr)  # pylint: disable=protected-access
+            self.read_dp_idr()
             # Power Up the system and debug and clear sticky errors
             self.clear_sticky_errors()
             self.power_up_target()
@@ -147,6 +149,28 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
                 self.probe.close()
             self.probe = None
 
+    # --- Transitional fallback; remove when min SPSDK >= 3.15 provides these. ---
+    def trace_cs_read(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight read in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value read.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS RD {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    def trace_cs_write(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight write in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value written.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS WR {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    # --- End transitional fallback. ---
     def assert_reset_line(self, assert_reset: bool = False) -> None:
         """Control reset line at a target.
 
@@ -161,7 +185,7 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
             logger.trace(f"Assert reset line: {assert_reset}")
             self.probe.assert_reset(assert_reset)
         except PyOCDError as exc:
-            raise SPSDKDebugProbeError(f"PyOCD reset operation failed: {str(exc)}") from exc
+            raise SPSDKDebugProbeError(f"PyOCD reset operation failed: {exc!s}") from exc
 
     def reset(self) -> None:
         """Reset a target.
@@ -201,9 +225,7 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
                 ret = self.probe.read_ap(addr=addr)
             else:
                 ret = self.probe.read_dp(addr)
-            logger.trace(
-                f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {ret:08X}"
-            )
+            self.trace_cs_read(access_port, addr, ret)
             return ret
         except (PyOCDError, Exception) as exc:
             self._reinit_target()
@@ -230,9 +252,7 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
                 self.probe.write_ap(addr=addr, data=data)
             else:
                 self.probe.write_dp(addr, data)
-            logger.trace(
-                f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
-            )
+            self.trace_cs_write(access_port, addr, data)
         except (PyOCDError, Exception) as exc:
             self._reinit_target()
             raise SPSDKDebugProbeTransferError("The Coresight write operation failed") from exc

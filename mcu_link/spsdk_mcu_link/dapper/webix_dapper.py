@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Copyright 2024-2025, 2026 NXP
 # Copyright 2025 Oidis
@@ -13,10 +12,13 @@ including probe discovery, connection handling, and communication. The module su
 various probe interfaces and provides data structures for probe information management.
 """
 
+from __future__ import annotations
+
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 from time import sleep
-from typing import Any, Callable, Optional, Union, cast
+from typing import Any, ClassVar, cast
 
 from .core import Uint8Array
 from .interfaces import Interface, InterfaceFactory
@@ -64,7 +66,7 @@ class ProbeInfo:
     product_fw_ver: str = ""
 
     @staticmethod
-    def from_dict(data: dict[str, str]) -> "ProbeInfo":
+    def from_dict(data: dict[str, str]) -> ProbeInfo:
         """Create ProbeInfo instance from dictionary.
 
         :param data: Dictionary containing probe information
@@ -94,21 +96,38 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
     CDBGPWRUPREQ = 0x10 << 24
     CDBGPWRUPACK = 0x20 << 24
 
-    def __init__(self, context_path: Optional[str] = None) -> None:
+    def __init__(self, context_path: str | None = None) -> None:
         """Initialize WebixDapper instance.
 
         :param context_path: Optional path to the context
         """
-        self._module: Optional[WebixDapperWasm] = None
-        self.interface: Optional[Interface] = None
+        self._module: WebixDapperWasm | None = None
+        self.interface: Interface | None = None
         self.trace_data: dict[str, list[str]] = {"inbound": [], "outbound": []}
         self.stdout_handler = None
         self.stderr_handler = None
 
-        self.read_data_handler: Optional[Callable] = None
-        self.write_data_handler: Optional[Callable] = None
+        self.read_data_handler: Callable | None = None
+        self.write_data_handler: Callable | None = None
 
         self.context_path = context_path
+        self._use_jtag = False
+
+    @property
+    def use_jtag(self) -> bool:
+        """Get the JTAG usage flag.
+
+        :return: True if JTAG is used, False otherwise, thus SWD is used
+        """
+        return self._use_jtag
+
+    @use_jtag.setter
+    def use_jtag(self, value: bool) -> None:
+        """Set the JTAG usage flag.
+
+        :param value: True if JTAG should be used, False to select SWD
+        """
+        self._use_jtag = value
 
     @property
     def module(self) -> WebixDapperWasm:
@@ -121,7 +140,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         return cast(WebixDapperWasm, self._module)
 
     @property
-    def stdout_handler(self) -> Optional[Callable]:
+    def stdout_handler(self) -> Callable | None:
         """Get the stdout handler.
 
         :return: Callable stdout handler or None
@@ -129,7 +148,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         return self._stdout_handler
 
     @stdout_handler.setter
-    def stdout_handler(self, value: Optional[Callable]) -> None:
+    def stdout_handler(self, value: Callable | None) -> None:
         """Set the stdout handler.
 
         :param value: Callable handler function or None
@@ -148,7 +167,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
             self._stdout_handler = custom_print
 
     @property
-    def stderr_handler(self) -> Optional[Callable]:
+    def stderr_handler(self) -> Callable | None:
         """Get the stderr handler.
 
         :return: Callable stderr handler or None
@@ -156,7 +175,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         return self._stderr_handler
 
     @stderr_handler.setter
-    def stderr_handler(self, value: Optional[Callable]) -> None:
+    def stderr_handler(self, value: Callable | None) -> None:
         """Set the stderr handler.
 
         :param value: Callable handler function or None
@@ -167,7 +186,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
             self._stderr_handler = lambda data: print(f"ERROR: {data}")
 
     @property
-    def read_data_handler(self) -> Optional[Callable]:
+    def read_data_handler(self) -> Callable | None:
         """Get the read data handler.
 
         :return: Callable read data handler or None
@@ -175,7 +194,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         return self._read_data_handler
 
     @read_data_handler.setter
-    def read_data_handler(self, handler: Optional[Callable]) -> None:
+    def read_data_handler(self, handler: Callable | None) -> None:
         """Set the read data handler.
 
         :param handler: Callable handler function or None
@@ -186,7 +205,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
             self._read_data_handler = self.read_data_usb
 
     @property
-    def write_data_handler(self) -> Optional[Callable]:
+    def write_data_handler(self) -> Callable | None:
         """Get the write data handler.
 
         :return: Callable write data handler or None
@@ -194,7 +213,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         return self._write_data_handler
 
     @write_data_handler.setter
-    def write_data_handler(self, handler: Optional[Callable]) -> None:
+    def write_data_handler(self, handler: Callable | None) -> None:
         """Set the write data handler.
 
         :param handler: Callable handler function or None
@@ -258,20 +277,20 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         module_instance.runtime_init()
 
         def writeData(  # pylint: disable=invalid-name
-            instance: "WebixDapper", data: Uint8Array
+            instance: WebixDapper, data: Uint8Array
         ) -> None:
             # pylint: disable=unused-argument
             self.write_data(data)
 
-        def readData(instance: "WebixDapper") -> Uint8Array:  # pylint: disable=invalid-name
+        def readData(instance: WebixDapper) -> Uint8Array:  # pylint: disable=invalid-name
             # pylint: disable=unused-argument
             return self.read_data()
 
-        def stdout(instance: "WebixDapper", data: Uint8Array) -> None:
+        def stdout(instance: WebixDapper, data: Uint8Array) -> None:
             # pylint: disable=unused-argument
             self.stdout(data)
 
-        def stderr(instance: "WebixDapper", data: Uint8Array) -> None:
+        def stderr(instance: WebixDapper, data: Uint8Array) -> None:
             # pylint: disable=unused-argument
             self.stderr(data)
 
@@ -292,7 +311,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         # pylint: disable=no-member
         return list(self.module.getSupportedVendorIDs())  # type: ignore[attr-defined]
 
-    def get_probe_id(self) -> Optional[str]:
+    def get_probe_id(self) -> str | None:
         """Get the probe ID.
 
         :return: Probe ID string or None
@@ -302,7 +321,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
             raise RuntimeError("Device interface is not initialized.")
         return self.interface.probe_id
 
-    def open(self, device: Optional[Interface] = None) -> None:
+    def open(self, device: Interface | None = None) -> None:
         """Open connection to the device.
 
         :param device: Interface device to open
@@ -403,7 +422,7 @@ class WebixDapper:  # pylint: disable=too-many-public-methods
         last_exception = None
         for attempt in range(2):
             try:
-                self.module.connect()  # type: ignore[attr-defined]
+                self.module.connect(self.use_jtag)  # type: ignore[attr-defined]
                 self.initialize_debug_port()
                 self._stdout_handler("System and Debug Power True")
                 return
@@ -460,10 +479,10 @@ class DapperFactory:
     :param path: Path to WASM file
     """
 
-    _instance: Optional["DapperFactory"] = None
-    _dapper: Optional[WebixDapper] = None
-    probes: list[Interface] = []
-    path: Optional[str] = None
+    _instance: DapperFactory | None = None
+    _dapper: WebixDapper | None = None
+    probes: ClassVar[list[Interface]] = []
+    path: str | None = None
 
     def __init__(self) -> None:
         """Initialize DapperFactory.
@@ -484,7 +503,7 @@ class DapperFactory:
         return self._dapper
 
     @classmethod
-    def instance(cls) -> "DapperFactory":
+    def instance(cls) -> DapperFactory:
         """Get singleton instance of DapperFactory.
 
         :return: DapperFactory instance
@@ -518,7 +537,7 @@ class DapperFactory:
         return probes
 
     @classmethod
-    def create_probe(cls, probe: Union[Interface, str]) -> WebixDapper:
+    def create_probe(cls, probe: Interface | str) -> WebixDapper:
         """Create probe instance.
 
         :param probe: Probe interface or serial number
@@ -534,7 +553,7 @@ class DapperFactory:
         elif isinstance(probe, Interface):
             probe_iface = probe
         else:
-            raise RuntimeError("Not supported probe type detected")
+            raise TypeError("Not supported probe type detected")
 
         dapper.open(probe_iface)
         return dapper

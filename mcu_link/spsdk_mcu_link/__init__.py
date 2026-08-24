@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024-2026 NXP
 #
@@ -8,8 +7,8 @@
 """Top-level package for MCU-Link."""
 
 __author__ = """NXP"""
-__email__ = "michal.kelnar@nxp.com"
-__version__ = "0.6.9"
+__email__ = "spsdk@nxp.com"
+__version__ = "0.6.14"
 
 try:
     from spsdk.__version__ import version, version_tuple
@@ -27,6 +26,6 @@ if version_tuple < MIN_SPSDK_VERSION:
     )
 
 # pylint: disable=wrong-import-position
-from .probe import DebugProbeMCULink  # noqa: E402
+from .probe import DebugProbeMCULink
 
 __all__ = ["DebugProbeMCULink"]

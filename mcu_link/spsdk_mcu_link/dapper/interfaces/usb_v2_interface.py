@@ -1,28 +1,28 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
-# Copyright 2024-2025 NXP
+# Copyright 2024-2026 NXP
 # Copyright 2025 Oidis
 #
 # SPDX-License-Identifier: BSD-3-Clause
 """USB Interface implementation for communicating with USB devices."""
 
+from __future__ import annotations
+
 import ctypes
 import logging
-from typing import Optional
 
 from ..core import Uint8Array
 from . import Interface
+from .usb_backend import get_usb_backend
 
 logger = logging.getLogger(__name__)
 
 try:
-    import libusb_package
     import usb
 
-    IMPORTS_AVAILABLE = True
+    IMPORTS_AVAILABLE = get_usb_backend() is not None
 except ImportError:
-    logger.debug("usb or libusb_package not available. USB v2 interface will not be available.")
+    logger.debug("usb backend dependencies not available. USB v2 interface will not be available.")
     usb = type(
         "usb", (), {"core": type("core", (), {"Device": None})}
     )  # bypass for Interface[T] type checker
@@ -54,8 +54,8 @@ class UsbV2Interface(Interface[usb.core.Device]):
         """
         super().__init__(device)
         self._type = "usb_v2"
-        self._endpoint_in: Optional[usb.core.Endpoint] = None
-        self._endpoint_out: Optional[usb.core.Endpoint] = None
+        self._endpoint_in: usb.core.Endpoint | None = None
+        self._endpoint_out: usb.core.Endpoint | None = None
 
         self.serial_no = device.serial_number
         self.vendor = device.manufacturer
@@ -71,9 +71,11 @@ class UsbV2Interface(Interface[usb.core.Device]):
         :return: List of available USB interfaces
         """
         probes: list[Interface] = []
+        if (backend := get_usb_backend()) is None:
+            return probes
         # todo(mkelnar) supported_vendor_ids will be changed
-        for vid in list([0x1FC9]):
-            usb_devices = libusb_package.find(find_all=True, idVendor=vid)
+        for vid in (0x1FC9,):
+            usb_devices = usb.core.find(find_all=True, idVendor=vid, backend=backend)
             for usb_device in usb_devices:
                 if usb_device.bDeviceClass in {0x00, 0xEF}:  # not HID
                     try:
@@ -129,7 +131,7 @@ class UsbV2Interface(Interface[usb.core.Device]):
         if self._endpoint_out is None:
             raise RuntimeError("Device endpoint needs to be opened first.")
         if not isinstance(data, Uint8Array):
-            raise RuntimeError("Data must be an instance of Uint8Array.")
+            raise TypeError("Data must be an instance of Uint8Array.")
         self._endpoint_out.write(data.buffer, self.packet_size)
 
     def read(self) -> Uint8Array:

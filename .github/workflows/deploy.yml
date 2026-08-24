@@ -54,8 +54,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build and Check Package
-        #uses: hynek/build-and-inspect-python-package@v2.12.0 Use forked package with Python 3.13 as some of our dependencies can not be built with Python 3.14
-        uses: BohdanMarek/build-and-inspect-python-package@2ddd2fd011405ab6e7d6d04f4becbe80547ca68d
+        uses: hynek/build-and-inspect-python-package@v2.18.0
         with:
           path: ${{ matrix.package }}
           attest-build-provenance-github: 'true'
@@ -143,12 +142,13 @@ jobs:
           python-version: '3.x'
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.3
+        uses: pypa/cibuildwheel@v4.1.0
         with:
           package-dir: ${{ matrix.package }}
           output-dir: dist
         env:
-          CIBW_SKIP: "pp*"
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-* cp314-*"
+          CIBW_SKIP: "pp* cp314t-*"
 
       - name: Publish packages to GH
         uses: actions/upload-artifact@v4.6.2

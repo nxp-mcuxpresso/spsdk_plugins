@@ -16,6 +16,8 @@
     * SWD/JTAG interface support
     * Integration with SPSDK tools
 
+    Debug probe protocol can be selected in SPSDK applications with `-dp swd` or `-dp jtag`.
+
     Installation
     ------------
 

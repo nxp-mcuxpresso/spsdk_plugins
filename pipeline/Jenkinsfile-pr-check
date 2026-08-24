@@ -17,14 +17,18 @@ pipeline {
                     checkoutRepo()
                     checkoutRepo("spsdk", "master", "spsdk_repo")
                     withVenv(
-                        'uv pip install nox tomli',
-                        'nox -P 3.10 --session codecheck -- --spsdk spsdk_repo -s -o quick-reports'
+                        'uv python install 3.14 && uv pip install nox tomli',
+                        'nox -P 3.14 --session codecheck -- --spsdk spsdk_repo -s -o quick-reports'
                     )
                 }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "*/quick-reports*/*.txt"
+                    archiveArtifacts artifacts: "*/quick-reports*/*.txt", allowEmptyArchive: true
+                    archiveArtifacts artifacts: "*/quick-reports*/*.html", allowEmptyArchive: true
+                    archiveArtifacts artifacts: "reports-summary/*.xml", allowEmptyArchive: true
+                    junit allowEmptyResults: true, testResults: "reports-summary/*.xml"
+                    junit allowEmptyResults: true, testResults: "*/quick-reports*/tests.xml"
                     emailext(
                         body: '${DEFAULT_CONTENT}', mimeType: 'text/html',
                         replyTo: '$DEFAULT_REPLYTO', subject: '${DEFAULT_SUBJECT}',
@@ -62,14 +66,18 @@ pipeline {
                         steps {
                             script {
                                 withVenv(
-                                    'uv pip install nox tomli',
-                                    'nox -P 3.10 3.13 --session codecheck -- --spsdk spsdk_repo -s'
+                                    'uv pip install -U uv && uv python install 3.10 3.14 && uv pip install nox tomli',
+                                    'nox -P 3.10 3.14 --session codecheck -- --spsdk spsdk_repo -s'
                                 )
                             }
                         }
                         post {
                             always {
-                                archiveArtifacts artifacts: "*/reports*/*.txt"
+                                archiveArtifacts artifacts: "*/reports*/*.txt", allowEmptyArchive: true
+                                archiveArtifacts artifacts: "*/reports*/*.html", allowEmptyArchive: true
+                                archiveArtifacts artifacts: "reports-summary/*.xml", allowEmptyArchive: true
+                                junit allowEmptyResults: true, testResults: "reports-summary/*.xml"
+                                junit allowEmptyResults: true, testResults: "*/reports*/tests.xml"
                                 emailext(
                                     body: '${DEFAULT_CONTENT}', mimeType: 'text/html',
                                     replyTo: '$DEFAULT_REPLYTO', subject: '${DEFAULT_SUBJECT}',

@@ -2,31 +2,30 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-06-12T08:20:00Z",
+    "created": "2026-08-21T16:28:33Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_jlink-0.3.4",
+  "name": "spsdk_plugins_jlink-0.3.8",
   "dataLicense": "CC0-1.0",
-  "hasExtractedLicensingInfos": [],
-  "documentNamespace": "https://nxp.com/spdx/4b120d54-dbb1-4a50-9865-514612ffd176",
+  "documentNamespace": "https://nxp.com/spdx/0d8eb71f-d804-40bb-8630-06e8a3818b8f",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176",
+      "SPDXID": "SPDXRef-package-0d8eb71f-d804-40bb-8630-06e8a3818b8f",
       "name": "spsdk_plugins_jlink",
-      "versionInfo": "0.3.4",
+      "versionInfo": "0.3.8",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://pypi.org/project/spsdk-jlink/",
+      "downloadLocation": "NOASSERTION",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176---d6f6899d-67ae-46c1-9572-c696ac7f7d36",
+      "SPDXID": "SPDXRef-package-0d8eb71f-d804-40bb-8630-06e8a3818b8f---d6f6899d-67ae-46c1-9572-c696ac7f7d36",
       "name": "pylink-square",
       "versionInfo": "1.7.0",
       "licenseConcluded": "Apache-2.0",
@@ -50,15 +49,27 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05",
+      "SPDXID": "SPDXRef-package-0d8eb71f-d804-40bb-8630-06e8a3818b8f---66fabaa5-2e84-491e-a153-62dd51d98453",
       "name": "spsdk",
       "versionInfo": "3.10.0",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
-      "downloadLocation": "https://pypi.org/project/spsdk/",
-      "originator": "Organization: NXP",
+      "homepage": "https://github.com/NXPmicro/spsdk",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
       "supplier": "NOASSERTION",
-      "externalRefs": [],
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b77bb8b1-987f-400a-a0bb-f52fda631af5",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk@3.10.0",
+          "referenceType": "purl"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],
@@ -66,17 +77,17 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176"
+      "relatedSpdxElement": "SPDXRef-package-0d8eb71f-d804-40bb-8630-06e8a3818b8f"
     },
     {
-      "spdxElementId": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176",
+      "spdxElementId": "SPDXRef-package-0d8eb71f-d804-40bb-8630-06e8a3818b8f",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176---7b097f38-3a8e-4dde-82db-2eeaa0e6bf05"
+      "relatedSpdxElement": "SPDXRef-package-0d8eb71f-d804-40bb-8630-06e8a3818b8f---66fabaa5-2e84-491e-a153-62dd51d98453"
     },
     {
-      "spdxElementId": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176",
+      "spdxElementId": "SPDXRef-package-0d8eb71f-d804-40bb-8630-06e8a3818b8f",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-4b120d54-dbb1-4a50-9865-514612ffd176---d6f6899d-67ae-46c1-9572-c696ac7f7d36"
+      "relatedSpdxElement": "SPDXRef-package-0d8eb71f-d804-40bb-8630-06e8a3818b8f---d6f6899d-67ae-46c1-9572-c696ac7f7d36"
     }
   ]
 }

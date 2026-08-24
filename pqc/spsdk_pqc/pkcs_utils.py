@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
 # Copyright 2026 NXP
 #
@@ -257,6 +256,6 @@ def unwrap_pkcs5(data: bytes, password: str | bytes) -> tuple[str, bytes]:
         return oid, key_data
 
     except PyAsn1Error as exc:
-        raise PQCError(f"Failed to parse encrypted key: {str(exc)}") from exc
+        raise PQCError(f"Failed to parse encrypted key: {exc!s}") from exc
     except Exception as exc:
         raise PQCError("Failed to decrypt key. Maybe the password is invalid") from exc

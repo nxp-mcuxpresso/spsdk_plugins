@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 #
 # Copyright 2024,2026 NXP
 #
@@ -8,7 +7,6 @@
 """Main module for J-Link Debug probe."""
 
 import logging
-from typing import Dict, Optional
 
 from pylink import JLink, JLinkException, JLinkInterfaces
 from spsdk import get_logger
@@ -23,7 +21,10 @@ from spsdk.debuggers.debug_probe import (
 )
 from spsdk.utils.misc import value_to_int
 
+from .protocols import DebugProbeProtocol, get_debug_probe_protocol
+
 logger = get_logger(__name__)
+cs_trace_logger = get_logger("spsdk.probe.trace")
 logger_pylink = logger.getChild("PyLink")
 logger_pylink.setLevel(logging.CRITICAL)
 
@@ -32,9 +33,13 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
     """SPSDK Debug Probe J-Link Debug probe class."""
 
     NAME = "jlink"
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
+        DebugProbeProtocol.SWD,
+        DebugProbeProtocol.JTAG,
+    )
 
     @classmethod
-    def get_options_help(cls) -> Dict[str, str]:
+    def get_options_help(cls) -> dict[str, str]:
         """Get full list of options of debug probe.
 
         :return: Dictionary with individual options. Key is parameter name and value the help text.
@@ -60,19 +65,20 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
         except TypeError as exc:
             raise SPSDKDebugProbeError("Cannot open Jlink DLL") from exc
 
-    def __init__(self, hardware_id: str, options: Optional[Dict] = None) -> None:
+    def __init__(self, hardware_id: str, options: dict | None = None) -> None:
         """The PyLink class initialization.
 
         The PyLink initialization function for SPSDK library to support various DEBUG PROBES.
         """
-        super().__init__(hardware_id, options)
         self.pylink = None
+        super().__init__(hardware_id, options)
+        self.last_accessed_ap = -1
 
         logger.debug("The SPSDK PyLink Interface has been initialized")
 
     @classmethod
     def get_connected_probes(
-        cls, hardware_id: Optional[str] = None, options: Optional[Dict] = None
+        cls, hardware_id: str | None = None, options: dict | None = None
     ) -> DebugProbes:
         """Get all connected probes over PyLink.
 
@@ -114,7 +120,7 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
             if self.pylink is None:
                 raise SPSDKDebugProbeError("Getting of J-Link library failed")
         except SPSDKDebugProbeError as exc:
-            raise SPSDKDebugProbeError(f"Getting of J-Link library failed({str(exc)})") from exc
+            raise SPSDKDebugProbeError(f"Getting of J-Link library failed({exc!s})") from exc
 
         try:
             self.pylink.open(
@@ -122,7 +128,7 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
                 ip_addr=self.options.get("ip_address") if self.options else None,
             )
         except JLinkException as exc:
-            raise SPSDKDebugProbeError(f"Opening the debug probe failed ({str(exc)})") from exc
+            raise SPSDKDebugProbeError(f"Opening the debug probe failed ({exc!s})") from exc
 
     def connect(self) -> None:
         """Connect to target.
@@ -135,16 +141,15 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
         if self.pylink is None:
             raise SPSDKDebugProbeError("Debug probe must be opened first")
         try:
-            if self.options.get("use_jtag") is None:
+            self.pylink.set_speed(100)
+            if get_debug_probe_protocol(self) == DebugProbeProtocol.SWD:
                 self.pylink.set_tif(JLinkInterfaces.SWD)
             else:
-                logger.warning(
-                    "Experimental support for JTAG on RW61x."
-                    "The implementation may have bugs and lack features."
-                )
-                self.pylink.set_speed(100)
                 self.pylink.set_tif(JLinkInterfaces.JTAG)
             self.pylink.coresight_configure()
+            self.read_dp_idr()
+            # Initialize AP selection after coresight_configure to avoid garbage AP reads
+            self.select_ap(0x00000000)
             self.pylink.set_speed(speed=value_to_int(self.options.get("frequency", 100)))
             # Power Up the system and debug and clear sticky errors
             self.clear_sticky_errors()
@@ -152,7 +157,7 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
         except JLinkException as exc:
             raise SPSDKDebugProbeError(
-                f"PyLink cannot establish communication with target({str(exc)})"
+                f"PyLink cannot establish communication with target({exc!s})"
             ) from exc
 
     def close(self) -> None:
@@ -160,9 +165,32 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
         The PyLink closing function for SPSDK library to support various DEBUG PROBES.
         """
-        if self.pylink:
-            self.pylink.close()
+        pylink = getattr(self, "pylink", None)
+        if pylink:
+            pylink.close()
 
+    # --- Transitional fallback; remove when min SPSDK >= 3.15 provides these. ---
+    def trace_cs_read(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight read in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value read.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS RD {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    def trace_cs_write(self, access_port: bool, addr: int, data: int) -> None:
+        """Trace a completed CoreSight write in the unified format.
+
+        :param access_port: True for Access Port (AP), False for Debug Port (DP).
+        :param addr: The CoreSight register address.
+        :param data: The 32-bit value written.
+        """
+        port = f"AP{(addr & self.APSEL) >> self.APSEL_SHIFT}" if access_port else "DP"
+        cs_trace_logger.trace(f"CS WR {port} addr=0x{addr:08X} data=0x{data:08X}")
+
+    # --- End transitional fallback. ---
     def select_ap(self, addr: int) -> None:
         """Select the access port in Debug Port (DP).
 
@@ -196,22 +224,18 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
         try:
             if access_port:
-                # AP reads are posted on SWD, return the value from DP RDBUFF.
                 self.select_ap(addr)
-                addr = addr & 0x0F
-                self.pylink.coresight_read(reg=addr // 4, ap=True)
-                ret = self.pylink.coresight_read(reg=3, ap=False)
+                addr = addr & 0x0F  # PyLink expects AP register index within selected bank
+                ret = self.pylink.coresight_read(reg=addr // 4, ap=True)
             else:
                 ret = self.pylink.coresight_read(reg=addr // 4, ap=False)
-            logger.trace(
-                f"Coresight read {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {ret:08X}"
-            )
+            self.trace_cs_read(access_port, addr, ret)
             return ret
         except (JLinkException, ValueError, TypeError) as exc:
             # In case of transaction error reconfigure and initialize the JLink
             self._reinit_jlink_target()
             raise SPSDKDebugProbeTransferError(
-                f"The Coresight read operation failed({str(exc)})"
+                f"The Coresight read operation failed({exc!s})"
             ) from exc
 
     def coresight_reg_write(self, access_port: bool = True, addr: int = 0, data: int = 0) -> None:
@@ -231,19 +255,17 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
         try:
             if access_port:
                 self.select_ap(addr)
-                addr = addr & 0x0F
+                addr = addr & 0x0F  # PyLink expects AP register index within selected bank
                 self.pylink.coresight_write(reg=addr // 4, data=data, ap=True)
             else:
                 self.pylink.coresight_write(reg=addr // 4, data=data, ap=False)
-            logger.trace(
-                f"Coresight write {'AP' if access_port else 'DP'}, address: {addr:08X}, data: {data:08X}"
-            )
+            self.trace_cs_write(access_port, addr, data)
 
         except (JLinkException, ValueError, TypeError) as exc:
             # In case of transaction error reconfigure and initialize the JLink
             self._reinit_jlink_target()
             raise SPSDKDebugProbeTransferError(
-                f"The Coresight write operation failed({str(exc)})"
+                f"The Coresight write operation failed({exc!s})"
             ) from exc
 
     def assert_reset_line(self, assert_reset: bool = False) -> None:
@@ -263,7 +285,7 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
             else:
                 self.pylink.set_reset_pin_high()
         except JLinkException as exc:
-            raise SPSDKDebugProbeError(f"Jlink reset operation failed: {str(exc)}") from exc
+            raise SPSDKDebugProbeError(f"Jlink reset operation failed: {exc!s}") from exc
 
     def _reinit_jlink_target(self) -> None:
         """Re-initialize the Jlink connection."""
@@ -272,4 +294,6 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
         if not self.disable_reinit:
             self.pylink.coresight_configure()
+            # Reinitialize AP selection after coresight_configure
+            self.select_ap(0x00000000)
             self._reinit_target()
