@@ -2,7 +2,7 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-08-21T16:36:16Z",
+    "created": "2026-08-24T13:16:51Z",
     "creators": [
       "Organization: NXP"
     ],
@@ -25,7 +25,7 @@
       "versionInfo": "0.7.5",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://pypi.org/project/spsdk-pqc/",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],
@@ -92,7 +92,7 @@
       "licenseDeclared": "MIT",
       "homepage": "https://openquantumsafe.org/",
       "downloadLocation": "NOASSERTION",
-      "originator": "Organization: unknown",
+      "originator": "Organization: centos",
       "supplier": "NOASSERTION",
       "externalRefs": [
         {
@@ -119,6 +119,16 @@
           "referenceCategory": "SECURITY",
           "referenceLocator": "cpe:2.3:a:opensuse_package:liboqs-devel-32bit:0.12.0:160000.1.16:*:*:*:*:*:*",
           "referenceType": "cpe23Type"
+        },
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "fdaf11d1-96b1-4ead-8647-21c07b7a5d34",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:rpm/centos/liboqs@0.12.0-1.el10?arch=aarch64",
+          "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
@@ -282,11 +292,6 @@
       "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
       "relationshipType": "CONTAINS",
       "relatedSpdxElement": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825---33bc9a8c-d052-4b68-8dd2-ff67a651bab3"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825---3f843603-1645-45c2-8df1-f23f4e424fff"
     },
     {
       "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",

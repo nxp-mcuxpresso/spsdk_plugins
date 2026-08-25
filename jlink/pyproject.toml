@@ -45,7 +45,7 @@ packages = ["spsdk_jlink", "spsdk_jlink.__pyinstaller"]
 version = { attr = "spsdk_jlink.__version__" }
 
 [tool.bumpversion]
-current_version = "0.3.8"
+current_version = "0.3.9"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_jlink/__init__.py"
