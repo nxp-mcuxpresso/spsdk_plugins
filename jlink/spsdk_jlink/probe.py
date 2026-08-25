@@ -147,13 +147,12 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
             else:
                 self.pylink.set_tif(JLinkInterfaces.JTAG)
             self.pylink.coresight_configure()
-            self.read_dp_idr()
-            # Initialize AP selection after coresight_configure to avoid garbage AP reads
-            self.select_ap(0x00000000)
             self.pylink.set_speed(speed=value_to_int(self.options.get("frequency", 100)))
-            # Power Up the system and debug and clear sticky errors
+            # Initialize the DP before reading its ID register or issuing AP SELECT transactions.
             self.clear_sticky_errors()
             self.power_up_target()
+            self.read_dp_idr()
+            self.select_ap(0x00000000)
 
         except JLinkException as exc:
             raise SPSDKDebugProbeError(
@@ -294,6 +293,5 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
         if not self.disable_reinit:
             self.pylink.coresight_configure()
-            # Reinitialize AP selection after coresight_configure
-            self.select_ap(0x00000000)
+            self.last_accessed_ap = -1
             self._reinit_target()

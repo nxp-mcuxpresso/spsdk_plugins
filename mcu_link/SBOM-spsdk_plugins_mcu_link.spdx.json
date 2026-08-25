@@ -2,7 +2,7 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-08-21T16:31:51Z",
+    "created": "2026-08-24T13:14:25Z",
     "creators": [
       "Organization: NXP"
     ],
@@ -25,7 +25,7 @@
       "versionInfo": "0.6.14",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "NOASSERTION",
+      "downloadLocation": "https://pypi.org/project/spsdk-mcu_link/",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
       "externalRefs": [],

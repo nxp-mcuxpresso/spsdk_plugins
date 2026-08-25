@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+0.3.9 (2026-08-20)
+------------------
+
+* Fixed debug port initialization and recovery ordering for J-Link connections.
+
 0.3.8 (2026-08-12)
 ------------------
 
