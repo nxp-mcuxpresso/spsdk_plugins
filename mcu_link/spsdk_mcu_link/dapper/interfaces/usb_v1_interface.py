@@ -97,8 +97,10 @@ class UsbV1Interface(Interface[usb.core.Device]):
 
                         if len(hid_ifaces) > 0:
                             probes.append(UsbV1Interface(usb_device))
-                    except usb.core.USBError:
-                        pass
+                    except (usb.core.USBError, ValueError) as exc:
+                        # pyusb raises ValueError when string descriptors are not readable
+                        # (no langid), skip such device instead of aborting the enumeration
+                        logger.debug(f"Skipping USB device {usb_device}: {exc!s}")
                     finally:
                         usb_device._finalize_object()  # pylint: disable=protected-access
 

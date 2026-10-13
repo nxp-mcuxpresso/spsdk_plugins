@@ -327,7 +327,8 @@ def venv(session: nox.Session) -> None:
             install_fcn(".", "--no-deps")
     dependencies = collect_dependencies(include_dev_deps=True)
     install_fcn("nxp-codecheck")
-    install_fcn(*dependencies)
+    # pylint 4.1 (astroid 4.3) reports abstract-method false positives, same pin as SPSDK
+    install_fcn(*dependencies, "pylint<4.1")
 
 
 @nox.session

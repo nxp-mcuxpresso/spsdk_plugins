@@ -31,7 +31,7 @@ jobs:
           import toml, json
           config = toml.load('pyproject.toml')['tool']['release-tools']
           all_packages = config['sub_projects']
-          compiled = ['pqc']
+          compiled = ['iped', 'pqc']
           pure = [p for p in all_packages if p not in compiled]
           print(f'packages={json.dumps(all_packages)}')
           print(f'pure_python_packages={json.dumps(pure)}')

@@ -1,6 +1,21 @@
 Change Log
 ==========
 
+0.3.12 (2026-10-01)
+-------------------
+
+* Import `DebugProbeCoreSightOnly` from `spsdk.debuggers.debug_probe_arm` (no longer re-exported from `spsdk.debuggers.debug_probe` in newer SPSDK), with a fallback for SPSDK 3.10.
+
+0.3.11 (2026-09-15)
+-------------------
+
+* Declared ADIv6 (CoreSight 600 / DPv3) support at the shared SPSDK base class level via `SUPPORTED_VERSIONS`.
+
+0.3.10 (2026-09-02)
+-------------------
+
+* Added ARM ADIv6 (CoreSight 600 / DPv3) support by removing the ADIv5-only AP SELECT override so the probe inherits the ADIv6-aware AP addressing (memory-mapped AP base address and SELECT1 for 64-bit address spaces) from SPSDK.
+
 0.3.9 (2026-08-20)
 ------------------
 

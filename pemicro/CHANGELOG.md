@@ -1,6 +1,21 @@
 Change Log
 ==========
 
+0.3.12 (2026-10-01)
+-------------------
+
+* Import `DebugProbeCoreSightOnly` from `spsdk.debuggers.debug_probe_arm` (no longer re-exported from `spsdk.debuggers.debug_probe` in newer SPSDK), with a fallback for SPSDK 3.10.
+
+0.3.11 (2026-09-15)
+-------------------
+
+* Declared ADIv5-only support at the shared SPSDK base class level via `SUPPORTED_VERSIONS`; the base class now rejects ADIv6 targets before reaching this probe, so the local `_get_ap_index` ADIv6 check was removed as redundant.
+
+0.3.10 (2026-09-07)
+-------------------
+
+* Detect ARM ADIv6 (CoreSight 600 / DPv3) targets and raise a clear error on Access Port access. The PyPEMicro DLL supports only APSEL index based Access Port access and cannot address memory-mapped ADIv6 Access Ports.
+
 0.3.9 (2026-08-12)
 ------------------
 
