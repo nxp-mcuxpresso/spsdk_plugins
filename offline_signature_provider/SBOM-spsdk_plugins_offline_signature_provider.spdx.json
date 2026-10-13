@@ -2,7 +2,7 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-08-24T13:15:02Z",
+    "created": "2026-10-13T06:14:09Z",
     "creators": [
       "Organization: NXP"
     ],
@@ -18,10 +18,16 @@
       "versionInfo": "0.2.4",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://pypi.org/project/spsdk-offline_signature_provider/",
+      "downloadLocation": "https://pypi.org/project/spsdk-offline-signature-provider/",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
-      "externalRefs": [],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk-offline-signature-provider@0.2.4",
+          "referenceType": "purl"
+        }
+      ],
       "filesAnalyzed": false
     }
   ],

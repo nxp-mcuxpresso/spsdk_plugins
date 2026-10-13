@@ -84,6 +84,10 @@ class UsbV2Interface(Interface[usb.core.Device]):
                         for iface in ifaces:
                             if iface.bInterfaceClass == 0xFF:  # nxp specific interface
                                 probes.append(UsbV2Interface(usb_device))
+                    except (usb.core.USBError, ValueError) as exc:
+                        # pyusb raises ValueError when string descriptors are not readable
+                        # (no langid), skip such device instead of aborting the enumeration
+                        logger.debug(f"Skipping USB device {usb_device}: {exc!s}")
                     finally:
                         usb_device._finalize_object()  # pylint: disable=protected-access
         return probes

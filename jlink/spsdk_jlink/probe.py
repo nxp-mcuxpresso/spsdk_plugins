@@ -11,8 +11,6 @@ import logging
 from pylink import JLink, JLinkException, JLinkInterfaces
 from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
-    DISABLE_AP_SELECT_CACHING,
-    DebugProbeCoreSightOnly,
     DebugProbes,
     ProbeDescription,
     SPSDKDebugProbeError,
@@ -22,6 +20,15 @@ from spsdk.debuggers.debug_probe import (
 from spsdk.utils.misc import value_to_int
 
 from .protocols import DebugProbeProtocol, get_debug_probe_protocol
+
+try:
+    from spsdk.debuggers.debug_probe_arm import (  # pylint: disable=ungrouped-imports
+        DebugProbeCoreSightOnly,
+    )
+except ImportError:  # SPSDK 3.10 provides the class in the debug_probe module
+    from spsdk.debuggers.debug_probe import (  # type: ignore[attr-defined, no-redef, unused-ignore] # pylint: disable=no-name-in-module
+        DebugProbeCoreSightOnly,
+    )
 
 logger = get_logger(__name__)
 cs_trace_logger = get_logger("spsdk.probe.trace")
@@ -33,10 +40,11 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
     """SPSDK Debug Probe J-Link Debug probe class."""
 
     NAME = "jlink"
-    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (  # type: ignore[assignment, unused-ignore]
         DebugProbeProtocol.SWD,
         DebugProbeProtocol.JTAG,
     )
+    SUPPORTED_VERSIONS: tuple[int, ...] = (5, 6)  # ADIv5 and ADIv6 (CoreSight 600 / DPv3)
 
     @classmethod
     def get_options_help(cls) -> dict[str, str]:
@@ -78,7 +86,9 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
 
     @classmethod
     def get_connected_probes(
-        cls, hardware_id: str | None = None, options: dict | None = None
+        cls,
+        hardware_id: str | None = None,
+        options: dict | None = None,  # pylint: disable=unused-argument
     ) -> DebugProbes:
         """Get all connected probes over PyLink.
 
@@ -146,13 +156,22 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
                 self.pylink.set_tif(JLinkInterfaces.SWD)
             else:
                 self.pylink.set_tif(JLinkInterfaces.JTAG)
+
             self.pylink.coresight_configure()
             self.pylink.set_speed(speed=value_to_int(self.options.get("frequency", 100)))
-            # Initialize the DP before reading its ID register or issuing AP SELECT transactions.
+            # Initialize the DP before reading its ID register or issuing AP SELECT
+            # transactions. On ADIv6/DPv3 the generic base class reads DP_IDR, detects
+            # the ADI version, reads BASEPTR and walks the CoreSight ROM tables to
+            # discover the AP base addresses; no CORESIGHT_AddAP or full pylink.connect
+            # is required because coresight_read/write(ap=True) is a raw passthrough of
+            # the SELECT register we program ourselves.
             self.clear_sticky_errors()
             self.power_up_target()
             self.read_dp_idr()
-            self.select_ap(0x00000000)
+            # Establish a deterministic initial SELECT state (AP index 0 on ADIv5,
+            # AP base 0x0 + DP bank 0 on ADIv6). The subsequent ROM walk / AP
+            # transactions reprogram SELECT to the real AP address as needed.
+            self.select_ap(0)
 
         except JLinkException as exc:
             raise SPSDKDebugProbeError(
@@ -190,22 +209,6 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
         cs_trace_logger.trace(f"CS WR {port} addr=0x{addr:08X} data=0x{data:08X}")
 
     # --- End transitional fallback. ---
-    def select_ap(self, addr: int) -> None:
-        """Select the access port in Debug Port (DP).
-
-        J-Link implementation keeps AP SELECT ownership in the plugin/backend layer.
-
-        :param addr: Requested AP access address containing AP selection and bank information.
-        :raises SPSDKDebugProbeNotOpenError: The PyLink probe is NOT opened.
-        """
-        if self.pylink is None:
-            raise SPSDKDebugProbeNotOpenError("The PyLink debug probe is not opened yet")
-
-        select = addr & self.APSEL_APBANKSEL
-        if self.last_accessed_ap != select or DISABLE_AP_SELECT_CACHING:
-            self.pylink.coresight_write(reg=2, data=select, ap=False)
-            self.last_accessed_ap = select
-
     def coresight_reg_read(self, access_port: bool = True, addr: int = 0) -> int:
         """Read coresight register over PyLink interface.
 
@@ -224,8 +227,12 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
         try:
             if access_port:
                 self.select_ap(addr)
-                addr = addr & 0x0F  # PyLink expects AP register index within selected bank
+                # select_ap owns all upper address bits (ADIv5 APSEL/APBANKSEL or ADIv6
+                # AP base address plus DP bank via SELECT/SELECT1). Only the word offset
+                # bits [3:2] remain for the AP transaction, so mask to the low nibble.
+                addr = addr & 0x0F
                 ret = self.pylink.coresight_read(reg=addr // 4, ap=True)
+
             else:
                 ret = self.pylink.coresight_read(reg=addr // 4, ap=False)
             self.trace_cs_read(access_port, addr, ret)
@@ -254,8 +261,12 @@ class DebugProbeJLink(DebugProbeCoreSightOnly):
         try:
             if access_port:
                 self.select_ap(addr)
-                addr = addr & 0x0F  # PyLink expects AP register index within selected bank
+                # select_ap owns all upper address bits (ADIv5 APSEL/APBANKSEL or ADIv6
+                # AP base address plus DP bank via SELECT/SELECT1). Only the word offset
+                # bits [3:2] remain for the AP transaction, so mask to the low nibble.
+                addr = addr & 0x0F
                 self.pylink.coresight_write(reg=addr // 4, data=data, ap=True)
+
             else:
                 self.pylink.coresight_write(reg=addr // 4, data=data, ap=False)
             self.trace_cs_write(access_port, addr, data)

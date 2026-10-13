@@ -5,6 +5,7 @@ name = "spsdk_plugins"
 [tool.release-tools]
 disabled = ['docs', 'scr']
 sub_projects = [
+    "el2go",
     "iped",
     "jlink",
     "keyfactor",

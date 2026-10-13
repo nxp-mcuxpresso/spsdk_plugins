@@ -12,7 +12,6 @@ from typing import Protocol, cast
 import spsdk
 from pypemicro import PEMicroException, PEMicroInterfaces, PyPemicro
 from spsdk.debuggers.debug_probe import (
-    DebugProbeCoreSightOnly,
     DebugProbes,
     ProbeDescription,
     SPSDKDebugProbeError,
@@ -22,6 +21,15 @@ from spsdk.debuggers.debug_probe import (
 from spsdk.utils.misc import value_to_int
 
 from .protocols import DebugProbeProtocol, get_debug_probe_protocol
+
+try:
+    from spsdk.debuggers.debug_probe_arm import (  # pylint: disable=ungrouped-imports
+        DebugProbeCoreSightOnly,
+    )
+except ImportError:  # SPSDK 3.10 provides the class in the debug_probe module
+    from spsdk.debuggers.debug_probe import (  # type: ignore[attr-defined, no-redef, unused-ignore] # pylint: disable=no-name-in-module
+        DebugProbeCoreSightOnly,
+    )
 
 
 class TraceLogger(Protocol):
@@ -73,10 +81,13 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
     """Class to define Pemicro package interface for NXP SPSDK."""
 
     NAME = "pemicro"
-    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (  # type: ignore[assignment, unused-ignore]
         DebugProbeProtocol.SWD,
         # DebugProbeProtocol.JTAG,
     )
+    # ADIv6 (CoreSight 600 / DPv3) is not supported: the PyPEMicro DLL only exposes
+    # APSEL index based AP access and cannot address memory-mapped ADIv6 APs.
+    SUPPORTED_VERSIONS: tuple[int, ...] = (5,)
 
     @classmethod
     def get_options_help(cls) -> dict[str, str]:
@@ -236,6 +247,28 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
         cs_trace_logger.trace(f"CS WR {port} addr=0x{addr:08X} data=0x{data:08X}")
 
     # --- End transitional fallback. ---
+    def _get_ap_index(self, addr: int) -> int:
+        """Get the Access Port index for a PyPEMicro AP transaction.
+
+        The PyPEMicro ARM interface exposes AP registers only through
+        ``read_ap_register``/``write_ap_register``, which take an ``apselect`` index.
+        That matches ARM ADIv5, where the AP is selected by the APSEL field in DP
+        SELECT[31:24].
+
+        ADIv6 (CoreSight 600 / DPv3) is not supported by this plugin (see
+        ``SUPPORTED_VERSIONS``): the PyPEMicro DLL provides no way to program a
+        memory-mapped AP base address, only an APSEL index. The shared SPSDK base
+        class rejects an ADIv6 target with ``SPSDKDebugProbeError`` right after
+        connect, in ``_detect_adi_version()``, so this method is never reached with
+        an ADIv6 target - except on JTAG, where ``connect_safe()`` returns early and
+        skips ADI version detection (PEMicro currently declares only SWD in
+        SUPPORTED_PROTOCOLS, so this JTAG gap is not reachable today).
+
+        :param addr: Address of the CoreSight register.
+        :return: AP index usable as the PyPEMicro ``apselect`` argument.
+        """
+        return (addr & self.APSEL_APBANKSEL) >> self.APSEL_SHIFT
+
     def coresight_reg_read(self, access_port: bool = True, addr: int = 0) -> int:
         """Read coresight register over Pemicro interface.
 
@@ -252,8 +285,7 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
 
         try:
             if access_port:
-                ap_ix = (addr & self.APSEL_APBANKSEL) >> self.APSEL_SHIFT
-                ret = self.pemicro.read_ap_register(apselect=ap_ix, addr=addr)
+                ret = self.pemicro.read_ap_register(apselect=self._get_ap_index(addr), addr=addr)
             else:
                 ret = self.pemicro.read_dp_register(addr=addr)
             self.trace_cs_read(access_port, addr, ret)
@@ -267,9 +299,11 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
     def coresight_reg_write(self, access_port: bool = True, addr: int = 0, data: int = 0) -> None:
         """Write coresight register over Pemicro interface.
 
-        The Pemicro write coresight register function for SPSDK library to support various DEBUG PROBES.
+        The Pemicro write coresight register function for SPSDK library to support various
+        DEBUG PROBES.
 
-        :param access_port: if True, the Access Port (AP) register will be write(default), otherwise the Debug Port
+        :param access_port: if True, the Access Port (AP) register will be write(default),
+            otherwise the Debug Port
         :param addr: the register address
         :param data: the data to be written into register
         :raises SPSDKDebugProbeTransferError: The IO operation failed
@@ -280,8 +314,9 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
 
         try:
             if access_port:
-                ap_ix = (addr & self.APSEL_APBANKSEL) >> self.APSEL_SHIFT
-                self.pemicro.write_ap_register(apselect=ap_ix, addr=addr, value=data)
+                self.pemicro.write_ap_register(
+                    apselect=self._get_ap_index(addr), addr=addr, value=data
+                )
             else:
                 self.pemicro.write_dp_register(addr=addr, value=data)
             self.trace_cs_write(access_port, addr, data)
@@ -295,7 +330,8 @@ class DebugProbePemicro(DebugProbeCoreSightOnly):
     def assert_reset_line(self, assert_reset: bool = False) -> None:
         """Control reset line at a target.
 
-        :param assert_reset: If True, the reset line is asserted(pulled down), if False the reset line is not affected.
+        :param assert_reset: If True, the reset line is asserted(pulled down),
+            if False the reset line is not affected.
         :raises SPSDKDebugProbeNotOpenError: The Pemicro debug probe is not opened yet
         :raises SPSDKDebugProbeError: The PyPEMicro probe RESET function failed
         """
