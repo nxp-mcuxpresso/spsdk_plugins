@@ -12,7 +12,6 @@ import logging
 
 from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
-    DebugProbeCoreSightOnly,
     DebugProbes,
     ProbeDescription,
     SPSDKDebugProbeError,
@@ -23,6 +22,15 @@ from spsdk.debuggers.debug_probe import (
 from .dapper import DapperFactory, Interface, WebixDapper
 from .protocols import DebugProbeProtocol, get_debug_probe_protocol
 
+try:
+    from spsdk.debuggers.debug_probe_arm import (  # pylint: disable=ungrouped-imports
+        DebugProbeCoreSightOnly,
+    )
+except ImportError:  # SPSDK 3.10 provides the class in the debug_probe module
+    from spsdk.debuggers.debug_probe import (  # type: ignore[attr-defined, no-redef, unused-ignore] # pylint: disable=no-name-in-module
+        DebugProbeCoreSightOnly,
+    )
+
 logger = get_logger(__name__)
 cs_trace_logger = get_logger("spsdk.probe.trace")
 
@@ -31,10 +39,11 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
     """SPSDK Debug Probe NXP MCU-Link probe class."""
 
     NAME = "mcu-link"
-    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (  # type: ignore[assignment, unused-ignore]
         DebugProbeProtocol.SWD,
         DebugProbeProtocol.JTAG,
     )
+    SUPPORTED_VERSIONS: tuple[int, ...] = (5, 6)  # ADIv5 and ADIv6 (CoreSight 600 / DPv3)
 
     def __init__(self, hardware_id: str, options: dict | None = None) -> None:
         """The Debug Probe class initialization."""
@@ -190,7 +199,11 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
             raise SPSDKDebugProbeNotOpenError("The MCU-Link debug probe is not opened yet")
 
         try:
+            if access_port:
+                # SELECT/SELECT1 owned by the ADIv6-aware base class, same as J-Link/PyOCD.
+                self.select_ap(addr)
             ret = self.probe.core_sight_read(access_port, addr)
+
             self.trace_cs_read(access_port, addr, ret)
             return ret
         except Exception as e:
@@ -210,8 +223,12 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
             raise SPSDKDebugProbeNotOpenError("The MCU-Link debug probe is not opened yet")
 
         try:
+            if access_port:
+                # SELECT/SELECT1 owned by the ADIv6-aware base class, same as J-Link/PyOCD.
+                self.select_ap(addr)
             self.probe.core_sight_write(access_port, addr, data)
             self.trace_cs_write(access_port, addr, data)
+
         except Exception as e:
             self.probe.reinit_target()
             raise SPSDKDebugProbeTransferError(

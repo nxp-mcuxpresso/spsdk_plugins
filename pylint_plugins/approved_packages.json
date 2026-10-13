@@ -338,6 +338,14 @@
             }
         },
         {
+            "home_page": "https://github.com/python/mypy_extensions",
+            "name": "mypy_extensions",
+            "package": {
+                "name": "mypy_extensions",
+                "license": "MIT"
+            }
+        },
+        {
             "home_page": "https://github.com/SethMMorton/natsort",
             "name": "natsort",
             "package": {

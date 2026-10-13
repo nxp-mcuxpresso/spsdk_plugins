@@ -10,7 +10,6 @@ from time import sleep
 
 from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
-    DebugProbeCoreSightOnly,
     DebugProbes,
     ProbeDescription,
     SPSDKDebugProbeError,
@@ -29,6 +28,15 @@ from pyocd.probe.debug_probe import DebugProbe as PyOCDDebugProbe
 
 from .protocols import DebugProbeProtocol, get_debug_probe_protocol
 
+try:
+    from spsdk.debuggers.debug_probe_arm import (  # pylint: disable=ungrouped-imports
+        DebugProbeCoreSightOnly,
+    )
+except ImportError:  # SPSDK 3.10 provides the class in the debug_probe module
+    from spsdk.debuggers.debug_probe import (  # type: ignore[attr-defined, no-redef, unused-ignore] # pylint: disable=no-name-in-module
+        DebugProbeCoreSightOnly,
+    )
+
 TRACE_ENABLE = True
 logger = get_logger(__name__)
 cs_trace_logger = get_logger("spsdk.probe.trace")
@@ -38,10 +46,16 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
     """Class to define PyOCD package interface for NXP SPSDK."""
 
     NAME = "pyocd"
-    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (
+    SUPPORTED_PROTOCOLS: tuple[DebugProbeProtocol, ...] = (  # type: ignore[assignment, unused-ignore]
         DebugProbeProtocol.SWD,
         DebugProbeProtocol.JTAG,
     )
+    # ADIv6 (CoreSight 600 / DPv3) works through pyOCD backends where SPSDK's
+    # select_ap() owns DP SELECT/SELECT1 - i.e. J-Link and CMSIS-DAP/MCU-Link (the
+    # NXP-relevant backends). Backends that manage AP selection internally
+    # (pyOCD's MANAGED_AP_SELECTION capability, e.g. STLink) skip select_ap() and are
+    # not covered here.
+    SUPPORTED_VERSIONS: tuple[int, ...] = (5, 6)
 
     def __init__(self, hardware_id: str, options: dict | None = None) -> None:
         """The PyOCD class initialization.
@@ -55,7 +69,9 @@ class DebugProbePyOCD(DebugProbeCoreSightOnly):
 
     @classmethod
     def get_connected_probes(
-        cls, hardware_id: str | None = None, options: dict | None = None
+        cls,
+        hardware_id: str | None = None,
+        options: dict | None = None,  # pylint: disable=unused-argument
     ) -> DebugProbes:
         """Get all connected probes over PyOCD.
 

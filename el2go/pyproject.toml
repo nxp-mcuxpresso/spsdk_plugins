@@ -1,0 +1,125 @@
+[build-system]
+requires = ["setuptools >= 61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["spsdk_el2go"]
+
+[tool.setuptools.dynamic]
+version = { attr = "spsdk_el2go.__version__" }
+
+
+[project]
+dynamic = ["version"]
+name = "spsdk-el2go"
+description = "SPSDK Service providers powered by EdgeLock2GO"
+
+requires-python = ">= 3.10"
+dependencies = ["spsdk>2.1", "platformdirs"]
+authors = [{ name = "NXP" }]
+maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
+readme = { file = "README.md", content-type = "text/markdown" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+
+keywords = ["NXP", "SPSDK", "el2go"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.scripts]
+"el2go-helper" = "spsdk_el2go.cli:main"
+
+[project.entry-points]
+"spsdk.sp" = { el2go = "spsdk_el2go.signature_provider" }
+"spsdk.sb31kdp" = { el2go = "spsdk_el2go.key_derivation_provider" }
+pyinstaller40 = { hook-dirs = "spsdk_el2go.__pyinstaller:get_hook_dirs" }
+
+[project.urls]
+Homepage = "https://github.com/nxp-mcuxpresso/spsdk_plugins/tree/master/el2go"
+Issues = "https://github.com/nxp-mcuxpresso/spsdk_plugins/issues"
+
+[tool.bumpversion]
+current_version = "0.2.0"
+
+[[tool.bumpversion.files]]
+filename = "spsdk_el2go/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+junit_family = "xunit1"
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312", "py313", "py314"]
+include = '\.pyi?$'
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 100
+
+[tool.mypy]
+disallow_untyped_defs = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+[tool.pydocstyle]
+convention = "google"
+add_ignore = "D105,D301"
+match = '(?!test_|__version__).*\.py'
+
+[tool.pylint]
+format = { max-line-length = 120 }
+"messages control" = { disable = ["logging-fstring-interpolation"] }
+
+[tool.bandit]
+skips = ["B101"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["EXE001", "I001", "N999", "UP009"]
+
+[tool.nxp_codecheck]
+git_parent_branch = "origin/master"
+output_directory = "reports"
+default_check_paths = ["spsdk_el2go"]
+checkers = [
+    { "pytest" = { kwargs = { disable_xdist = true } } },
+    { "gitcov" = { info_only = true } },
+    "pylint",
+    "mypy",
+    # "dependencies",
+    "pydocstyle",
+    "ruff",
+    { "radon_c" = { info_only = true } },
+    "radon_d",
+    "black",
+    "isort",
+    "copyright",
+    "py_headers",
+    { "bandit" = { info_only = true } },
+]
+
+[tool.release-tools]
+disabled = ['docs', 'scr']
+
+[tool.release-tools.blackduck_sca]
+project_name = "spsdk_el2go"
+include_detector_types = ["pip"]
+sbom_location = "SBOM-spsdk_el2go.spdx.json"

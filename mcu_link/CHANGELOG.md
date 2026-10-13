@@ -1,6 +1,28 @@
 Change Log
 ==========
 
+0.6.18 (2026-10-01)
+-------------------
+
+* Skip USB devices with unreadable descriptors (pyusb ValueError "no langid" or USBError) during probe enumeration instead of aborting the discovery of all debug probes.
+* Import `DebugProbeCoreSightOnly` from `spsdk.debuggers.debug_probe_arm` (no longer re-exported from `spsdk.debuggers.debug_probe` in newer SPSDK), with a fallback for SPSDK 3.10.
+
+0.6.17 (2026-09-25)
+-------------------
+
+* Fixed on-board MCU-Link CMSIS-DAP probe detection by providing a PyInstaller hidden import hint for `libusb_package`.
+
+0.6.16 (2026-09-15)
+-------------------
+
+* Declared ADIv6 (CoreSight 600 / DPv3) support at the shared SPSDK base class level via `SUPPORTED_VERSIONS`.
+
+0.6.15 (2026-09-02)
+-------------------
+
+* Added ADIv6 (CoreSight 600 / DPv3) support by delegating AP SELECT/SELECT1 handling to the ADIv6-aware SPSDK base class.
+* Standardized CoreSight AP access with other probes (J-Link, PyOCD); the WebixDapper WASM backend no longer owns AP SELECT internally.
+
 0.6.14 (2026-08-12)
 -------------------
 

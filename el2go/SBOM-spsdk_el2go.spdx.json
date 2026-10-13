@@ -1,0 +1,99 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2026-10-13T06:03:22Z",
+    "creators": [
+      "Organization: NXP"
+    ],
+    "licenseListVersion": "3.28"
+  },
+  "name": "spsdk_el2go-0.2.0",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://nxp.com/spdx/13c5aa1c-23d5-4123-ba68-f3935e0cad5e",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-package-13c5aa1c-23d5-4123-ba68-f3935e0cad5e",
+      "name": "spsdk_el2go",
+      "versionInfo": "0.2.0",
+      "licenseConcluded": "(BSD-3-Clause)",
+      "licenseDeclared": "(BSD-3-Clause)",
+      "downloadLocation": "https://pypi.org/project/spsdk-el2go/",
+      "originator": "Organization: NXP",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk-el2go@0.2.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a19051bd-ad41-4ee8-9aad-595b531b954b",
+      "name": "platformdirs",
+      "versionInfo": "4.12.4",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "homepage": "https://platformdirs.readthedocs.io",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b6badb6b-cc04-4303-a3b7-7082fd705c46",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/platformdirs@4.12.4",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    },
+    {
+      "SPDXID": "SPDXRef-package-a9ef9602-bcb5-4653-80fe-67693f1997f0",
+      "name": "spsdk",
+      "versionInfo": "3.11.0",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "homepage": "https://github.com/NXPmicro/spsdk",
+      "downloadLocation": "NOASSERTION",
+      "originator": "Organization: pypi",
+      "supplier": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceLocator": "b5ce1c6e-611a-4eaa-b73a-d0e13b06127e",
+          "referenceType": "BlackDuck-ComponentOrigin"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:pypi/spsdk@3.11.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-package-13c5aa1c-23d5-4123-ba68-f3935e0cad5e"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-13c5aa1c-23d5-4123-ba68-f3935e0cad5e",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-a19051bd-ad41-4ee8-9aad-595b531b954b"
+    },
+    {
+      "spdxElementId": "SPDXRef-package-13c5aa1c-23d5-4123-ba68-f3935e0cad5e",
+      "relationshipType": "DYNAMIC_LINK",
+      "relatedSpdxElement": "SPDXRef-package-a9ef9602-bcb5-4653-80fe-67693f1997f0"
+    }
+  ]
+}

@@ -1,6 +1,18 @@
 Change Log
 ==========
 
+0.3.12 (2026-10-01)
+-------------------
+
+* Import `DebugProbeCoreSightOnly` from `spsdk.debuggers.debug_probe_arm` (no longer re-exported from `spsdk.debuggers.debug_probe` in newer SPSDK), with a fallback for SPSDK 3.10.
+
+0.3.11 (2026-09-15)
+-------------------
+
+* Declared ADIv6 (CoreSight 600 / DPv3) support at the shared SPSDK base class level
+  (via `SUPPORTED_VERSIONS`). Works through pyOCD backends where SPSDK's `select_ap()`
+  owns DP SELECT/SELECT1, i.e. J-Link and CMSIS-DAP/MCU-Link.
+
 0.3.10 (2026-08-12)
 -------------------
 

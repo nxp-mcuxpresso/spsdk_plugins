@@ -17,7 +17,6 @@ from typing import Any, Optional, cast
 
 from spsdk import get_logger
 from spsdk.debuggers.debug_probe import (
-    DebugProbeCoreSightOnly,
     DebugProbes,
     ProbeDescription,
     SPSDKDebugProbeError,
@@ -27,6 +26,15 @@ from spsdk.debuggers.debug_probe import (
 from spsdk.utils.spsdk_enum import SpsdkEnum
 
 import lauterbach.trace32.rcl as t32
+
+try:
+    from spsdk.debuggers.debug_probe_arm import (  # pylint: disable=ungrouped-imports
+        DebugProbeCoreSightOnly,
+    )
+except ImportError:  # SPSDK 3.10 provides the class in the debug_probe module
+    from spsdk.debuggers.debug_probe import (  # type: ignore[attr-defined, no-redef, unused-ignore] # pylint: disable=no-name-in-module
+        DebugProbeCoreSightOnly,
+    )
 
 logger = get_logger(__name__)
 cs_trace_logger = get_logger("spsdk.probe.trace")
@@ -79,6 +87,10 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
     """SPSDK Debug Probe Lauterbach debug probe plugin class."""
 
     NAME = "lauterbach"
+    # ADIv6 (CoreSight 600 / DPv3) AP addressing is experimental/unverified (see
+    # _get_cs_addr) and not covered by Lauterbach documentation, so it is not
+    # advertised as supported until validated on real hardware.
+    SUPPORTED_VERSIONS: tuple[int, ...] = (5,)
 
     def __init__(self, hardware_id: str, options: dict | None = None) -> None:
         """The Debug Probe class initialization."""
@@ -260,6 +272,15 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
 
     def _get_cs_addr(self, access_port: bool, addr: int) -> int:
         """Get CoreSight register address.
+
+        ADIv5 only: the AP is an index carried in APSEL bits [31:24] of ``addr``. It is
+        extracted and encoded into the AP index field of the T32 EDBG address, and T32
+        derives DP SELECT[31:24] from it.
+
+        ADIv6 (CoreSight 600 / DPv3) is not supported by this plugin (see
+        ``SUPPORTED_VERSIONS``); the shared SPSDK base class rejects an ADIv6 target
+        with ``SPSDKDebugProbeError`` right after connect, in ``_detect_adi_version()``,
+        so this method is never reached with an ADIv6 target.
 
         :param access_port: Get address for Access Port (set to false for Debug Port)
         :param addr: Address of the Coresight register

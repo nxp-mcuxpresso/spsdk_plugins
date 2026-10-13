@@ -89,6 +89,9 @@ def test_ap_register_access_uses_bank_local_register_index():
     probe.pylink = Mock()
     probe.pylink.coresight_read.return_value = 0x84770001
     probe.last_accessed_ap = -1
+    # ADIv5 topology: SELECT carries the APSEL/APBANKSEL, so the AP register
+    # access programs SELECT via a DP write and reads the bank-local index.
+    probe.adi_version = 5
 
     value = probe.coresight_reg_read(access_port=True, addr=0xFC)
 

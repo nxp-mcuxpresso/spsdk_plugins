@@ -15,7 +15,7 @@ from PyInstaller.utils.hooks import (
     copy_metadata,
 )
 
-hiddenimports = ["spsdk_mcu_link"]
+hiddenimports = ["spsdk_mcu_link", "libusb_package"]
 
 datas = collect_data_files("spsdk_mcu_link")
 datas += copy_metadata("spsdk_mcu_link")
