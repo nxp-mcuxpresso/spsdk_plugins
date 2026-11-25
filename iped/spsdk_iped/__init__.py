@@ -8,7 +8,7 @@
 
 __author__ = "NXP"
 __email__ = "spsdk@nxp.com"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 from .iped import IPED, IPEDError
 

@@ -8,7 +8,7 @@
 
 __author__ = """NXP"""
 __email__ = "spsdk@nxp.com"
-__version__ = "0.5.9"
+__version__ = "0.5.10"
 
 
 try:

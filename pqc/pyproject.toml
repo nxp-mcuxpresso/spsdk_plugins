@@ -53,7 +53,7 @@ packages = ["spsdk_pqc", "spsdk_pqc.__pyinstaller"]
 version = { attr = "spsdk_pqc.__version__" }
 
 [tool.bumpversion]
-current_version = "0.7.5"
+current_version = "0.7.6"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_pqc/__init__.py"

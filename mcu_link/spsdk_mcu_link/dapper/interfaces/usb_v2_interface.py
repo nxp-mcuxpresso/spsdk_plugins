@@ -124,7 +124,7 @@ class UsbV2Interface(Interface[usb.core.Device]):
         """Close the USB interface connection."""
         self._endpoint_in = None
         self._endpoint_out = None
-        self._device.finalize()
+        usb.util.dispose_resources(self._device)
 
     def write(self, data: Uint8Array) -> None:
         """Write data to USB interface.

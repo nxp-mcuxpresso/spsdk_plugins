@@ -2,32 +2,26 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-10-13T06:05:16Z",
+    "created": "2026-11-19T14:56:44Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_iped-0.1.1",
+  "name": "spsdk_plugins_iped-0.1.2",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://nxp.com/spdx/a828b1dd-c06c-4e16-9456-2aeb1b19ce6e",
+  "documentNamespace": "https://nxp.com/spdx/17f94d1a-3b12-45c1-ad8c-6246cb2c12a3",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-a828b1dd-c06c-4e16-9456-2aeb1b19ce6e",
+      "SPDXID": "SPDXRef-package-17f94d1a-3b12-45c1-ad8c-6246cb2c12a3",
       "name": "spsdk_plugins_iped",
-      "versionInfo": "0.1.1",
+      "versionInfo": "0.1.2",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://pypi.org/project/spsdk-iped/",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/spsdk-iped@0.1.1",
-          "referenceType": "purl"
-        }
-      ],
+      "externalRefs": [],
       "filesAnalyzed": false
     }
   ],
@@ -35,7 +29,7 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-a828b1dd-c06c-4e16-9456-2aeb1b19ce6e"
+      "relatedSpdxElement": "SPDXRef-package-17f94d1a-3b12-45c1-ad8c-6246cb2c12a3"
     }
   ]
 }

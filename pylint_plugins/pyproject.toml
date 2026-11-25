@@ -4,7 +4,7 @@ description = "PyLint plugins coverity SPSDK-specific coding rules."
 dynamic = ["version"]
 
 requires-python = ">= 3.10"
-dependencies = ["pylint>3", "astroid", "spsdk>=3.10.0.dev0,<4"]
+dependencies = ["pylint>3", "astroid"]
 
 authors = [{ name = "NXP" }]
 maintainers = [{ name = "NXP", email = "spsdk@nxp.com" }]
@@ -111,7 +111,9 @@ checkers = [
     "black",
     "isort",
     "copyright",
-    { "py_headers" = { args = ['--header "#!/usr/bin/env python"'] } },
+    { "py_headers" = { args = [
+        '--header "#!/usr/bin/env python"',
+    ] } },
     { "cspell" = { info_only = true } },
     { "bandit" = { info_only = false, kwargs = { "severity-level" = "medium" } } },
 ]

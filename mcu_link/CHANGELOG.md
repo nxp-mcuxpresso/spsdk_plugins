@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+0.6.19 (Unreleased)
+-------------------
+
+* Release the USB v2 interface after every close, including after a reconnect, so a failed target connection does not leave the MCU-Link unavailable to later operations in the same process.
+
 0.6.18 (2026-10-01)
 -------------------
 

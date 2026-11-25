@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-# Copyright 2024 NXP
+# Copyright 2024-2026 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 """Helper fine to run tasks on all plugins."""
 
+import configparser
 import functools
 import re
 import shutil
+import urllib.error
+import urllib.request
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from html.parser import HTMLParser
@@ -25,6 +28,10 @@ nox.options.reuse_venv = "yes"
 nox.options.stop_on_first_error = True
 
 THIS_DIR = Path(__file__).parent
+PYPI_SIMPLE_INDEXES = {
+    "https://upload.pypi.org/legacy/": "https://pypi.org/simple/",
+    "https://test.pypi.org/legacy/": "https://test.pypi.org/simple/",
+}
 
 
 @dataclass(frozen=True)
@@ -382,19 +389,75 @@ def build(session: nox.Session) -> None:
             session.run("twine", "check", "--strict", "dist/*")
 
 
+def get_simple_index_url(repository: str) -> str:
+    """Get the PEP 503 simple index URL of a repository defined in ~/.pypirc."""
+    config = configparser.RawConfigParser()
+    config.read(Path.home() / ".pypirc")
+    repository_url = config.get(
+        repository, "repository", fallback="https://upload.pypi.org/legacy/"
+    )
+    repository_url = repository_url.rstrip("/") + "/"
+    if repository_url in PYPI_SIMPLE_INDEXES:
+        return PYPI_SIMPLE_INDEXES[repository_url]
+    if repository_url.endswith("/simple/"):
+        return repository_url
+    return repository_url + "simple/"
+
+
+def is_published(simple_index_url: str, dist_file: Path) -> bool:
+    """Check whether the distribution file is already present in the package index.
+
+    Re-uploading an existing version rewrites the file with a different hash
+    (sdists are not reproducible) and breaks installations pinned to the original hash.
+    """
+    project_name = re.sub(r"[-_.]+", "-", dist_file.name.split("-", maxsplit=1)[0]).lower()
+    try:
+        with urllib.request.urlopen(f"{simple_index_url}{project_name}/", timeout=30) as response:
+            page = response.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            return False
+        raise
+    return f"/{dist_file.name}#" in page or f'/{dist_file.name}"' in page
+
+
 @nox.session
 def upload(session: nox.Session) -> None:
-    """Use twine to upload all built packages. To use custom pypi repo use `--repository <repo-name>`."""
+    """Use twine to upload all built packages that are not yet published.
+
+    To use custom pypi repo use `--repository <repo-name>`.
+    To upload distributions from a directory instead of plugin `dist` folders use `--dist-dir <path>`.
+    """
     print(session.posargs)
-    repository_index = get_args_index(session.posargs, "--repository")
+    repository = "pypi"
     extra_args = []
+    repository_index = get_args_index(session.posargs, "--repository")
     if repository_index is not None:
-        extra_args.extend(["--repository", session.posargs[repository_index + 1]])
+        repository = session.posargs[repository_index + 1]
+        extra_args.extend(["--repository", repository])
+    dist_dir_index = get_args_index(session.posargs, "--dist-dir")
+    if dist_dir_index is not None:
+        dist_dir = Path(session.posargs[dist_dir_index + 1])
+        dist_files = sorted([*dist_dir.rglob("*.whl"), *dist_dir.rglob("*.tar.gz")])
+    else:
+        dist_files = sorted(
+            file
+            for project in get_projects()
+            for file in THIS_DIR.joinpath(project, "dist").glob("*")
+        )
+    simple_index_url = get_simple_index_url(repository)
+    new_files = []
+    for dist_file in dist_files:
+        if is_published(simple_index_url, dist_file):
+            logger.warning(f"Skipping {dist_file.name}: already published to {simple_index_url}")
+        else:
+            new_files.append(str(dist_file))
+    if not new_files:
+        logger.info("Nothing to upload, all distributions are already published")
+        return
     install_fnc = get_install_command(session=session)
     install_fnc("twine")
-    for project in get_projects():
-        with session.chdir(project):
-            session.run("twine", "upload", "dist/*", *extra_args)
+    session.run("twine", "upload", *new_files, *extra_args)
 
 
 @nox.session(default=False)
