@@ -5,6 +5,7 @@ Change Log
 -------------------
 
 * Release the USB v2 interface after every close, including after a reconnect, so a failed target connection does not leave the MCU-Link unavailable to later operations in the same process.
+* Fix a discarded MCU-Link probe instance closing the USB connection of the currently active probe when it is garbage collected.
 
 0.6.18 (2026-10-01)
 -------------------

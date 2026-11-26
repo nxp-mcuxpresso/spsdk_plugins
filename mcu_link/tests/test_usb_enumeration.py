@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 """Tests of USB probe enumeration robustness."""
 
+import gc
 import sys
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -49,6 +50,9 @@ def test_failed_connection_releases_usb_after_reopen(
     """Repeated failed target connections release each reopened USB handle."""
     backend = MagicMock()
     backend.open_device.side_effect = lambda _: object()
+    # Garbage collection inside close_device finalizes discarded probes;
+    # it must not close the same handle once more.
+    backend.close_device.side_effect = lambda _: gc.collect()
     device = usb.core.Device.__new__(usb.core.Device)
     device._ctx = usb.core._ResourceManager(object(), backend)
     device._serial_number = "virtual-mcu-link"
