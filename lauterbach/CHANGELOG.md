@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+0.5.10 (2026-10-20)
+-------------------
+
+* Removed the DPIDR read from `connect()`: Trace32 reports a bus error for a raw DP register read on some locked targets (e.g. i.MX95 before debug authentication), which broke `get-uuid` and debug authentication. Newer SPSDK reads DPIDR after connect itself and falls back to ADIv5 if the read fails.
+* `close()` no longer raises when Trace32 stops responding after a target reset, and a remote API timeout while asserting the reset line re-opens the Trace32 connection instead of failing a successful debug authentication.
+
 0.5.9 (2026-10-01)
 ------------------
 

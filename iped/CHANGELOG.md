@@ -2,6 +2,11 @@
 
 All notable changes to the spsdk-iped package will be documented in this file.
 
+## [0.1.2] - 2026-10-13
+
+### Changed
+- Publish platform wheels to PyPI (manylinux, musllinux, macOS arm64, Windows)
+
 ## [0.1.1] - 2026-07-09
 
 ### Changed

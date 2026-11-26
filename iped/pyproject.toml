@@ -37,7 +37,7 @@ packages = ["spsdk_iped"]
 version = { attr = "spsdk_iped.__version__" }
 
 [tool.bumpversion]
-current_version = "0.1.1"
+current_version = "0.1.2"
 
 [[tool.bumpversion.files]]
 filename = "spsdk_iped/__init__.py"

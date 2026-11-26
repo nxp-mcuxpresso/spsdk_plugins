@@ -2,39 +2,26 @@
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
   "creationInfo": {
-    "created": "2026-10-13T06:19:31Z",
+    "created": "2026-11-19T15:01:31Z",
     "creators": [
       "Organization: NXP"
     ],
     "licenseListVersion": "3.28"
   },
-  "name": "spsdk_plugins_pqc-0.7.5",
+  "name": "spsdk_plugins_pqc-0.7.6",
   "dataLicense": "CC0-1.0",
-  "hasExtractedLicensingInfos": [
-    {
-      "name": "Public Domain",
-      "licenseId": "LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4",
-      "extractedText": "Public domain code is not subject to any license."
-    }
-  ],
-  "documentNamespace": "https://nxp.com/spdx/72b634f4-67f9-4de6-81e8-1232d146c825",
+  "documentNamespace": "https://nxp.com/spdx/096b1335-5c29-4b6a-ac77-349ad79e6721",
   "packages": [
     {
-      "SPDXID": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
+      "SPDXID": "SPDXRef-package-096b1335-5c29-4b6a-ac77-349ad79e6721",
       "name": "spsdk_plugins_pqc",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseConcluded": "(BSD-3-Clause)",
       "licenseDeclared": "(BSD-3-Clause)",
-      "downloadLocation": "https://pypi.org/project/spsdk-pqc/",
+      "downloadLocation": "https://github.com/nxp-mcuxpresso/spsdk_plugins",
       "originator": "Organization: NXP",
       "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/spsdk-pqc@0.7.5",
-          "referenceType": "purl"
-        }
-      ],
+      "externalRefs": [],
       "filesAnalyzed": false
     },
     {
@@ -66,30 +53,6 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceLocator": "pkg:pypi/click@8.2.1",
-          "referenceType": "purl"
-        }
-      ],
-      "filesAnalyzed": false
-    },
-    {
-      "SPDXID": "SPDXRef-package-33bc9a8c-d052-4b68-8dd2-ff67a651bab3",
-      "name": "CMake",
-      "versionInfo": "v3.31.1",
-      "licenseConcluded": "BSD-3-Clause",
-      "licenseDeclared": "BSD-3-Clause",
-      "homepage": "http://www.cmake.org",
-      "downloadLocation": "NOASSERTION",
-      "originator": "Organization: kitware",
-      "supplier": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "OTHER",
-          "referenceLocator": "0ffcb4de-69b8-4cfb-ac8e-f4ff3697bb18",
-          "referenceType": "BlackDuck-ComponentOrigin"
-        },
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:github/kitware/cmake@v3.31.1",
           "referenceType": "purl"
         }
       ],
@@ -145,9 +108,9 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-14186638-2b42-431b-8281-5e5d3088bb44",
+      "SPDXID": "SPDXRef-package-b92f56d3-582e-402a-9b2a-f3268bf5d972",
       "name": "pyasn1",
-      "versionInfo": "0.6.4",
+      "versionInfo": "0.6.5",
       "licenseConcluded": "BSD-2-Clause",
       "licenseDeclared": "BSD-2-Clause",
       "homepage": "https://pypi.org/project/pyasn1/",
@@ -157,28 +120,28 @@
       "externalRefs": [
         {
           "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:pypi_package:pyasn1:0.6.4:*:*:*:*:*:*:*",
+          "referenceLocator": "cpe:2.3:a:pypi_package:pyasn1:0.6.5:*:*:*:*:*:*:*",
           "referenceType": "cpe23Type"
         },
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "e0461fec-bcb1-43a8-910c-b079085a4bdf",
+          "referenceLocator": "fce2222e-913f-4bf2-b2b7-d5427c22eb24",
           "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/pyasn1@0.6.4",
+          "referenceLocator": "pkg:pypi/pyasn1@0.6.5",
           "referenceType": "purl"
         }
       ],
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-b88c190f-c324-47e3-bd49-ffcd0af650bc",
+      "SPDXID": "SPDXRef-package-1700d30f-fbca-400f-864e-0482c5b37a7f",
       "name": "pycryptodome",
-      "versionInfo": "3.24.1",
-      "licenseConcluded": "(BSD-2-Clause AND LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4)",
-      "licenseDeclared": "(BSD-2-Clause AND LicenseRef-d26bcb7d-5bc8-4f05-8942-a3a42728a2e4)",
+      "versionInfo": "4.5.0",
+      "licenseConcluded": "(BSD-2-Clause AND MIT AND Unlicense)",
+      "licenseDeclared": "(BSD-2-Clause AND MIT AND Unlicense)",
       "homepage": "https://www.pycryptodome.org",
       "downloadLocation": "NOASSERTION",
       "originator": "Organization: pypi",
@@ -186,27 +149,27 @@
       "externalRefs": [
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "18be52b5-4948-4578-9692-c3b61edee2d5",
+          "referenceLocator": "4da4fda1-4092-4f37-b027-5d9827b04365",
           "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
           "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:legrandin:pycryptodome:3.24.1:*:*:*:*:*:*:*",
+          "referenceLocator": "cpe:2.3:a:legrandin:pycryptodome:4.5.0:*:*:*:*:*:*:*",
           "referenceType": "cpe23Type"
         },
         {
           "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:pycryptodome:pycryptodome:3.24.1:*:*:*:*:*:*:*",
+          "referenceLocator": "cpe:2.3:a:pycryptodome:pycryptodome:4.5.0:*:*:*:*:*:*:*",
           "referenceType": "cpe23Type"
         },
         {
           "referenceCategory": "SECURITY",
-          "referenceLocator": "cpe:2.3:a:pypi_package:pycryptodome:3.24.1:*:*:*:*:*:*:*",
+          "referenceLocator": "cpe:2.3:a:pypi_package:pycryptodome:4.5.0:*:*:*:*:*:*:*",
           "referenceType": "cpe23Type"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/pycryptodome@3.24.1",
+          "referenceLocator": "pkg:pypi/pycryptodome@4.5.0",
           "referenceType": "purl"
         }
       ],
@@ -236,9 +199,9 @@
       "filesAnalyzed": false
     },
     {
-      "SPDXID": "SPDXRef-package-a9ef9602-bcb5-4653-80fe-67693f1997f0",
+      "SPDXID": "SPDXRef-package-9cfc9be8-faa3-4f5b-abd6-3d2c62ac43a8",
       "name": "spsdk",
-      "versionInfo": "3.11.0",
+      "versionInfo": "3.13.0",
       "licenseConcluded": "BSD-3-Clause",
       "licenseDeclared": "BSD-3-Clause",
       "homepage": "https://github.com/NXPmicro/spsdk",
@@ -248,12 +211,12 @@
       "externalRefs": [
         {
           "referenceCategory": "OTHER",
-          "referenceLocator": "b5ce1c6e-611a-4eaa-b73a-d0e13b06127e",
+          "referenceLocator": "101286d6-322d-4665-b882-f6fd5ea2bf21",
           "referenceType": "BlackDuck-ComponentOrigin"
         },
         {
           "referenceCategory": "PACKAGE-MANAGER",
-          "referenceLocator": "pkg:pypi/spsdk@3.11.0",
+          "referenceLocator": "pkg:pypi/spsdk@3.13.0",
           "referenceType": "purl"
         }
       ],
@@ -264,40 +227,35 @@
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
-      "relatedSpdxElement": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825"
+      "relatedSpdxElement": "SPDXRef-package-096b1335-5c29-4b6a-ac77-349ad79e6721"
     },
     {
-      "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
+      "spdxElementId": "SPDXRef-package-096b1335-5c29-4b6a-ac77-349ad79e6721",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-14186638-2b42-431b-8281-5e5d3088bb44"
+      "relatedSpdxElement": "SPDXRef-package-1700d30f-fbca-400f-864e-0482c5b37a7f"
     },
     {
-      "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
-      "relationshipType": "CONTAINS",
-      "relatedSpdxElement": "SPDXRef-package-33bc9a8c-d052-4b68-8dd2-ff67a651bab3"
-    },
-    {
-      "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
+      "spdxElementId": "SPDXRef-package-096b1335-5c29-4b6a-ac77-349ad79e6721",
       "relationshipType": "DYNAMIC_LINK",
       "relatedSpdxElement": "SPDXRef-package-3f843603-1645-45c2-8df1-f23f4e424fff"
     },
     {
-      "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
+      "spdxElementId": "SPDXRef-package-096b1335-5c29-4b6a-ac77-349ad79e6721",
       "relationshipType": "DYNAMIC_LINK",
       "relatedSpdxElement": "SPDXRef-package-63e301b3-93f0-4951-a642-f337c7bf3196"
     },
     {
-      "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
+      "spdxElementId": "SPDXRef-package-096b1335-5c29-4b6a-ac77-349ad79e6721",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-a9ef9602-bcb5-4653-80fe-67693f1997f0"
+      "relatedSpdxElement": "SPDXRef-package-9cfc9be8-faa3-4f5b-abd6-3d2c62ac43a8"
     },
     {
-      "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
+      "spdxElementId": "SPDXRef-package-096b1335-5c29-4b6a-ac77-349ad79e6721",
       "relationshipType": "DYNAMIC_LINK",
-      "relatedSpdxElement": "SPDXRef-package-b88c190f-c324-47e3-bd49-ffcd0af650bc"
+      "relatedSpdxElement": "SPDXRef-package-b92f56d3-582e-402a-9b2a-f3268bf5d972"
     },
     {
-      "spdxElementId": "SPDXRef-package-72b634f4-67f9-4de6-81e8-1232d146c825",
+      "spdxElementId": "SPDXRef-package-096b1335-5c29-4b6a-ac77-349ad79e6721",
       "relationshipType": "DYNAMIC_LINK",
       "relatedSpdxElement": "SPDXRef-package-ca09fecb-4302-4571-adaf-6167e5223292"
     }

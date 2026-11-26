@@ -50,6 +50,10 @@ jobs:
           repository: nxp-mcuxpresso/spsdk
           ref: master
           path: spsdk_repo
+          # SPSDK derives its version from git tags (setuptools_scm). A shallow clone without tags
+          # gives version 0.0.post1.dev1 and spsdk_pqc then refuses to import.
+          fetch-depth: 0
+          fetch-tags: true
           
          
       - name: Install uv and set up Python

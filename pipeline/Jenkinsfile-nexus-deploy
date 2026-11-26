@@ -70,6 +70,7 @@ pipeline {
                                     pythonVersions: pythonVersionsList,
                                     artifactDir: 'wheels-linux'
                                 )
+                                stash name: 'wheels-linux', includes: 'wheels-linux/*.whl'
                             }
                         }
                     }
@@ -91,6 +92,7 @@ pipeline {
                                     pythonVersions: pythonVersionsList,
                                     artifactDir: 'wheels-macos'
                                 )
+                                stash name: 'wheels-macos', includes: 'wheels-macos/*.whl'
                             }
                         }
                     }
@@ -112,6 +114,7 @@ pipeline {
                                     pythonVersions: pythonVersionsList,
                                     artifactDir: 'wheels-windows'
                                 )
+                                stash name: 'wheels-windows', includes: 'wheels-windows/*.whl'
                             }
                         }
                     }
@@ -122,17 +125,16 @@ pipeline {
         stage('Publish Wheels') {
             agent { label 'linux-spsdk' }
             steps {
-                // Copy wheels from all platforms to a single directory
-                sh 'mkdir -p all-wheels'
-                copyArtifacts(
-                    projectName: env.JOB_NAME,
-                    selector: specific(env.BUILD_NUMBER),
-                    filter: 'wheels-*/**.whl',
-                    target: 'all-wheels'
-                )
+                // Collect wheels from all platforms into a single directory
+                dir('all-wheels') {
+                    deleteDir()
+                    unstash 'wheels-linux'
+                    unstash 'wheels-macos'
+                    unstash 'wheels-windows'
+                }
                 withVenv(
-                    "uv pip install build twine",
-                    "twine upload --verbose --repository nexus all-wheels/**/*.whl"
+                    "uv pip install nox tomli",
+                    "nox --session upload -- --repository nexus --dist-dir all-wheels"
                 )
             }
         }

@@ -71,6 +71,7 @@ jobs:
     permissions:
       id-token: write
     strategy:
+      fail-fast: false
       matrix:
         package: ${{fromJson(needs.get-packages.outputs.packages)}}
     steps:
@@ -86,6 +87,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@v1.13.0
         with:
           skip-existing: true
+          verbose: true
 
   build_pure_wheels:
     name: Build Pure Python Wheels
@@ -115,7 +117,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v4.6.2
         with:
-          name: wheels-${{ matrix.package }}
+          name: wheels-${{ matrix.package }}-pure
           path: dist/*.whl
           overwrite: true
 
@@ -126,7 +128,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, macos-14, ubuntu-latest, windows-latest]
+        # Exactly one runner per architecture, otherwise the wheel file names clash:
+        # macos-latest builds arm64 wheels, macos-15-intel builds x86_64 wheels
+        os: [macos-latest, macos-15-intel, ubuntu-latest, windows-latest]
         package: ${{fromJson(needs.get-packages.outputs.compiled_packages)}}
     environment:
       name: pypi
@@ -159,29 +163,65 @@ jobs:
 
 
   deploy_wheels:
-    name: Deploy Wheels to PyPI
-    needs: [build_compiled_wheels, build_pure_wheels]
+    name: Deploy Wheels to PyPI (${{ matrix.package }})
+    needs: [get-packages, build_compiled_wheels, build_pure_wheels]
     runs-on: ubuntu-latest
     environment:
       name: pypi
       url: https://pypi.org/
     permissions:
       id-token: write
+    # One upload per plugin: an upload error of one plugin must not block the wheels of the others
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{fromJson(needs.get-packages.outputs.packages)}}
     steps:
       - uses: actions/checkout@v4
       
       - name: Create dist directory
         run: mkdir -p dist
       
-      - name: Download all wheel artifacts
+      - name: Download wheel artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: wheels-*
+          pattern: wheels-${{ matrix.package }}-*
           path: dist
           merge-multiple: true
 
+      # PyPI rejects new files for releases older than 14 days (400 Bad Request). A plugin
+      # released with an unchanged version would then fail its upload job.
+      - name: Skip wheels for releases older than 14 days
+        id: skip
+        shell: python
+        run: |
+          import datetime, json, os, pathlib, urllib.error, urllib.request
+
+          wheels = sorted(pathlib.Path("dist").glob("*.whl"))
+          if not wheels:
+              print("::warning::No wheels were downloaded, nothing to upload")
+          limit = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=14)
+          for wheel in wheels:
+              name, version = wheel.name.split("-")[:2]
+              url = f"https://pypi.org/pypi/{name.replace('_', '-')}/{version}/json"
+              try:
+                  with urllib.request.urlopen(url) as response:
+                      files = json.load(response)["urls"]
+              except urllib.error.HTTPError as exc:
+                  if exc.code == 404:  # new release
+                      continue
+                  raise
+              uploads = [datetime.datetime.fromisoformat(f["upload_time_iso_8601"].replace("Z", "+00:00")) for f in files]
+              if uploads and min(uploads) < limit:
+                  print(f"::warning::Skipping {wheel.name}: release {name} {version} is older than 14 days")
+                  wheel.unlink()
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"wheels={len(list(pathlib.Path('dist').glob('*.whl')))}\n")
+
       - name: Publish wheels to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.13.0 # v1.12.4 is needed to support metadata v2.4 including PEP 639
+        if: steps.skip.outputs.wheels != '0'
+        uses: pypa/gh-action-pypi-publish@v1.13.0 # v1.12.4 or newer is needed to support metadata v2.4 including PEP 639
         with:
           skip-existing: true
           packages-dir: dist
+          verbose: true

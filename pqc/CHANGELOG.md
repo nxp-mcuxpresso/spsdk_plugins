@@ -2,6 +2,11 @@
 Change Log
 ==========
 
+0.7.6 (2026-10-13)
+------------------
+
+* Publish platform wheels to PyPI (manylinux, musllinux, macOS arm64, Windows).
+
 0.7.4 (2026-07-09)
 ------------------
 

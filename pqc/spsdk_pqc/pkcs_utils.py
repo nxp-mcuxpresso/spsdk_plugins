@@ -168,8 +168,8 @@ def wrap_pkcs8(private_key_data: bytes, private_key_oid: str, password: str | No
     :param password: Optional password for encryption
     :return: DER encoded PKCS8 EncryptedPrivateKeyInfo or PrivateKeyInfo
     """
-    # there's a bug in pycryptodome's PKCS8.wrap .pyi, password may be None
-    return PKCS8.wrap(private_key_data, private_key_oid, passphrase=password)  # type: ignore
+    # Older pycryptodome stubs incorrectly reject a None password.
+    return PKCS8.wrap(private_key_data, private_key_oid, passphrase=password)  # type: ignore[arg-type, unused-ignore]
 
 
 # pylint: disable=too-many-locals

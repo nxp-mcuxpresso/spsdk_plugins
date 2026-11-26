@@ -161,7 +161,11 @@ class DebugProbeMCULink(DebugProbeCoreSightOnly):
 
         The MCU-Link closing function for SPSDK library to support various DEBUG PROBES.
         """
-        if probe := getattr(self, "probe", None):
+        # Detach the probe first, so a later call (e.g. from SPSDK ``__del__``) is a no-op and
+        # a discarded instance never closes the USB handle used by another probe.
+        probe = getattr(self, "probe", None)
+        self.probe = None
+        if probe:
             probe.close()
 
     # --- Transitional fallback; remove when min SPSDK >= 3.15 provides these. ---

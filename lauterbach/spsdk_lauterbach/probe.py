@@ -6,7 +6,7 @@
 
 """Main module for Lauterbach debug probe plugin."""
 
-# cspell: ignore NETTCP, EDBG
+# cspell: ignore NETTCP, EDBG, DPIDR
 
 import functools
 import os
@@ -23,6 +23,7 @@ from spsdk.debuggers.debug_probe import (
     SPSDKDebugProbeNotOpenError,
     SPSDKDebugProbeTransferError,
 )
+from spsdk.exceptions import SPSDKError
 from spsdk.utils.spsdk_enum import SpsdkEnum
 
 import lauterbach.trace32.rcl as t32
@@ -213,17 +214,30 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
             except (t32.PracticeError, t32.CommandError, TimeoutError) as e:
                 raise SPSDKDebugProbeError(f"Failed to execute startup script: {e}") from e
 
+        # No DPIDR read here: T32 reports a bus error for a raw DP register read
+        # ("EDBG:0x41000000") on some locked targets (e.g. i.MX95 before debug
+        # authentication), which made connect() fail although the Debug Mailbox AP
+        # is reachable (SPSDK-7207). Newer SPSDK reads DPIDR after connect in
+        # ``_detect_adi_version()`` and falls back to ADIv5 when the read fails.
         self.set_mode(T32_MODE_PREPARE)
-        self.read_dp_idr()
 
     def close(self) -> None:
         """Debug probe close.
 
         This is general closing function for SPSDK library to support various DEBUG PROBES.
+        Closing never raises: once the target is reset (e.g. after debug authentication),
+        Trace32 may stop responding to the remote API, and a failing ``SYStem.Mode Down``
+        must not turn a successful operation into an error (SPSDK-6945).
         """
-        if self.connection:
+        if not self.connection:
+            return
+        try:
             self.set_mode(T32_MODE_DOWN)
+        except (t32.BaseError, ConnectionError, TimeoutError, SPSDKError) as exc:
+            logger.debug(f"Unable to set Trace32 mode Down while closing the probe: {exc}")
+        finally:
             self.connection = None
+            self.mode = T32_MODE_UNKNOWN
 
     # --- Transitional fallback; remove when min SPSDK >= 3.15 provides these. ---
     def trace_cs_read(self, access_port: bool, addr: int, data: int) -> None:
@@ -365,8 +379,28 @@ class DebugProbeLauterbach(DebugProbeCoreSightOnly):
         :param assert_reset: If True, the reset line is asserted(pulled down), if False the reset line is not affected.
         """
         logger.trace(f"Assert reset line: {assert_reset}")
-        if assert_reset:
+        if not assert_reset:
+            return
+        try:
             self.connection.cmd("SYStem.RESetOut")  # type: ignore[union-attr] # None case is handled by "ensure_mode"
+        except (t32.ApiConnectionError, TimeoutError) as exc:
+            # Trace32 may not answer the remote API while the target is being reset
+            # (SPSDK-6945). The reset is issued at that point, so re-establish the
+            # remote API connection instead of failing the whole operation.
+            logger.debug(f"Trace32 did not respond to reset request ({exc}), reconnecting")
+            self._reopen_connection()
+
+    def _reopen_connection(self) -> None:
+        """Re-establish the Trace32 remote API connection after it became unresponsive.
+
+        :raises SPSDKDebugProbeError: The connection to Trace32 cannot be re-established.
+        """
+        self.connection = None
+        self.mode = T32_MODE_UNKNOWN
+        try:
+            self.open()
+        except (t32.BaseError, ConnectionError, TimeoutError) as exc:
+            raise SPSDKDebugProbeError(f"Unable to reconnect to Trace32: {exc}") from exc
 
     @ensure_mode(None)
     def clear_sticky_errors(self) -> None:
